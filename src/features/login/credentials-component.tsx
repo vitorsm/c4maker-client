@@ -6,6 +6,8 @@ import { ButtonContainer, Container, Content, IconContainer, NewAccountContainer
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { defaultColors } from '../../configs/colors'
+import { useDispatch } from 'react-redux'
+import { userOperations } from '../../store/reducers/users'
 
 interface CredentialsComponentProps {
   login?: string | undefined
@@ -15,9 +17,16 @@ interface CredentialsComponentProps {
 const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }: CredentialsComponentProps) => {
   const [inputLogin, setLogin] = useState(login)
   const [inputPassword, setPassword] = useState(password)
+  const dispatch = useDispatch()
 
-  const createNewAccountOnClick = (): void => {
-    console.log('clicked criar conta')
+  const createNewAccountOnClick = async (): Promise<void> => {
+    if (inputLogin === undefined || inputPassword === undefined) {
+      console.error('login or password is undefined', login, password)
+      return
+    }
+    console.log('will call')
+
+    await userOperations.authenticate(inputLogin, inputPassword, dispatch)
   }
 
   return (
@@ -31,7 +40,7 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }
         <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} />
 
         <ButtonContainer>
-          <PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth/>
+          <PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth onClick={createNewAccountOnClick} />
         </ButtonContainer>
 
         <NewAccountContainer>
