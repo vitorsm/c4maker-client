@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, ReactElement, useState, useEffect } from 'react'
 import PlainButton from '../../components/plain-button'
 import TextInput from '../../components/text-input'
 import TextLink from '../../components/text-link'
@@ -6,8 +6,11 @@ import { ButtonContainer, Container, Content, IconContainer, NewAccountContainer
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { defaultColors } from '../../configs/colors'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { userOperations } from '../../store/reducers/users'
+import { LoginToken } from '../../models/user'
+import ObjectWrapper from '../../models/object_wrapper'
+import CircularProgress from '../../components/circular-progress'
 
 interface CredentialsComponentProps {
   login?: string | undefined
@@ -15,18 +18,42 @@ interface CredentialsComponentProps {
 }
 
 const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }: CredentialsComponentProps) => {
+  const dispatch = useDispatch()
   const [inputLogin, setLogin] = useState(login)
   const [inputPassword, setPassword] = useState(password)
-  const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLogging, setIsLogging] = useState(false)
+  const tokenData: ObjectWrapper<LoginToken> | null = useSelector((state: any) => state.userReducer.tokenData)
+
+  useEffect(() => {
+    if (isLogging) {
+      const finishedLoading = tokenData !== undefined && tokenData !== null && (tokenData.data !== null || tokenData.error)
+      setIsLoading(!finishedLoading)
+      setIsLogging(!finishedLoading)
+    }
+  })
 
   const createNewAccountOnClick = async (): Promise<void> => {
+  }
+
+  const loginOnClick = async (): Promise<void> => {
     if (inputLogin === undefined || inputPassword === undefined) {
       console.error('login or password is undefined', login, password)
       return
     }
-    console.log('will call')
+
+    setIsLogging(true)
+    setIsLoading(true)
 
     await userOperations.authenticate(inputLogin, inputPassword, dispatch)
+  }
+
+  const renderButton = (): ReactElement => {
+    if (isLoading) {
+      return (<CircularProgress />)
+    } else {
+      return (<PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth onClick={loginOnClick} />)
+    }
   }
 
   return (
@@ -40,7 +67,7 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }
         <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} />
 
         <ButtonContainer>
-          <PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth onClick={createNewAccountOnClick} />
+          {renderButton()}
         </ButtonContainer>
 
         <NewAccountContainer>

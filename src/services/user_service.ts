@@ -7,12 +7,16 @@ export default class UserService extends APIClient<User> {
     this.post('/user', user, dispatch, typeToDispatch)
   }
 
-  authenticate = (login: string, password: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+  authenticate = (login: string, password: string, dispatch: Dispatch<any>, typeToDispatch: string, saveTokenFunc: Function): void => {
     const loginData = {
       username: login,
       password
     }
 
-    this.post('api/auth/authenticate', loginData, dispatch, typeToDispatch)
+    this.post('api/auth/authenticate', loginData, dispatch, typeToDispatch, saveTokenFunc)
+  }
+
+  getCurrentUser = (dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    this.get('user/me', dispatch, typeToDispatch)
   }
 }

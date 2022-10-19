@@ -18,6 +18,11 @@ const reducer: Reducer<UserState> = (state = INITIAL_STATE, action) => {
         ...state,
         createdUser: action.payload
       }
+    case UserTypes.SET_CURRENT_USER:
+      return {
+        ...state,
+        currentUser: action.payload
+      }
     default:
       return state
   }

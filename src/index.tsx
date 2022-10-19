@@ -4,26 +4,7 @@ import { Provider } from 'react-redux'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './index.css'
-import { configureStore } from '@reduxjs/toolkit'
-
-interface ItemState {
-  value: number
-}
-
-const counterReducer = (state: ItemState = { value: 0 }, action: any): ItemState => {
-  switch (action.type) {
-    case 'test':
-      return { value: state.value + 1 }
-    default:
-      return state
-  }
-}
-
-export const store = configureStore({
-  reducer: {
-    counter: counterReducer
-  }
-})
+import store from './store'
 
 const container = document.getElementsByClassName('root')
 const root = createRoot(container[0])

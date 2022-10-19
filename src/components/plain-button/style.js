@@ -9,4 +9,8 @@ export const Container = styled.button`
   background-color: ${(props) => props.color || 'white'};
   opacity: ${(props) => props.disabled ? 0.8 : 1};
   width: ${(props) => props.fillWidth ? 'calc(100% - 20px)' : ''};
+  border: 0;
+  background-color: ${(props) => props.color || 'white'};
+  box-shadow: 0px 0px 3px 2px ${(props) => props.color || 'white'};
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 `

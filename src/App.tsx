@@ -1,10 +1,41 @@
 import React, { FC } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import LoginScreen from './features/login/'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { getToken } from './store/token_utils'
+import { getCurrentUser } from './store/reducers/users/operations'
+import User from './models/user'
+import ErrorDialog from './features/error-dialog'
 
 const App: FC<{}> = () => {
+  const dispatch = useDispatch()
+  let currentUser: User | null | undefined
+  useSelector((state: any) => { currentUser = state.userReducer.currentUser?.data })
+  const token = getToken()
+
+  const goToLoginIfNotAuthenticate = async (): Promise<void> => {
+    if ((token == null || currentUser === undefined) && !window.location.pathname.includes('/login')) {
+      window.location.pathname = 'login'
+    }
+
+    if (token !== null) {
+      await getCurrentUser(dispatch)
+    }
+  }
+
+  goToLoginIfNotAuthenticate().then(() => {}, () => {})
+
   return (
     <div className="App">
-      <LoginScreen />
+      <>
+        <BrowserRouter>
+          <Routes>
+            <Route path="login" element={<LoginScreen />} />
+          </Routes>
+        </BrowserRouter>
+
+        <ErrorDialog />
+      </>
     </div>
   )
 }
