@@ -6,10 +6,11 @@ export const Container = styled.div`
 `
 
 export const Input = styled.input`
-    padding: 10px;
-    width: ${(props) => props.fillWidth ? 'calc(100% - 20px)' : ''};
+  padding: 10px;
+  width: ${(props) => props.fillWidth ? 'calc(100% - 20px)' : ''};
+
 `
 
 export const Title = styled.div`
-    font-size: 12px
+  font-size: 12px
 `

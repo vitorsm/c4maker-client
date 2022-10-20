@@ -13,8 +13,12 @@ const App: FC<{}> = () => {
   useSelector((state: any) => { currentUser = state.userReducer.currentUser?.data })
   const token = getToken()
 
+  const isUnauthenticatedPath = (): boolean => {
+    return window.location.pathname.includes('/login') || window.location.pathname.includes('/new-user')
+  }
+
   const goToLoginIfNotAuthenticate = async (): Promise<void> => {
-    if ((token == null || currentUser === undefined) && !window.location.pathname.includes('/login')) {
+    if ((token == null || currentUser === undefined) && !isUnauthenticatedPath()) {
       window.location.pathname = 'login'
     }
 

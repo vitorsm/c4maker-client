@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import Dialog from '../../components/dialog'
-import GenericError from '../../models/error'
+import GenericError from '../../models/generic_error'
 import { Container, MessageContainer } from './style'
 
 const ErrorDialog: FC = () => {

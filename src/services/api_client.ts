@@ -4,7 +4,7 @@ import { ErrorTypes } from '../store/reducers/errors/types'
 import { getToken, setToken } from '../store/token_utils'
 
 const serverURL = 'http://localhost:5000/'
-const MESSAGE_ATTRIBUTE_NAME = 'description'
+const MESSAGE_ATTRIBUTE_NAME = ['message', 'description']
 const GENERIC_ERROR_MESSAGE = 'Internal error'
 
 export default class APIClient<Type> {
@@ -94,7 +94,7 @@ export default class APIClient<Type> {
   })
 
   getErrorMessage = (responseData: any): string | null => {
-    const message = responseData[MESSAGE_ATTRIBUTE_NAME]
+    const message = MESSAGE_ATTRIBUTE_NAME.map(attr => responseData[attr]).find(value => value !== undefined && value !== null)
     return message === undefined ? GENERIC_ERROR_MESSAGE : message
   }
 

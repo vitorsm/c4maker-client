@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useState, useEffect } from 'react'
 import PlainButton from '../../components/plain-button'
 import TextInput from '../../components/text-input'
 import TextLink from '../../components/text-link'
-import { ButtonContainer, Container, Content, IconContainer, NewAccountContainer } from './style'
+import { ButtonContainer, IconContainer, NewAccountContainer } from './style'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { defaultColors } from '../../configs/colors'
@@ -15,9 +15,10 @@ import CircularProgress from '../../components/circular-progress'
 interface CredentialsComponentProps {
   login?: string | undefined
   password?: string | undefined
+  createNewAccountOnClick: Function
 }
 
-const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }: CredentialsComponentProps) => {
+const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, createNewAccountOnClick }: CredentialsComponentProps) => {
   const dispatch = useDispatch()
   const [inputLogin, setLogin] = useState(login)
   const [inputPassword, setPassword] = useState(password)
@@ -31,10 +32,7 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }
       setIsLoading(!finishedLoading)
       setIsLogging(!finishedLoading)
     }
-  })
-
-  const createNewAccountOnClick = async (): Promise<void> => {
-  }
+  }, [tokenData])
 
   const loginOnClick = async (): Promise<void> => {
     if (inputLogin === undefined || inputPassword === undefined) {
@@ -57,24 +55,22 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password }
   }
 
   return (
-    <Container>
-      <Content>
-        <IconContainer>
-          <FontAwesomeIcon icon={faUser} size="6x" />
-        </IconContainer>
+    <>
+      <IconContainer>
+        <FontAwesomeIcon icon={faUser} size="6x" />
+      </IconContainer>
 
-        <TextInput title={'Login'} value={inputLogin} onChange={setLogin} fillWidth={true} />
-        <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} />
+      <TextInput title={'Login'} value={inputLogin} onChange={setLogin} fillWidth={true} />
+      <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} />
 
-        <ButtonContainer>
-          {renderButton()}
-        </ButtonContainer>
+      <ButtonContainer>
+        {renderButton()}
+      </ButtonContainer>
 
-        <NewAccountContainer>
-          <TextLink text={'Criar conta'} onClick={createNewAccountOnClick}/>
-        </NewAccountContainer>
-      </Content>
-    </Container>
+      <NewAccountContainer>
+        <TextLink text={'Criar conta'} onClick={createNewAccountOnClick}/>
+      </NewAccountContainer>
+    </>
   )
 }
 

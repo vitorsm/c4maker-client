@@ -14,6 +14,16 @@ export const Content = styled.div`
     background-color: white;
 `
 
+export const TitleContainer = styled.div`
+    margin-bottom: 30px;
+    text-align: center;
+`
+
+export const NewUserButtonContainer = styled.div`
+    margin-top: 30px;
+    text-align: center;
+`
+
 export const NewAccountContainer = styled.div`
     margin-top: 50px;
     text-align: center;
