@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import PlainButton from '../plain-button'
+import PlainButton from '../'
 
 test('test on click button without callback', () => {
   const buttonText = 'btn'

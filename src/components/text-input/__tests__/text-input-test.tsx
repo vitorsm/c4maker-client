@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import TextInput from '../text-input'
+import TextInput from '../'
 
 test('test default value', () => {
   const value = 'content value'

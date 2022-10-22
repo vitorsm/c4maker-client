@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import TextLink from '../text-link'
+import TextLink from '../'
 
 test('test link value and on click', () => {
   const value = 'Value link'

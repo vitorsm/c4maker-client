@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import CircularProgress from '../circular-progress'
+import CircularProgress from '../'
 
 test('test processed border size', () => {
   const size = 100

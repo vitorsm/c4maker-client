@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import Dialog from '../dialog'
+import Dialog from '../'
 
 test('test dont show dialog', () => {
   render(<Dialog show={false}><div>Test</div></Dialog>)
