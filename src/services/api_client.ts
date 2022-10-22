@@ -1,5 +1,6 @@
 import { Dispatch } from 'react'
 import ObjectWrapper from '../models/object_wrapper'
+import { setError } from '../store/reducers/errors/actions'
 import { ErrorTypes } from '../store/reducers/errors/types'
 import { getToken, setToken } from '../store/token_utils'
 
@@ -75,7 +76,7 @@ export default class APIClient<Type> {
       }
 
       dispatch(this.dispatchFunction(typeToDispatch, { data: null, error: true, errorMessage: message }))
-      dispatch({ type: ErrorTypes.SET_ERROR, payload: { name: 'Error', description: message } })
+      dispatch(setError({ name: 'Error', description: message }))
     }
   }
 
