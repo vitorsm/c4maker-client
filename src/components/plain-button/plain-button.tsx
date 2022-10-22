@@ -8,9 +8,13 @@ interface PlainButtonProps {
   onClick?: Function | undefined
   disabled?: boolean | undefined
   fillWidth?: boolean | undefined
+  dataTestId?: string | undefined
 }
 
-const PlainButton: FC<PlainButtonProps> = ({ text, textColor = 'black', color = 'white', onClick, disabled = false, fillWidth = false }: PlainButtonProps) => {
+const PlainButton: FC<PlainButtonProps> = ({
+  text, textColor = 'black', color = 'white', onClick, disabled = false,
+  fillWidth = false, dataTestId = 'plain-btn'
+}: PlainButtonProps) => {
   const onClickHandler = (): void => {
     if (onClick !== undefined && onClick != null && !disabled) {
       onClick()
@@ -18,7 +22,7 @@ const PlainButton: FC<PlainButtonProps> = ({ text, textColor = 'black', color = 
   }
 
   return (
-    <Container textColor={textColor} color={color} onClick={onClickHandler} disabled={disabled} fillWidth={fillWidth}>
+    <Container textColor={textColor} color={color} onClick={onClickHandler} disabled={disabled} fillWidth={fillWidth} data-testid={dataTestId}>
       {text}
     </Container>
   )

@@ -30,21 +30,21 @@ const Dialog: FC<DialogProps> = ({ title, children, show, onOkClick = null, onCa
     }
 
     return (
-      <PlainButton text={'Cancelar'} color={'white'} textColor={defaultColors.primary.main} onClick={onCancelClickFunction} />
+      <PlainButton dataTestId={'dialog-cancel-btn'} text={'Cancelar'} color={'white'} textColor={defaultColors.primary.main} onClick={onCancelClickFunction} />
     )
   }
 
   const renderButtons = (): ReactElement => {
     return (
       <ButtonContainer>
-        <PlainButton text={'OK'} color={defaultColors.primary.main} textColor={'white'} onClick={onOkClickFunction} />
+        <PlainButton dataTestId={'dialog-ok-btn'} text={'OK'} color={defaultColors.primary.main} textColor={'white'} onClick={onOkClickFunction} />
         {renderCancelButton()}
       </ButtonContainer>
     )
   }
 
   return (
-    <Screen show={show}>
+    <Screen show={show} data-testid={'dialog-screen'}>
       <Container>
 
         <TitleContainer>
