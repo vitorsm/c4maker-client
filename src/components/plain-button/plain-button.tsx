@@ -16,7 +16,7 @@ const PlainButton: FC<PlainButtonProps> = ({
   fillWidth = false, dataTestId = 'plain-btn'
 }: PlainButtonProps) => {
   const onClickHandler = (): void => {
-    if (onClick !== undefined && onClick != null && !disabled) {
+    if (onClick !== undefined && !disabled) {
       onClick()
     }
   }
