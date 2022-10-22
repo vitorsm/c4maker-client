@@ -28,11 +28,16 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
       return
     }
 
+    setIsLoading(false)
+
+    if (createdUser.error) {
+      return
+    }
+
     setName(null)
     setLogin(null)
     setPassword(null)
 
-    setIsLoading(false)
     returnBackOnClick()
   }, [createdUser])
 
@@ -57,7 +62,7 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
   }
 
   const renderCreateButton = (): any => {
-    return isLoading ? (<CircularProgress />) : (<PlainButton text="Create" fillWidth={true} onClick={newUserButtonOnClick} />)
+    return isLoading ? (<CircularProgress dataTestId='create-new-user-progress'/>) : (<PlainButton text="Create" fillWidth={true} onClick={newUserButtonOnClick} dataTestId='create-new-user-btn' />)
   }
 
   return (
@@ -66,9 +71,9 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
         Create new user
       </TitleContainer>
 
-      <TextInput title='Name' fillWidth={true} onChange={setName} />
-      <TextInput title='Login' fillWidth={true} onChange={setLogin} />
-      <TextInput title='Password' type={'password'} fillWidth={true} onChange={setPassword} />
+      <TextInput title='Name' fillWidth={true} onChange={setName} dataTestId='create-new-user-name-input'/>
+      <TextInput title='Login' fillWidth={true} onChange={setLogin} dataTestId='create-new-user-login-input'/>
+      <TextInput title='Password' type={'password'} fillWidth={true} onChange={setPassword} dataTestId='create-new-user-password-input' />
 
       <NewUserButtonContainer>
         {renderCreateButton()}

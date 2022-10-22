@@ -4,7 +4,7 @@ import APIClient from './api_client'
 
 export default class UserService extends APIClient<User> {
   createUser = (user: User, dispatch: Dispatch<any>, typeToDispatch: string): void => {
-    this.post('/user', user, dispatch, typeToDispatch)
+    this.post('user', user, dispatch, typeToDispatch)
   }
 
   authenticate = (login: string, password: string, dispatch: Dispatch<any>, typeToDispatch: string, saveTokenFunc: Function): void => {
