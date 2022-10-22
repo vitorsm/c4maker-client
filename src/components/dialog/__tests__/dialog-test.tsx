@@ -34,3 +34,9 @@ test('test handler click', () => {
   expect(onOkClick).toBeCalledTimes(1)
   expect(onCancelClick).toBeCalledTimes(1)
 })
+
+test('test handler click without callback', () => {
+  render(<Dialog show={true}><div/></Dialog>)
+  const okButton = screen.getByTestId('dialog-ok-btn')
+  fireEvent.click(okButton)
+})
