@@ -24,12 +24,21 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
   const createdUser: ObjectWrapper<User> | null = useSelector((state: any) => state.userReducer.createdUser)
 
   useEffect(() => {
-    if (createdUser === undefined || createdUser === null) {
+    if (createdUser === undefined || createdUser === null || !isAttributesValid()) {
       return
     }
+
+    setName(null)
+    setLogin(null)
+    setPassword(null)
+
     setIsLoading(false)
     returnBackOnClick()
   }, [createdUser])
+
+  const isAttributesValid = (): boolean => {
+    return name !== null && login !== null && password !== null
+  }
 
   const newUserButtonOnClick = async (): Promise<void> => {
     if (name === null || login === null || password === null) {

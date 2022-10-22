@@ -11,7 +11,7 @@ interface CircularProgressProps {
 const CircularProgress: FC<CircularProgressProps> = ({
   size = 50, borderSize = null, color = 'green', borderColor = 'black'
 }: CircularProgressProps) => {
-  const processedBorderSize = borderSize !== null || size * 0.05
+  const processedBorderSize = borderSize !== null ? borderSize : size * 0.05
 
   return (
     <Container>
@@ -20,6 +20,7 @@ const CircularProgress: FC<CircularProgressProps> = ({
           borderSize={processedBorderSize}
           color={color}
           borderColor={borderColor}
+          data-testid={'circular-progress'}
         />
     </Container>
   )
