@@ -7,15 +7,16 @@ interface TextInputProps {
   type?: string | undefined
   onChange?: Function | undefined
   fillWidth?: boolean | undefined
+  dataTestId?: string | undefined
 }
 
-const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onChange, fillWidth }: TextInputProps) => {
+const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input' }: TextInputProps) => {
   const [inputValue, setInputValue] = useState(value)
 
   const onChangeHandler = (event: any): void => {
     setInputValue(event.target.value)
 
-    if (onChange !== undefined && onChange != null) {
+    if (onChange !== undefined) {
       onChange(event.target.value)
     }
   }
@@ -26,7 +27,7 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
         {title}
       </Title>
 
-      <Input value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth}></Input>
+      <Input data-testid={dataTestId} value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth}></Input>
     </Container>
   )
 }
