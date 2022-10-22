@@ -21,7 +21,7 @@ const ErrorDialog: FC = () => {
   const dialogContent = (): ReactElement => {
     return (
       <Container>
-        <MessageContainer>
+        <MessageContainer data-testid='error-dialog-message-container'>
           {genericError?.description}
         </MessageContainer>
       </Container>

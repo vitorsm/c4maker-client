@@ -62,7 +62,7 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
 
   return (
     <>
-      <TitleContainer>
+      <TitleContainer data-testid={'create-new-user-title'}>
         Create new user
       </TitleContainer>
 
@@ -72,7 +72,7 @@ const CreateUserComponent: FC<CreateUserComponentProps> = ({ returnBackOnClick }
 
       <NewUserButtonContainer>
         {renderCreateButton()}
-        <PlainButton text="Back" onClick={returnBackOnClick} color={defaultColors.primary.main} textColor={'white'}/>
+        <PlainButton text="Back" onClick={returnBackOnClick} color={defaultColors.primary.main} textColor={'white'} dataTestId={'btn-back-create-new-user'}/>
       </NewUserButtonContainer>
     </>
   )

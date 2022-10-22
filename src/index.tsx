@@ -4,10 +4,11 @@ import { Provider } from 'react-redux'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './index.css'
-import store from './store'
+import setupStore from './store'
 
 const container = document.getElementsByClassName('root')
 const root = createRoot(container[0])
+const store = setupStore()
 
 root.render(
   <React.StrictMode>

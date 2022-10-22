@@ -48,27 +48,27 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, 
 
   const renderButton = (): ReactElement => {
     if (isLoading) {
-      return (<CircularProgress />)
+      return (<CircularProgress dataTestId='login-circular-progress' />)
     } else {
-      return (<PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth onClick={loginOnClick} />)
+      return (<PlainButton text={'Entrar'} textColor={defaultColors.primary.main} fillWidth onClick={loginOnClick} dataTestId={'login-enter-button'} />)
     }
   }
 
   return (
     <>
-      <IconContainer>
+      <IconContainer data-testid={'credentials-icon-id'}>
         <FontAwesomeIcon icon={faUser} size="6x" />
       </IconContainer>
 
-      <TextInput title={'Login'} value={inputLogin} onChange={setLogin} fillWidth={true} />
-      <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} />
+      <TextInput title={'Login'} value={inputLogin} onChange={setLogin} fillWidth={true} dataTestId={'login-input'} />
+      <TextInput title={'Senha'} value={inputPassword} onChange={setPassword} type={'password'} fillWidth={true} dataTestId={'login-password-input'} />
 
       <ButtonContainer>
         {renderButton()}
       </ButtonContainer>
 
       <NewAccountContainer>
-        <TextLink text={'Criar conta'} onClick={createNewAccountOnClick}/>
+        <TextLink text={'Criar conta'} onClick={createNewAccountOnClick} dataTestId={'text-link-create-new-user'} />
       </NewAccountContainer>
     </>
   )

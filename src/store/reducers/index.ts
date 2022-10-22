@@ -8,4 +8,6 @@ const reducers = combineReducers({
   errorReducer
 })
 
+export type RootState = ReturnType<typeof reducers>
+
 export default reducers

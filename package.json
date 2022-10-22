@@ -57,6 +57,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.30.1",
     "jest-watch-typeahead": "^0.6.5",
+    "msw": "^0.47.4",
     "typescript": "^4.7.4"
   }
 }
