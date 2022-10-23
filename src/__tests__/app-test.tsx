@@ -21,10 +21,11 @@ test('test deafult app page - with token', () => {
   renderWithProvideres(<BrowserRouter><App /></BrowserRouter>, { preloadedState })
 
   expect(screen.queryByTestId('credentials-icon-id')).not.toBeInTheDocument()
-  expect(screen.queryByTestId('home-component')).toBeInTheDocument()
+  expect(screen.queryByTestId('main-authenticated-route-component')).toBeInTheDocument()
 })
 
 test('test deafult app page - without token', () => {
+  setToken(null)
   renderWithProvideres(<BrowserRouter><App /></BrowserRouter>)
   expect(screen.queryByTestId('credentials-icon-id')).toBeInTheDocument()
 })

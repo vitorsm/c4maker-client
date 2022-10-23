@@ -11,6 +11,7 @@ import { userOperations } from '../../store/reducers/users'
 import { LoginToken } from '../../models/user'
 import ObjectWrapper from '../../models/object_wrapper'
 import CircularProgress from '../../components/circular-progress'
+import { useNavigate } from 'react-router-dom'
 
 interface CredentialsComponentProps {
   login?: string | undefined
@@ -20,6 +21,7 @@ interface CredentialsComponentProps {
 
 const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, createNewAccountOnClick }: CredentialsComponentProps) => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [inputLogin, setLogin] = useState(login)
   const [inputPassword, setPassword] = useState(password)
   const [isLoading, setIsLoading] = useState(false)
@@ -31,6 +33,10 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, 
       const finishedLoading = tokenData !== undefined && tokenData !== null && (tokenData.data !== null || tokenData.error)
       setIsLoading(!finishedLoading)
       setIsLogging(!finishedLoading)
+
+      if (finishedLoading && tokenData.data !== null) {
+        navigate('/diagrams')
+      }
     }
   }, [tokenData])
 

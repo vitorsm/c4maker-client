@@ -4,6 +4,7 @@ import LoginScreen from '..'
 import { renderWithProvideres } from '../../../utils/test-utils'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { BrowserRouter } from 'react-router-dom'
 
 export const handlers = [
   rest.post('http://localhost:5000/api/auth/authenticate', (req, res, ctx) => {
@@ -18,7 +19,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test('test login flow with error', async () => {
-  const { store } = renderWithProvideres(<LoginScreen />)
+  const { store } = renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const login = 'login-test'
 
@@ -49,7 +50,7 @@ test('test login flow with error', async () => {
 })
 
 test('test login flow without error', async () => {
-  const { store } = renderWithProvideres(<LoginScreen />)
+  const { store } = renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const token = 'TOKEN'
   server.use(rest.post('http://localhost:5000/api/auth/authenticate', (req, res, ctx) => {
@@ -85,7 +86,7 @@ test('test login flow without error', async () => {
 })
 
 test('test without filled inputs', () => {
-  renderWithProvideres(<LoginScreen />)
+  renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const enterButton = screen.getByTestId('login-enter-button')
   fireEvent.click(enterButton)

@@ -2,9 +2,10 @@ import React from 'react'
 import { screen, fireEvent } from '@testing-library/react'
 import LoginScreen from '..'
 import { renderWithProvideres } from '../../../utils/test-utils'
+import { BrowserRouter } from 'react-router-dom'
 
 test('test login component navigation', () => {
-  renderWithProvideres(<LoginScreen />)
+  renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   expect(screen.queryByTestId('create-new-user-title')).not.toBeInTheDocument()
   expect(screen.queryByTestId('credentials-icon-id')).toBeInTheDocument()

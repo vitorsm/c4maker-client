@@ -4,6 +4,7 @@ import { renderWithProvideres } from '../../../utils/test-utils'
 import LoginScreen from '..'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { BrowserRouter } from 'react-router-dom'
 
 const server = setupServer()
 
@@ -12,7 +13,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test('test create new user with api error', async () => {
-  const { store } = renderWithProvideres(<LoginScreen />)
+  const { store } = renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const errorDescription = 'Name is required'
   server.use(rest.post('http://localhost:5000/user', (req, res, ctx) => {
@@ -48,7 +49,7 @@ test('test create new user with api error', async () => {
 })
 
 test('test create new user - unfilled fields', () => {
-  renderWithProvideres(<LoginScreen />)
+  renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const createUserLink = screen.getByTestId('text-link-create-new-user')
   fireEvent.click(createUserLink)
@@ -62,7 +63,7 @@ test('test create new user - unfilled fields', () => {
 })
 
 test('create new user', async () => {
-  const { store } = renderWithProvideres(<LoginScreen />)
+  const { store } = renderWithProvideres(<BrowserRouter><LoginScreen /></BrowserRouter>)
 
   const name = 'Name'
   const login = 'Login'

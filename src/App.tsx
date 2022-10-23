@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { getToken } from './store/token_utils'
 import { getCurrentUser } from './store/reducers/users/operations'
 import User from './models/user'
+import MainAuthenticatedRoute from './features/main-authenticated-route'
 
 const App: FC<{}> = () => {
   const dispatch = useDispatch()
@@ -24,7 +25,7 @@ const App: FC<{}> = () => {
   }
 
   const goToLoginIfNotAuthenticate = async (): Promise<void> => {
-    if ((token == null || currentUser === undefined) && !isUnauthenticatedPath()) {
+    if ((token == null) && !isUnauthenticatedPath()) {
       navigate('/login')
     }
 
@@ -35,7 +36,7 @@ const App: FC<{}> = () => {
 
   return (
     <Routes>
-      <Route path="" element={<div data-testid='home-component'>home</div>} />
+      <Route path="/*" element={<MainAuthenticatedRoute />} />
       <Route path="login" element={<LoginScreen />} />
     </Routes>
   )
