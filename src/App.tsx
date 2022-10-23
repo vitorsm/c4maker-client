@@ -35,7 +35,7 @@ const App: FC<{}> = () => {
 
   return (
     <Routes>
-      <Route path="" element={<div>home</div>} />
+      <Route path="" element={<div data-testid='home-component'>home</div>} />
       <Route path="login" element={<LoginScreen />} />
     </Routes>
   )
