@@ -1,17 +1,23 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import LoginScreen from './features/login/'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { getToken } from './store/token_utils'
 import { getCurrentUser } from './store/reducers/users/operations'
 import User from './models/user'
-import ErrorDialog from './features/error-dialog'
 
 const App: FC<{}> = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   let currentUser: User | null | undefined
-  useSelector((state: any) => { currentUser = state.userReducer.currentUser?.data })
   const token = getToken()
+
+  useEffect(() => {
+    goToLoginIfNotAuthenticate().then(() => {}, () => {})
+  })
+
+  useSelector((state: any) => { currentUser = state.userReducer.currentUser?.data })
 
   const isUnauthenticatedPath = (): boolean => {
     return window.location.pathname.includes('/login') || window.location.pathname.includes('/new-user')
@@ -19,7 +25,7 @@ const App: FC<{}> = () => {
 
   const goToLoginIfNotAuthenticate = async (): Promise<void> => {
     if ((token == null || currentUser === undefined) && !isUnauthenticatedPath()) {
-      window.location.pathname = 'login'
+      navigate('/login')
     }
 
     if (token !== null) {
@@ -27,20 +33,11 @@ const App: FC<{}> = () => {
     }
   }
 
-  goToLoginIfNotAuthenticate().then(() => {}, () => {})
-
   return (
-    <div className="App">
-      <>
-        <BrowserRouter>
-          <Routes>
-            <Route path="login" element={<LoginScreen />} />
-          </Routes>
-        </BrowserRouter>
-
-        <ErrorDialog />
-      </>
-    </div>
+    <Routes>
+      <Route path="" element={<div>home</div>} />
+      <Route path="login" element={<LoginScreen />} />
+    </Routes>
   )
 }
 

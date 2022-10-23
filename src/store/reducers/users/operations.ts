@@ -11,7 +11,6 @@ export const createUser = async (user: User, dispatch: Dispatch<any>): Promise<v
 export const authenticate = async (login: string, password: string, dispatch: Dispatch<any>): Promise<void> => {
   const setAuthenticationToken = (loginToken: LoginToken | null): void => {
     const token = loginToken !== null ? `Bearer ${loginToken.access_token}` : ''
-    console.log('setAuthenticationToken', token)
     setToken(token)
   }
 

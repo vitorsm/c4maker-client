@@ -5,6 +5,8 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import './index.css'
 import setupStore from './store'
+import { BrowserRouter } from 'react-router-dom'
+import ErrorDialog from './features/error-dialog'
 
 const container = document.getElementsByClassName('root')
 const root = createRoot(container[0])
@@ -13,7 +15,12 @@ const store = setupStore()
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+
+      <ErrorDialog />
     </Provider>
   </React.StrictMode>
 )

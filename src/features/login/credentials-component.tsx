@@ -36,7 +36,6 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, 
 
   const loginOnClick = async (): Promise<void> => {
     if (inputLogin === undefined || inputPassword === undefined) {
-      console.error('login or password is undefined', login, password)
       return
     }
 

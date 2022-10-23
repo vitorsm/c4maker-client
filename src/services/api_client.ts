@@ -1,7 +1,6 @@
 import { Dispatch } from 'react'
 import ObjectWrapper from '../models/object_wrapper'
 import { setError } from '../store/reducers/errors/actions'
-import { ErrorTypes } from '../store/reducers/errors/types'
 import { getToken, setToken } from '../store/token_utils'
 
 const serverURL = 'http://localhost:5000/'
