@@ -32,6 +32,23 @@ test('test open menu', async () => {
     expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[0].text}`)).not.toBeInTheDocument()
     expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[1].text}`)).not.toBeInTheDocument()
   })
+
+  await fireEvent.click(menu)
+
+  expect(screen.queryByTestId(menuDataTestId)).toBeInTheDocument()
+  expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[0].text}`)).toBeInTheDocument()
+  expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[1].text}`)).toBeInTheDocument()
+
+  const menuComponent = screen.getByTestId(`menu-component-${menuDataTestId}`)
+
+  await fireEvent.mouseOver(menuComponent)
+  await fireEvent.mouseOut(menuComponent)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(menuDataTestId)).toBeInTheDocument()
+    expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[0].text}`)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[1].text}`)).not.toBeInTheDocument()
+  })
 })
 
 test('test click menu', async () => {
