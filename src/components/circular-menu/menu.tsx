@@ -8,13 +8,13 @@ export interface MenuItemObj {
 }
 
 interface MenuProps {
-  menuSide: 'left' | 'right'
   setMouseOnMenu?: Function | null
   menuItems: MenuItemObj[]
   marginLeft?: number | null
+  dataTestId?: string
 }
 
-const Menu: FC<MenuProps> = ({ menuSide, menuItems, marginLeft = null, setMouseOnMenu = null }: MenuProps) => {
+const Menu: FC<MenuProps> = ({ menuItems, marginLeft = null, setMouseOnMenu = null, dataTestId = 'circular-menu-items' }: MenuProps) => {
   const mouseOver = (): void => {
     if (setMouseOnMenu !== null) {
       setMouseOnMenu(true)
@@ -29,14 +29,14 @@ const Menu: FC<MenuProps> = ({ menuSide, menuItems, marginLeft = null, setMouseO
 
   const renderMenuItems = (): ReactElement[] => {
     return menuItems.map((item, index) => (
-      <MenuItem key={`menu-item-${item.text}-${index}`} onClick={item.onClick} disabled={item.disabled}>
+      <MenuItem data-testid={`menu-item-${dataTestId}-${item.text}`} key={`menu-item-${item.text}-${index}`} onClick={item.onClick} disabled={item.disabled}>
         {item.text}
       </MenuItem>
     ))
   }
 
   return (
-    <MenuComponent onMouseOver={mouseOver} onMouseOut={mouseOut} marginLeft={marginLeft}>
+    <MenuComponent onMouseOver={mouseOver} onMouseOut={mouseOut} marginLeft={marginLeft} data-testid={`menu-component-${dataTestId}`}>
       {renderMenuItems()}
     </MenuComponent>
   )

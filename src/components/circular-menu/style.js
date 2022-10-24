@@ -34,6 +34,7 @@ export const MenuItem = styled.div`
   border-bottom-color: green;
   border-bottom-width: 1px;
   padding: 10px;
+  cursor: default;
 
   &:hover {
     background-color: ${props => props.hoverColor ? props.hoverColor : defaultColors.selected.main};

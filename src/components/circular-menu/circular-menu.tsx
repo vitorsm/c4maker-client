@@ -12,11 +12,12 @@ interface CircularMenuProps {
   hoverColor?: string
   menuItems: MenuItemObj[]
   marginLeft?: number | null
+  dataTestId?: string
 }
 
 const CircularMenu: FC<CircularMenuProps> = ({
   icon, size, menuItems, description = '', color = 'white', marginLeft = null,
-  hoverColor = defaultColors.selected.main
+  hoverColor = defaultColors.selected.main, dataTestId = 'circular-menu-container'
 }: CircularMenuProps) => {
   const [showMenu, setShowMenu] = useState(false)
   const [mouseOn, setMouseOn] = useState({ icon: false, menu: false })
@@ -60,12 +61,12 @@ const CircularMenu: FC<CircularMenuProps> = ({
       return null
     }
 
-    return (<Menu menuItems={menuItems} menuSide='left' setMouseOnMenu={onMenuOverOut} marginLeft={marginLeft}/>)
+    return (<Menu menuItems={menuItems} setMouseOnMenu={onMenuOverOut} marginLeft={marginLeft} dataTestId={dataTestId} />)
   }
   return (
     <>
       <Tooltip text={description}>
-        <MenuContainer size={size} color={color} hoverColor={hoverColor} onClick={onClickHandler}
+        <MenuContainer data-testid={dataTestId} size={size} color={color} hoverColor={hoverColor} onClick={onClickHandler}
          onMouseOver={onMouseOverHandler} onMouseOut={onMouseOutHandler}>
           { icon }
         </MenuContainer>
