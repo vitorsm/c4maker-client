@@ -59,7 +59,7 @@ const Tooltip: FC<TooltipProps> = ({
   }
 
   const renderTooltip = (): ReactElement | null => {
-    if (!showDescription) {
+    if (!showDescription || text === '') {
       return null
     }
 

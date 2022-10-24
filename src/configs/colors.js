@@ -9,5 +9,8 @@ export const defaultColors = {
     main: '#e1bee7',
     light: '#fff1ff',
     dark: '#af8eb5'
+  },
+  selected: {
+    main: '#e6e3e3'
   }
 }
