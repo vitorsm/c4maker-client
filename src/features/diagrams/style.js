@@ -16,3 +16,6 @@ export const EmptyStateContainer = styled.div`
   justify-content: center;
   padding: 50px;
 `
+export const ProgressContainer = styled.div`
+  padding: 100px;
+`
