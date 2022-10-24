@@ -5,6 +5,7 @@ import { Container, ContentCard, TitleContainer, TopLeftMenuContainer, TopRightM
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faBars } from '@fortawesome/free-solid-svg-icons'
 import { setToken } from '../../store/token_utils'
+import DiagramComponent from '../diagrams/diagram-component'
 
 const MainAuthenticatedRoute: FC = () => {
   const navigate = useNavigate()
@@ -47,7 +48,7 @@ const MainAuthenticatedRoute: FC = () => {
 
       <ContentCard>
         <Routes>
-          <Route path='diagrams' element={<div>diagrams</div>} />
+          <Route path='diagrams' element={<DiagramComponent />} />
         </Routes>
       </ContentCard>
 
