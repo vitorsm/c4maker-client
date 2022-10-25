@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react'
 import Card from '../../components/card'
-import { Container, DiagramButtons, EmptyStateContainer, ProgressContainer } from './style'
+import { Container, DiagramButtons, EmptyStateContainer, ProgressContainer, ProgressDescriptionContainer } from './style'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faInbox } from '@fortawesome/free-solid-svg-icons'
 import TextLink from '../../components/text-link'
@@ -40,7 +40,14 @@ const DiagramComponent: FC = () => {
 
   const renderEmptyStateOrLoading = (): ReactElement | null => {
     if (isLoading) {
-      return (<ProgressContainer><CircularProgress size={100}/></ProgressContainer>)
+      return (
+        <ProgressContainer>
+          <CircularProgress size={100}/>
+          <ProgressDescriptionContainer>
+            buscando diagramas
+          </ProgressDescriptionContainer>
+        </ProgressContainer>
+      )
     }
 
     if (hasDiagrams()) {

@@ -7,6 +7,7 @@ export const Container = styled.div`
 export const DiagramButtons = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 `
 
 export const EmptyStateContainer = styled.div`
@@ -18,4 +19,9 @@ export const EmptyStateContainer = styled.div`
 `
 export const ProgressContainer = styled.div`
   padding: 100px;
+  text-align: center;
+`
+
+export const ProgressDescriptionContainer = styled.div`
+  padding-top: 30px;
 `
