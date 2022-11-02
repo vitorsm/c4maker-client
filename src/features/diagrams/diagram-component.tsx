@@ -1,103 +1,83 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react'
-import Card from '../../components/card'
-import { Container, DiagramButtons, EmptyStateContainer, ProgressContainer, ProgressDescriptionContainer } from './style'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faInbox } from '@fortawesome/free-solid-svg-icons'
-import TextLink from '../../components/text-link'
-import { diagramOperations } from '../../store/reducers/diagrams'
 import { useDispatch, useSelector } from 'react-redux'
-import ObjectWrapper from '../../models/object_wrapper'
-import Diagram from '../../models/diagram'
+import { useNavigate, useParams } from 'react-router-dom'
+import AnimatedContainer from '../../components/animated-container'
 import CircularProgress from '../../components/circular-progress'
+import PlainButton from '../../components/plain-button'
+import TextInput from '../../components/text-input'
+import Diagram from '../../models/diagram'
+import ObjectWrapper from '../../models/object_wrapper'
+import { diagramOperations } from '../../store/reducers/diagrams'
 
 const DiagramComponent: FC = () => {
   const dispatch = useDispatch()
-  const diagrams: ObjectWrapper<Diagram[]> | undefined = useSelector((state: any) => state.diagramReducer.diagrams)
+  const navigate = useNavigate()
+
+  const { diagramId } = useParams()
+
   const [isLoading, setIsLoading] = useState(false)
+  const [diagramName, setDiagramName] = useState(null)
+  const [diagramDescription, setDiagramDescription] = useState(null)
+
+  const diagram: ObjectWrapper<Diagram> | undefined = useSelector((state: any) => state.diagramReducer.diagram)
+
+  const shouldRequestDiagram = (): boolean => {
+    return diagramId !== undefined && (diagram === undefined || diagram?.data?.id !== diagramId)
+  }
 
   useEffect(() => {
-    if (diagrams === undefined) {
-      if (!isLoading) {
-        void diagramOperations.fetchUserDiagrams(dispatch)
-        setIsLoading(true)
-      }
-    } else {
+    if (shouldRequestDiagram() && diagramId !== undefined) {
+      void diagramOperations.fetchDiagram(diagramId, dispatch)
+      setIsLoading(true)
+    }
+  })
+
+  useEffect(() => {
+    if (diagram !== undefined) {
       setIsLoading(false)
     }
-  }, [diagrams])
+  }, [diagram])
 
-  const hasDiagrams = (): boolean => {
-    if (diagrams === undefined) {
-      return false
+  const handleCancelOnClick = (): void => {
+    navigate(-1)
+  }
+
+  const handleSaveOnClick = async (): Promise<void> => {
+    if (diagramName === null || diagramDescription === null) {
+      return
     }
 
-    return diagrams.data !== null && diagrams.data.length > 0
+    const newDiagram = {
+      name: diagramName,
+      description: diagramDescription
+    }
+
+    void diagramOperations.createDiagram(newDiagram, dispatch)
+    setIsLoading(true)
   }
 
-  const onClickNewDiagram = (): void => {
-
-  }
-
-  const renderEmptyStateOrLoading = (): ReactElement | null => {
+  const renderContent = (): ReactElement => {
     if (isLoading) {
       return (
-        <ProgressContainer>
-          <CircularProgress size={100}/>
-          <ProgressDescriptionContainer>
-            buscando diagramas
-          </ProgressDescriptionContainer>
-        </ProgressContainer>
+        <CircularProgress />
       )
-    }
-
-    if (hasDiagrams()) {
-      return null
     }
 
     return (
-      <EmptyStateContainer>
-        <FontAwesomeIcon icon={faInbox} size="10x" style={{ padding: 20 }}/>
-        Voce ainda não tem diagramas.
-        <TextLink text='Clique aqui para criar um novo diagrama' onClick={onClickNewDiagram}/>
-      </EmptyStateContainer>
+      <>
+        <TextInput title='Name' onChange={setDiagramName}/>
+        <TextInput title='Description' type='text-area' fillWidth onChange={setDiagramDescription}/>
+
+        <PlainButton text='Cancelar' onClick={handleCancelOnClick} />
+        <PlainButton text='Salvar' onClick={handleSaveOnClick}/>
+      </>
     )
   }
 
-  const renderDiagrams = (): null | ReactElement[] => {
-    if (isLoading) {
-      return null
-    }
-
-    if (!hasDiagrams()) {
-      return null
-    }
-
-    const result = diagrams?.data?.map((diagram, index) => {
-      return (
-        <Card key={`diagram-button-${index}`} description={diagram.name}>
-          <FontAwesomeIcon icon={faPlus} size="2x" />
-        </Card>
-      )
-    })
-
-    return result !== undefined
-      ? [(
-      <Card key='diagram-button-create-new' description={'Novo diagrama'}>
-        <FontAwesomeIcon icon={faPlus} size="2x" />
-      </Card>
-        ), ...result]
-      : null
-  }
-
   return (
-    <Container>
-      {renderEmptyStateOrLoading()}
-
-      <DiagramButtons>
-        {renderDiagrams()}
-      </DiagramButtons>
-
-    </Container>
+    <AnimatedContainer>
+      {renderContent()}
+    </AnimatedContainer>
   )
 }
 

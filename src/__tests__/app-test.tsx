@@ -1,5 +1,5 @@
 import React from 'react'
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { renderWithProvideres } from '../utils/test-utils'
 import App from '../App'
 import { BrowserRouter } from 'react-router-dom'

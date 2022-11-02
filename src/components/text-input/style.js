@@ -8,7 +8,11 @@ export const Container = styled.div`
 export const Input = styled.input`
   padding: 10px;
   width: ${(props) => props.fillWidth ? 'calc(100% - 20px)' : ''};
+`
 
+export const TextArea = styled.textarea`
+  padding: 10px;
+  width: ${(props) => props.fillWidth ? 'calc(100% - 20px)' : ''};
 `
 
 export const Title = styled.div`

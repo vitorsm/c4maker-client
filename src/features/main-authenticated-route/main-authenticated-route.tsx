@@ -1,19 +1,24 @@
-import React, { FC } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import React, { FC, useState } from 'react'
+import { Route, Routes, useNavigate, Navigate } from 'react-router-dom'
 import CircularMenu from '../../components/circular-menu'
 import { Container, ContentCard, TitleContainer, TopLeftMenuContainer, TopRightMenuContainer } from './style'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faBars } from '@fortawesome/free-solid-svg-icons'
 import { setToken } from '../../store/token_utils'
-import DiagramComponent from '../diagrams/diagram-component'
+import DiagramListComponent from '../diagrams/diagram-list-component'
+
+const DEFAULT_ROUTE = 'diagrams'
 
 const MainAuthenticatedRoute: FC = () => {
   const navigate = useNavigate()
+
+  const [contentTitle, setContentTitle] = useState('Homeee')
 
   const onLogoutClickHandler = (): void => {
     setToken(null)
     navigate('/login')
   }
+
   const leftMenuItems = [{
     text: 'Diagramas',
     onClick: () => {},
@@ -44,11 +49,12 @@ const MainAuthenticatedRoute: FC = () => {
         <CircularMenu menuItems={rightMenuItems} icon={<FontAwesomeIcon icon={faUser} size="2x" />} size={60} marginLeft={-100} />
       </TopRightMenuContainer>
 
-      <TitleContainer>Diagramas</TitleContainer>
+      <TitleContainer data-testid='main-content-title'>{contentTitle}</TitleContainer>
 
-      <ContentCard>
+      <ContentCard data-testid='main-content-card'>
         <Routes>
-          <Route path='diagrams' element={<DiagramComponent />} />
+          <Route index element={<Navigate to={DEFAULT_ROUTE}/>}/>
+          <Route path='diagrams/*' element={<DiagramListComponent setContentTitle={setContentTitle} />} />
         </Routes>
       </ContentCard>
 

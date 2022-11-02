@@ -2,12 +2,16 @@ import styled from 'styled-components'
 
 export const Container = styled.div`
   padding: 10px;
+  height: 100%;
 `
 
 export const DiagramButtons = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  overflow-y: scroll;
+  height: 100%;
+  align-content: baseline;
 `
 
 export const EmptyStateContainer = styled.div`

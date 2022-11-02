@@ -1,5 +1,14 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { defaultColors } from '../../configs/colors'
+
+const menuTransition = keyframes`
+  from {
+    width: 0px;
+    min-width: 0px;
+    border-radius: 80%;
+    opacity: 0;
+  }
+`
 
 export const MenuContainer = styled.div`
   width: ${(props) => props.size}px;
@@ -27,6 +36,8 @@ export const MenuComponent = styled.div`
   border-radius: 10%;
   margin-left: ${props => props.marginLeft || 0}px;
   background-color: white;
+  animation: ${menuTransition} 0.1s linear;
+  opacity: 1;
 `
 
 export const MenuItem = styled.div`

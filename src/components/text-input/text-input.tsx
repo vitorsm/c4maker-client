@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react'
-import { Input, Container, Title } from './style.js'
+import React, { FC, useState, ReactElement } from 'react'
+import { Input, Container, Title, TextArea } from './style.js'
 
 interface TextInputProps {
   title: string
@@ -21,13 +21,21 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
     }
   }
 
+  const renderInput = (): ReactElement => {
+    if (type === 'text-area') {
+      return <TextArea data-testid={dataTestId} value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth} />
+    } else {
+      return <Input data-testid={dataTestId} value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth}></Input>
+    }
+  }
+
   return (
     <Container>
       <Title>
         {title}
       </Title>
 
-      <Input data-testid={dataTestId} value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth}></Input>
+      {renderInput()}
     </Container>
   )
 }

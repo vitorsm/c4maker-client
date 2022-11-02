@@ -12,6 +12,11 @@ const reducer: Reducer<DiagramsState> = (state = INITIAL_STATE, action) => {
         ...state,
         diagrams: action.payload
       }
+    case DiagramsTypes.GET_DIAGRAM:
+      return {
+        ...state,
+        diagram: action.payload
+      }
     default:
       return state
   }
