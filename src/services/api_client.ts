@@ -31,17 +31,18 @@ export default class APIClient<Type> {
     )
   }
 
-  post = (
+  postOrPut = (
     endpoint: string,
     data: any,
     dispatch: Dispatch<any>,
     typeToDispatch: string,
-    successFunctionCallback: Function | null = null
+    successFunctionCallback: Function | null = null,
+    method: string = 'POST'
   ): void => {
     const address = this.getAddress(endpoint)
     const headers = this.getAuthenticatedHeader()
     const requestOptions = {
-      method: 'POST',
+      method,
       headers,
       body: JSON.stringify(data)
     }

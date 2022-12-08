@@ -12,6 +12,14 @@ export default class DiagramService extends APIClient<Diagram> {
   }
 
   createDiagram = (diagram: Diagram, dispatch: Dispatch<any>, typeToDispatch: string): void => {
-    this.post('diagram', diagram, dispatch, typeToDispatch)
+    this.postOrPut('diagram', diagram, dispatch, typeToDispatch)
+  }
+
+  updateDiagram = (diagram: Diagram, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    if (diagram.id === undefined || diagram.id === null) {
+      return
+    }
+
+    this.postOrPut(`diagram/${diagram.id}`, diagram, dispatch, typeToDispatch, null, 'PUT')
   }
 }

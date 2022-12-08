@@ -12,5 +12,9 @@ export const fetchDiagram = async (diagramId: string, dispatch: Dispatch<any>): 
 }
 
 export const createDiagram = async (diagram: Diagram, dispatch: Dispatch<any>): Promise<void> => {
-  new DiagramService().createDiagram(diagram, dispatch, DiagramsTypes.GET_DIAGRAM)
+  new DiagramService().createDiagram(diagram, dispatch, DiagramsTypes.PERSIST_DIAGRAM)
+}
+
+export const updateDiagram = async (diagram: Diagram, dispatch: Dispatch<any>): Promise<void> => {
+  new DiagramService().updateDiagram(diagram, dispatch, DiagramsTypes.PERSIST_DIAGRAM)
 }

@@ -9,9 +9,10 @@ interface DialogProps {
   show: boolean
   onOkClick?: Function | null
   onCancelClick?: Function | null
+  dataTestId?: string
 }
 
-const Dialog: FC<DialogProps> = ({ title, children, show, onOkClick = null, onCancelClick = null }: DialogProps) => {
+const Dialog: FC<DialogProps> = ({ title, children, show, onOkClick = null, onCancelClick = null, dataTestId = 'dialog-screen' }: DialogProps) => {
   const onOkClickFunction = (): void => {
     if (onOkClick !== null) {
       onOkClick()
@@ -44,7 +45,7 @@ const Dialog: FC<DialogProps> = ({ title, children, show, onOkClick = null, onCa
   }
 
   return (
-    <Screen show={show} data-testid={'dialog-screen'}>
+    <Screen show={show} data-testid={dataTestId}>
       <Container>
 
         <TitleContainer>

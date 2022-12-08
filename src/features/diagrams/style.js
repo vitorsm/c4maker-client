@@ -29,3 +29,22 @@ export const ProgressContainer = styled.div`
 export const ProgressDescriptionContainer = styled.div`
   padding-top: 30px;
 `
+
+export const EditImageContainer = styled.div`
+  cursor: pointer;
+  padding-bottom: 20px;
+`
+
+export const InputsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`
+
+export const InputsComponent = styled.div`
+  width: 100%;
+`
+
+export const ButtonsComponent = styled.div`
+  display: flex;
+  flex-direction: column;
+`

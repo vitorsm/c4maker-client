@@ -44,7 +44,7 @@ test('test create new user with api error', async () => {
   await waitFor(() => {
     expect(screen.queryByTestId('create-new-user-progress')).not.toBeInTheDocument()
     expect(screen.queryByTestId('create-new-user-btn')).toBeInTheDocument()
-    expect(store.getState().errorReducer.error.description).toEqual('Name is required')
+    expect(store.getState().errorReducer.error.description).toEqual(errorDescription)
   })
 })
 

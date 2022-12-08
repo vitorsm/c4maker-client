@@ -3,11 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import AnimatedContainer from '../../components/animated-container'
 import CircularProgress from '../../components/circular-progress'
-import PlainButton from '../../components/plain-button'
-import TextInput from '../../components/text-input'
 import Diagram from '../../models/diagram'
 import ObjectWrapper from '../../models/object_wrapper'
 import { diagramOperations } from '../../store/reducers/diagrams'
+import DiagramHeaderComponent from './diagram-header-component'
 
 const DiagramComponent: FC = () => {
   const dispatch = useDispatch()
@@ -15,17 +14,24 @@ const DiagramComponent: FC = () => {
 
   const { diagramId } = useParams()
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [diagramName, setDiagramName] = useState(null)
-  const [diagramDescription, setDiagramDescription] = useState(null)
+  const loadedDiagram: ObjectWrapper<Diagram> | undefined = useSelector((state: any) => state.diagramReducer.diagram)
+  const persistedDiagram: ObjectWrapper<Diagram> | undefined = useSelector((state: any) => state.diagramReducer.persistedDiagram)
 
-  const diagram: ObjectWrapper<Diagram> | undefined = useSelector((state: any) => state.diagramReducer.diagram)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [diagram, setDiagram] = useState(loadedDiagram?.data)
 
   const shouldRequestDiagram = (): boolean => {
-    return diagramId !== undefined && (diagram === undefined || diagram?.data?.id !== diagramId)
+    return diagramId !== undefined && (loadedDiagram === undefined || loadedDiagram?.data?.id !== diagramId) && loadedDiagram?.error !== true
   }
 
   useEffect(() => {
+    if (diagramId === undefined && diagramId !== null) {
+      setIsCreating(true)
+    } else {
+      setIsCreating(false)
+    }
+
     if (shouldRequestDiagram() && diagramId !== undefined) {
       void diagramOperations.fetchDiagram(diagramId, dispatch)
       setIsLoading(true)
@@ -33,27 +39,34 @@ const DiagramComponent: FC = () => {
   })
 
   useEffect(() => {
-    if (diagram !== undefined) {
+    if (loadedDiagram !== undefined) {
       setIsLoading(false)
+      setDiagram(loadedDiagram.data)
     }
-  }, [diagram])
+  }, [loadedDiagram])
+
+  useEffect(() => {
+    if (persistedDiagram !== undefined) {
+      setIsLoading(false)
+
+      if (!persistedDiagram.error) {
+        setDiagram(persistedDiagram.data)
+
+        if (isCreating && ((persistedDiagram?.data?.id) != null)) {
+          navigate(`/diagrams/${persistedDiagram?.data?.id}`)
+        }
+      }
+    }
+  }, [persistedDiagram])
 
   const handleCancelOnClick = (): void => {
-    navigate(-1)
+    if (isCreating) {
+      navigate(-1)
+    }
   }
 
-  const handleSaveOnClick = async (): Promise<void> => {
-    if (diagramName === null || diagramDescription === null) {
-      return
-    }
-
-    const newDiagram = {
-      name: diagramName,
-      description: diagramDescription
-    }
-
-    void diagramOperations.createDiagram(newDiagram, dispatch)
-    setIsLoading(true)
+  const handleOnCloseCallback = (): void => {
+    navigate(-1)
   }
 
   const renderContent = (): ReactElement => {
@@ -65,11 +78,12 @@ const DiagramComponent: FC = () => {
 
     return (
       <>
-        <TextInput title='Name' onChange={setDiagramName}/>
-        <TextInput title='Description' type='text-area' fillWidth onChange={setDiagramDescription}/>
-
-        <PlainButton text='Cancelar' onClick={handleCancelOnClick} />
-        <PlainButton text='Salvar' onClick={handleSaveOnClick}/>
+        <DiagramHeaderComponent
+          diagram={diagram}
+          isCreating={isCreating}
+          cancelCallback={handleCancelOnClick}
+          closeCallback={handleOnCloseCallback}
+          isLoadingDiagram={isLoading} />
       </>
     )
   }

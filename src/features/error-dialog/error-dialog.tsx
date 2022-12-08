@@ -29,7 +29,7 @@ const ErrorDialog: FC = () => {
   }
 
   return (
-    <Dialog title={genericError?.name} show={showDialog} onOkClick={onOkClickFunction} >
+    <Dialog title={genericError?.name} show={showDialog} onOkClick={onOkClickFunction} dataTestId='error-dialog'>
       {dialogContent()}
     </Dialog>
   )
