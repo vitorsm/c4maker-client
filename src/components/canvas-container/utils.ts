@@ -1,0 +1,60 @@
+import { RefObject } from 'react'
+import { DrawableItem, Position } from './canvas-container'
+
+export const extractEventPosition = (event: any, componentRef: RefObject<HTMLElement>): Position => {
+  const containerComponent = componentRef.current
+
+  if (containerComponent === null) return { x: 0, y: 0, width: 0, height: 0 }
+
+  const startComponentX = event.target.offsetLeft
+  const startComponentY = event.target.offsetTop
+
+  const startScrollX = containerComponent.scrollLeft
+  const startScrollY = containerComponent.scrollTop
+
+  const clickX = event.clientX - startComponentX + startScrollX
+  const clickY = event.clientY - startComponentY + startScrollY
+
+  return { x: clickX, y: clickY, width: 0, height: 0 }
+}
+
+export const isPositionInItem = (drawItem: DrawableItem, position: Position): boolean => {
+  const itemPosition = drawItem.position
+  const endX = itemPosition.x + itemPosition.width
+  const endY = itemPosition.y + itemPosition.height
+
+  if (position.x < itemPosition.x || position.y < itemPosition.y) {
+    return false
+  }
+
+  if (position.x > endX || position.y > endY) {
+    return false
+  }
+
+  return true
+}
+
+export const getClickedItem = (position: Position, items: DrawableItem[]): DrawableItem | null => {
+  const selectedItem = items.filter(item => isPositionInItem(item, position))
+  return selectedItem.length === 0 ? null : selectedItem[selectedItem.length - 1]
+}
+
+export const handleSelectItem = (position: Position, items: DrawableItem[]): DrawableItem[] | null => {
+  const selectedItem = getClickedItem(position, items)
+  const anySelected = items.some(item => item.isSelected)
+
+  items.forEach(item => {
+    item.isSelected = false
+  })
+
+  let shouldReRender = false
+
+  if (selectedItem !== null) {
+    selectedItem.isSelected = true
+    shouldReRender = true
+  } else {
+    shouldReRender = anySelected
+  }
+
+  return shouldReRender ? items : null
+}

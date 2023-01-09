@@ -8,4 +8,7 @@ const appear = keyframes`
 
 export const Container = styled.div`
   animation: ${appear} ${props => props.time}s ease-out;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `

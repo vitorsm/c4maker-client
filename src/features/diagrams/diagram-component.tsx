@@ -3,10 +3,49 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import AnimatedContainer from '../../components/animated-container'
 import CircularProgress from '../../components/circular-progress'
-import Diagram from '../../models/diagram'
+import DiagramItemsComponent from '../../components/diagram-items-component'
+import Diagram, { DiagramItem, DiagramItemType } from '../../models/diagram'
 import ObjectWrapper from '../../models/object_wrapper'
 import { diagramOperations } from '../../store/reducers/diagrams'
 import DiagramHeaderComponent from './diagram-header-component'
+
+const DIAGRAM_ITEMS = [
+  {
+    id: 'id1',
+    name: 'name 1',
+    itemDescription: 'description 1',
+    details: 'details 1',
+    itemType: DiagramItemType.PERSON,
+    diagram: null,
+    parent: null,
+    relationships: [],
+    position: null
+  }, {
+    id: 'id2',
+    name: 'name 2',
+    itemDescription: 'description 2',
+    details: 'details 2',
+    itemType: DiagramItemType.CONTAINER,
+    diagram: null,
+    parent: null,
+    relationships: [],
+    position: null
+  }
+]
+
+// const DIAGRAM_ITEMS = [
+//   {
+//     id: 'id1',
+//     name: 'name 1',
+//     itemDescription: 'description 1',
+//     details: 'details 1',
+//     itemType: DiagramItemType.PERSON,
+//     diagram: null,
+//     parent: null,
+//     relationships: [],
+//     position: null
+//   }
+// ]
 
 const DiagramComponent: FC = () => {
   const dispatch = useDispatch()
@@ -20,6 +59,7 @@ const DiagramComponent: FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [diagram, setDiagram] = useState(loadedDiagram?.data)
+  const [diagramItems, setDiagramItems] = useState<DiagramItem[]>(DIAGRAM_ITEMS)
 
   const shouldRequestDiagram = (): boolean => {
     return diagramId !== undefined && (loadedDiagram === undefined || loadedDiagram?.data?.id !== diagramId) && loadedDiagram?.error !== true
@@ -69,6 +109,22 @@ const DiagramComponent: FC = () => {
     navigate(-1)
   }
 
+  const onDiagramItemChange = (newDiagramItems: DiagramItem[]): void => {
+    const diagramItemIds = newDiagramItems.map(diagramItem => diagramItem.id)
+    const persistedDiagramMap = new Map()
+    diagramItems.filter(diagramItem => diagramItemIds.includes(diagramItem.id)).forEach(diagramItem => {
+      persistedDiagramMap.set(diagramItem.id, diagramItem)
+    })
+
+    newDiagramItems.forEach(newDiagramItem => {
+      const diagramItem = persistedDiagramMap.get(newDiagramItem.id)
+      diagramItem.position = newDiagramItem.position
+      diagramItem.isSelected = newDiagramItem.isSelected
+    })
+
+    setDiagramItems([...diagramItems])
+  }
+
   const renderContent = (): ReactElement => {
     if (isLoading) {
       return (
@@ -84,6 +140,8 @@ const DiagramComponent: FC = () => {
           cancelCallback={handleCancelOnClick}
           closeCallback={handleOnCloseCallback}
           isLoadingDiagram={isLoading} />
+
+          <DiagramItemsComponent diagramItems={diagramItems} onDiagramItemChange={onDiagramItemChange}/>
       </>
     )
   }

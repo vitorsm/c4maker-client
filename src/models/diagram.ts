@@ -1,11 +1,38 @@
-import User from './user'
+import GenericEntity from './generic'
 
-export default interface Diagram {
+export enum DiagramItemType {
+  PERSON,
+  SOFTWARE_SYSTEM,
+  CONTAINER,
+  COMPONENT
+}
+
+export default interface Diagram extends GenericEntity {
   id?: string
   name: string
   description: string | null
-  created_by?: User | null
-  modified_by?: User | null
-  created_at?: Date | null
-  modified_at?: Date | null
+}
+
+export interface DiagramItemRelationship {
+  diagramItem: DiagramItem
+  description: string
+  details: string
+}
+
+export interface DiagramItemPosition {
+  x: number
+  y: number
+}
+
+export interface DiagramItem extends GenericEntity {
+  id?: string
+  name: string
+  itemDescription: string
+  details: string
+  itemType: DiagramItemType
+  diagram: Diagram | null
+  parent: DiagramItem | null
+  relationships: DiagramItemRelationship[]
+  position: DiagramItemPosition | null
+  isSelected?: boolean | undefined
 }
