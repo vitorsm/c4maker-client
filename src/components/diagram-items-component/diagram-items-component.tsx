@@ -1,9 +1,12 @@
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { DiagramItem, DiagramItemType } from '../../models/diagram'
 import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-container/canvas-container'
 import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
 import { roundRect } from '../canvas-container/utils'
-import { Container } from './style'
+import Card from '../card'
+import { CanvasParentContainer, ButtonContainer } from './style'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
@@ -12,6 +15,8 @@ interface DiagramItemsComponentProps {
 
 const CANVAS_WIDTH = 2246
 const CANVAS_HEIGHT = 1324
+// const BUTTONS_HEIGHT = 80
+
 const SIZE_BY_ITEM_TYPE = new Map()
 SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.PERSON], { width: 300, height: 300 })
 SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.SOFTWARE_SYSTEM], { width: 200, height: 100 })
@@ -146,17 +151,23 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }
 
   return (
-    <Container ref={componentRef}>
+    <>
+      <ButtonContainer>
+        <Card key='diagram-button-create-new' description={'add item'}>
+          <FontAwesomeIcon icon={faPlus} size="2x" />
+        </Card>
+      </ButtonContainer>
+      <CanvasParentContainer ref={componentRef}>
+        <CanvasContainer
+          drawableItems={drawableItems}
+          canvasWidth={CANVAS_WIDTH}
+          canvasHeight={CANVAS_HEIGHT}
+          parentComponentRef={componentRef}
+          onItemPositionChange={onItemPositionChange}
+          onItemSelectionChange={onItemSelectionChange} />
+      </CanvasParentContainer>
+    </>
 
-      <CanvasContainer
-        drawableItems={drawableItems}
-        canvasWidth={CANVAS_WIDTH}
-        canvasHeight={CANVAS_HEIGHT}
-        parentComponentRef={componentRef}
-        onItemPositionChange={onItemPositionChange}
-        onItemSelectionChange={onItemSelectionChange} />
-
-    </Container>
   )
 }
 
