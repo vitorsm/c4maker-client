@@ -12,24 +12,30 @@ import DiagramHeaderComponent from './diagram-header-component'
 const DIAGRAM_ITEMS = [
   {
     id: 'id1',
-    name: 'name 1',
-    itemDescription: 'description 1',
-    details: 'details 1',
+    name: 'OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO',
+    itemDescription: '[description 1]',
+    details: 'details asdfoiajsdfiojasdfoasdfiojaiodfj',
     itemType: DiagramItemType.PERSON,
     diagram: null,
     parent: null,
     relationships: [],
-    position: null
+    canvasData: {
+      position: null,
+      color: null
+    }
   }, {
     id: 'id2',
-    name: 'name 2',
-    itemDescription: 'description 2',
-    details: 'details 2',
+    name: 'name 2 item',
+    itemDescription: '[description 2]',
+    details: 'details 2asdfoiajsdfiojasdfoasdfiojaiodfjasdfoiajsdfiojasdfoasdfiojaiodfj',
     itemType: DiagramItemType.CONTAINER,
     diagram: null,
     parent: null,
     relationships: [],
-    position: null
+    canvasData: {
+      position: null,
+      color: null
+    }
   }
 ]
 
@@ -118,7 +124,7 @@ const DiagramComponent: FC = () => {
 
     newDiagramItems.forEach(newDiagramItem => {
       const diagramItem = persistedDiagramMap.get(newDiagramItem.id)
-      diagramItem.position = newDiagramItem.position
+      diagramItem.canvasData = newDiagramItem.canvasData
       diagramItem.isSelected = newDiagramItem.isSelected
     })
 

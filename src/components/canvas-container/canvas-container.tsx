@@ -24,6 +24,7 @@ export interface DrawableItem {
   name: string
   details: string
   description: string
+  color: string
 }
 
 export interface Position {
@@ -97,12 +98,14 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
       switch (item.type) {
         case DrawType.IMG:
           if (item.drawItem !== null) {
+            context.fillStyle = item.color
             item.drawItem(context)
             // context.setTransform(item.width / item.path2DData.originalWidth, 0, 0, item.height / item.path2DData.originalHeight, item.x, item.y)
             // context.fill(item.path2DData.path2D)
             // context.resetTransform()
           } else if (item.img !== null) {
             const position = item.position
+            context.fillStyle = item.color
             context.drawImage(item.img, position.x, position.y, position.width, position.height)
           }
           break

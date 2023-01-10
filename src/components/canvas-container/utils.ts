@@ -58,3 +58,20 @@ export const handleSelectItem = (position: Position, items: DrawableItem[]): Dra
 
   return shouldReRender ? items : null
 }
+
+export const roundRect = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number = 10): void => {
+  const endX = x + width
+  const endY = y + height
+
+  context.moveTo(x + radius, y)
+  context.lineTo(endX - radius, y)
+  context.quadraticCurveTo(endX, y, endX, y + radius)
+  context.lineTo(endX, endY - radius)
+  context.quadraticCurveTo(endX, endY, endX - radius, endY)
+  context.lineTo(x + radius, endY)
+  context.quadraticCurveTo(x, endY, x, endY - radius)
+  context.lineTo(x, y + radius)
+  context.quadraticCurveTo(x, y, x + radius, y)
+
+  context.fill()
+}

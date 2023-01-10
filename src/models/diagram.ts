@@ -22,6 +22,13 @@ export interface DiagramItemRelationship {
 export interface DiagramItemPosition {
   x: number
   y: number
+  width: number
+  height: number
+}
+
+export interface DiagramItemCanvasData {
+  position: DiagramItemPosition | null
+  color: string | null
 }
 
 export interface DiagramItem extends GenericEntity {
@@ -33,6 +40,6 @@ export interface DiagramItem extends GenericEntity {
   diagram: Diagram | null
   parent: DiagramItem | null
   relationships: DiagramItemRelationship[]
-  position: DiagramItemPosition | null
+  canvasData: DiagramItemCanvasData
   isSelected?: boolean | undefined
 }

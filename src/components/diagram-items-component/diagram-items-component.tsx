@@ -1,6 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { DiagramItem, DiagramItemType } from '../../models/diagram'
 import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-container/canvas-container'
+import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
+import { roundRect } from '../canvas-container/utils'
 import { Container } from './style'
 
 interface DiagramItemsComponentProps {
@@ -10,12 +12,17 @@ interface DiagramItemsComponentProps {
 
 const CANVAS_WIDTH = 2246
 const CANVAS_HEIGHT = 1324
+const SIZE_BY_ITEM_TYPE = new Map()
+SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.PERSON], { width: 300, height: 300 })
+SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.SOFTWARE_SYSTEM], { width: 200, height: 100 })
+SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.CONTAINER], { width: 300, height: 180 })
+SIZE_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.COMPONENT], { width: 150, height: 150 })
 
-const MAP_TYPES_TO_IMG = new Map()
-MAP_TYPES_TO_IMG.set(DiagramItemType[DiagramItemType.PERSON], './background1.jpg')
-MAP_TYPES_TO_IMG.set(DiagramItemType[DiagramItemType.SOFTWARE_SYSTEM], './background1.jpg')
-MAP_TYPES_TO_IMG.set(DiagramItemType[DiagramItemType.CONTAINER], './background1.jpg')
-MAP_TYPES_TO_IMG.set(DiagramItemType[DiagramItemType.COMPONENT], './background1.jpg')
+const COLOR_BY_ITEM_TYPE = new Map()
+COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.PERSON], '#116611')
+COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.SOFTWARE_SYSTEM], '#55aa55')
+COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.CONTAINER], '#55aa55')
+COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.COMPONENT], '#55aa55')
 
 const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
@@ -25,72 +32,61 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     instantiateDrawItems()
   }, [diagramItems])
 
-  // const getImageByDiagramType = (diagramType: string): any => {
-  //   switch (diagramType) {
-  //     case DiagramItemType[DiagramItemType.PERSON]:
-  //       return {
-  //         path2D: new Path2D('M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0S96 57.3 96 128s57.3 128 128 128zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z'),
-  //         originalWidth: 448,
-  //         originalHeight: 512
-  //       }
-  //     default:
-  //       return require('./background1.jpg')
-  //   }
-  // }
-
-  const roundRect = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void => {
-    const radius = 10
-    const endX = x + width
-    const endY = y + height
-
-    context.moveTo(x + radius, y)
-    context.lineTo(endX - radius, y)
-    context.quadraticCurveTo(endX, y, endX, y + radius)
-    context.lineTo(endX, endY - radius)
-    context.quadraticCurveTo(endX, endY, endX - radius, endY)
-    context.lineTo(x + radius, endY)
-    context.quadraticCurveTo(x, endY, x, endY - radius)
-    context.lineTo(x, y + radius)
-    context.quadraticCurveTo(x, y, x + radius, y)
-    // context.stroke()
-    context.fill()
-  }
-
-  const generateUserComponent = (context: CanvasRenderingContext2D, position: Position): void => {
-    const circleRadius = position.height * 0.25
+  const generateUserComponent = (context: CanvasRenderingContext2D, position: Position, texts: string[]): void => {
+    const circleRadius = position.height * 0.23
     const circleX = position.x + position.width / 2
     const startBoxY = 0.8 * circleRadius * 2
-    const boxHeight = position.height - circleRadius * 2
+    const boxHeight = position.height - circleRadius * 2 * 0.8
+    const borderRadius = 50
+    const topPadding = 10
+    const leftPadding = 2
+
+    const boxPosition = { x: position.x, y: position.y + startBoxY, width: position.width, height: boxHeight }
 
     context.beginPath()
     context.arc(circleX, position.y + circleRadius, circleRadius, 0, 2 * Math.PI)
-    roundRect(context, position.x, position.y + startBoxY, position.width, boxHeight)
+    roundRect(context, boxPosition.x, boxPosition.y, boxPosition.width, boxPosition.height, borderRadius)
     context.closePath()
+
+    writeTextsAndAdjustPosition(context, texts, boxPosition, topPadding, leftPadding, borderRadius)
   }
 
-  const generateContainerComponent = (context: CanvasRenderingContext2D, position: Position): void => {
+  const generateContainerComponent = (context: CanvasRenderingContext2D, position: Position, texts: string[]): void => {
+    const topPadding = 10
+    const leftPadding = 2
+    const borderRadius = 10
+
     context.beginPath()
-    roundRect(context, position.x, position.y, position.width, position.height)
+    roundRect(context, position.x, position.y, position.width, position.height, borderRadius)
     context.closePath()
+
+    writeTextsAndAdjustPosition(context, texts, position, topPadding, leftPadding, borderRadius)
   }
 
   const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
-    const position = { x: 10, y: 200, width: 200, height: 200 }
+    const strType = DiagramItemType[diagramItem.itemType]
+    const dimension = SIZE_BY_ITEM_TYPE.get(strType)
 
-    if (diagramItem.position !== null) {
-      position.x = diagramItem.position.x
-      position.y = diagramItem.position.y
+    const position = { x: 10, y: 200, width: dimension.width, height: dimension.height }
+
+    if (diagramItem.canvasData.position !== null) {
+      position.x = diagramItem.canvasData.position.x
+      position.y = diagramItem.canvasData.position.y
     }
 
     return position
   }
 
+  const getColorByDiagramItem = (diagramItem: DiagramItem): string => {
+    const strType = DiagramItemType[diagramItem.itemType]
+    return diagramItem.canvasData.color !== null ? diagramItem.canvasData.color : COLOR_BY_ITEM_TYPE.get(strType)
+  }
+
   const instantiateDrawItems = (): void => {
     const newItems = diagramItems.filter(diagramItem => diagramItem.id !== undefined).map(diagramItem => {
-      // const diagramType = DiagramItemType[diagramItem.itemType]
-      // const [x, y, width, height] = [10, 30, 200, 200]
       const position = getPositionByDiagramItem(diagramItem)
       const itemType = DiagramItemType[diagramItem.itemType]
+      const color = getColorByDiagramItem(diagramItem)
 
       return {
         id: diagramItem.id !== undefined ? diagramItem.id : 'only to avoid error',
@@ -101,14 +97,17 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         name: diagramItem.name,
         description: diagramItem.itemDescription,
         details: diagramItem.details,
+        color,
         drawItem: (context: CanvasRenderingContext2D) => {
+          const texts = [diagramItem.name, diagramItem.itemDescription, diagramItem.details]
+
           switch (itemType) {
             case DiagramItemType[DiagramItemType.PERSON]:
-              return generateUserComponent(context, position)
+              return generateUserComponent(context, position, texts)
             case DiagramItemType[DiagramItemType.CONTAINER]:
-              return generateContainerComponent(context, position)
+              return generateContainerComponent(context, position, texts)
             default:
-              return generateUserComponent(context, position)
+              return generateUserComponent(context, position, texts)
           }
         }
       }
@@ -125,7 +124,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
       return
     }
 
-    diagramItem.position = { x: newPosition.x, y: newPosition.y }
+    diagramItem.canvasData.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
     diagramItem.isSelected = item.isSelected
 
     onDiagramItemChange([diagramItem])
