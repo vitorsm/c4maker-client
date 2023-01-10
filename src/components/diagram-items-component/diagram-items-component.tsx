@@ -1,4 +1,4 @@
-import { faPlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faPenToSquare, faDeleteLeft, faLink } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
 import { DiagramItem, DiagramItemType } from '../../models/diagram'
@@ -6,12 +6,15 @@ import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-con
 import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
 import { roundRect } from '../canvas-container/utils'
 import Card from '../card'
-import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer } from './style'
+import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
+import Dialog from '../dialog'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
   onDiagramItemChange: (updatedDiagramItems: DiagramItem[]) => void
+  onDiagramItemAdded: (diagramItem: DiagramItem) => void
+  onDiagramItemDeleted: (diagramItems: DiagramItem[]) => void
 }
 
 const CANVAS_WIDTH = 2246
@@ -30,13 +33,19 @@ COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.SOFTWARE_SYSTEM], '#55aa5
 COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.CONTAINER], '#55aa55')
 COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.COMPONENT], '#55aa55')
 
-const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange }: DiagramItemsComponentProps) => {
+let createdItemCount = 0
+
+const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
   const [drawableItems, setDrawableItems] = useState<DrawableItem[]>([])
   const [selectedDiagramItems, setSelectedDiagramItems] = useState<DiagramItem[]>([])
   const [showItemDialog, setShowItemDialog] = useState<boolean>(false)
+  const [diagramItemToDialog, setDiagramItemToDialog] = useState<DiagramItem | null>(null)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
+  const [isLinkingItem, setIsLinkingItem] = useState<boolean>(false)
 
   useEffect(() => {
+    console.log('will instantiate items', diagramItems)
     instantiateDrawItems()
   }, [diagramItems])
 
@@ -91,13 +100,13 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }
 
   const instantiateDrawItems = (): void => {
-    const newItems = diagramItems.filter(diagramItem => diagramItem.id !== undefined).map(diagramItem => {
+    const newItems = diagramItems.filter(diagramItem => diagramItem.key !== undefined).map(diagramItem => {
       const position = getPositionByDiagramItem(diagramItem)
       const itemType = DiagramItemType[diagramItem.itemType]
       const color = getColorByDiagramItem(diagramItem)
 
       return {
-        id: diagramItem.id !== undefined ? diagramItem.id : 'only to avoid error',
+        id: diagramItem.key !== undefined ? diagramItem.key : 'only to avoid error',
         type: DrawType.IMG,
         img: null,
         position,
@@ -121,11 +130,15 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
       }
     })
 
+    diagramItems.filter(diagramItem => diagramItem.key !== undefined).forEach(diagramItem => {
+
+    })
+
     setDrawableItems(newItems)
   }
 
   const onItemPositionChange = (item: DrawableItem, newPosition: Position): void => {
-    const diagramItem = diagramItems.find(d => d.id === item.id)
+    const diagramItem = diagramItems.find(d => d.key === item.id)
 
     if (diagramItem === undefined) {
       console.error('diagram item modified but not found')
@@ -138,14 +151,40 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     onDiagramItemChange([diagramItem])
   }
 
+  const handleLinkSelection = (items: DrawableItem[]): void => {
+    if (selectedDiagramItems.length !== 1) {
+      return
+    }
+
+    const previouslySelectedItem = selectedDiagramItems[0]
+    const selectedDrawbleItem = items[0]
+    const selectedDiagramItem = diagramItems.find(d => d.key === selectedDrawbleItem.id)
+
+    if (selectedDiagramItem === undefined) return
+
+    previouslySelectedItem.relationships.push({
+      diagramItem: selectedDiagramItem,
+      description: '',
+      details: ''
+    })
+
+    setIsLinkingItem(false)
+    onDiagramItemChange([previouslySelectedItem])
+  }
+
   const onItemSelectionChange = (items: DrawableItem[]): void => {
     const itemsMap = new Map()
-    items.forEach(item => {
+    items.filter(item => item.id).forEach(item => {
       itemsMap.set(item.id, item)
     })
 
+    if (isLinkingItem) {
+      handleLinkSelection(items)
+      return
+    }
+
     const newDiagramItems = diagramItems.map(diagramItem => {
-      const drawableItem = itemsMap.get(diagramItem.id)
+      const drawableItem = itemsMap.get(diagramItem.key)
       diagramItem.isSelected = drawableItem.isSelected
       return diagramItem
     })
@@ -156,22 +195,75 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
 
   const onAddItemClick = (): void => {
     setShowItemDialog(true)
+    setDiagramItemToDialog(null)
   }
 
-  const onAddItemDialogOkClick = (): void => {
+  const onEditItemClick = (): void => {
+    setShowItemDialog(true)
+    setDiagramItemToDialog(selectedDiagramItems.length === 1 ? selectedDiagramItems[0] : null)
+  }
 
+  const onDeleteItemClick = (): void => {
+    setShowDeleteConfirmation(true)
+  }
+
+  const onLinkItemClick = (): void => {
+    setIsLinkingItem(!isLinkingItem)
+  }
+
+  const onAddItemDialogOkClick = (diagramItem: DiagramItem): void => {
+    const isCreation = diagramItem.key === undefined
+
+    if (isCreation) {
+      console.log('diagramItem created', diagramItem)
+      diagramItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
+      onDiagramItemAdded(diagramItem)
+    } else {
+      console.log('diagramItem updated')
+      onDiagramItemChange([diagramItem])
+    }
+
+    setShowItemDialog(false)
   }
 
   const onAddItemDialogCancelClick = (): void => {
     setShowItemDialog(false)
   }
 
-  const renderItemDialog = (): ReactElement => {
-    const selectedItem = selectedDiagramItems.length === 1 ? selectedDiagramItems[0] : null
+  const onDeleteItemDialogOkClick = (): void => {
+    setShowDeleteConfirmation(false)
+    onDiagramItemDeleted(selectedDiagramItems)
+    setSelectedDiagramItems([])
+  }
+
+  const onDeleteItemDialogCancelClick = (): void => {
+    setShowDeleteConfirmation(false)
+  }
+
+  const renderConfirmItemDeletionDialog = (): ReactElement | null => {
+    if (!showDeleteConfirmation) return null
 
     return (
+      <Dialog show={showDeleteConfirmation} onOkClick={onDeleteItemDialogOkClick} onCancelClick={onDeleteItemDialogCancelClick}>
+        <DiagramItemConfirmDeleteBody>
+          Do you want to delete the following items ? <br />
+          {selectedDiagramItems.map((item, index) => {
+            return (
+              <div key={`item-name-to-delete-confirmation-${index}`}>
+                <br />
+                {item.name}
+              </div>
+            )
+          })}
+        </DiagramItemConfirmDeleteBody>
+      </Dialog>
+    )
+  }
+
+  const renderItemDialog = (): ReactElement => {
+    return (
       <AddDiagramItemDialog
-        diagramItem={selectedItem}
+        diagramItem={diagramItemToDialog}
         show={showItemDialog}
         onOkClick={onAddItemDialogOkClick}
         onCancelClick={onAddItemDialogCancelClick} />
@@ -183,11 +275,14 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
 
     return (
       <>
-        <Card key='diagram-button-edit-item' description={'edit'}>
+        <Card key='diagram-button-edit-item' description={'edit'} onClick={onEditItemClick}>
           <FontAwesomeIcon icon={faPenToSquare} size="1x" />
         </Card>
-        <Card key='diagram-button-delete-item' description={'delete'}>
-          <FontAwesomeIcon icon={faPenToSquare} size="1x" />
+        <Card key='diagram-button-delete-item' description={'delete'} onClick={onDeleteItemClick}>
+          <FontAwesomeIcon icon={faDeleteLeft} size="1x" />
+        </Card>
+        <Card key='diagram-button-link-item' description={'link'} onClick={onLinkItemClick}>
+          <FontAwesomeIcon icon={faLink} size="1x" />
         </Card>
         <ItemTitleNameContainer>
           {selectedDiagramItems.map(i => i.name).join(', ')}
@@ -206,6 +301,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         {renderButtonsForSelection()}
 
       </ButtonContainer>
+
       <CanvasParentContainer ref={componentRef}>
         <CanvasContainer
           drawableItems={drawableItems}
@@ -213,10 +309,12 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
           canvasHeight={CANVAS_HEIGHT}
           parentComponentRef={componentRef}
           onItemPositionChange={onItemPositionChange}
-          onItemSelectionChange={onItemSelectionChange} />
+          onItemSelectionChange={onItemSelectionChange}
+          drawLineToMouse={isLinkingItem} />
       </CanvasParentContainer>
 
       {renderItemDialog()}
+      {renderConfirmItemDeletionDialog()}
     </>
 
   )

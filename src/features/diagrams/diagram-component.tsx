@@ -12,6 +12,7 @@ import DiagramHeaderComponent from './diagram-header-component'
 const DIAGRAM_ITEMS = [
   {
     id: 'id1',
+    key: 'id1',
     name: 'OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO',
     itemDescription: '[description 1]',
     details: 'details asdfoiajsdfiojasdfoasdfiojaiodfj',
@@ -25,6 +26,7 @@ const DIAGRAM_ITEMS = [
     }
   }, {
     id: 'id2',
+    key: 'id2',
     name: 'name 2 item',
     itemDescription: '[description 2]',
     details: 'details 2asdfoiajsdfiojasdfoasdfiojaiodfjasdfoiajsdfiojasdfoasdfiojaiodfj',
@@ -82,6 +84,8 @@ const DiagramComponent: FC = () => {
       void diagramOperations.fetchDiagram(diagramId, dispatch)
       setIsLoading(true)
     }
+
+    console.log('define the first diagramItems')
   })
 
   useEffect(() => {
@@ -116,6 +120,8 @@ const DiagramComponent: FC = () => {
   }
 
   const onDiagramItemChange = (newDiagramItems: DiagramItem[]): void => {
+    console.log('onDiagramItemChange')
+
     const diagramItemIds = newDiagramItems.map(diagramItem => diagramItem.id)
     const persistedDiagramMap = new Map()
     diagramItems.filter(diagramItem => diagramItemIds.includes(diagramItem.id)).forEach(diagramItem => {
@@ -126,9 +132,23 @@ const DiagramComponent: FC = () => {
       const diagramItem = persistedDiagramMap.get(newDiagramItem.id)
       diagramItem.canvasData = newDiagramItem.canvasData
       diagramItem.isSelected = newDiagramItem.isSelected
+      diagramItem.name = newDiagramItem.name
+      diagramItem.itemDescription = newDiagramItem.itemDescription
+      diagramItem.details = newDiagramItem.details
     })
 
     setDiagramItems([...diagramItems])
+  }
+
+  const onDiagramItemAdded = (diagramItem: DiagramItem): void => {
+    console.log('will add diagramItem', diagramItem)
+    setDiagramItems([...diagramItems, diagramItem])
+  }
+  const onDiagramItemDeleted = (diagramItemsToDelete: DiagramItem[]): void => {
+    console.log('will delete', diagramItemsToDelete)
+    const itemKeys = diagramItemsToDelete.map(diagramItem => diagramItem.key)
+
+    setDiagramItems(diagramItems.filter(diagramItem => !itemKeys.includes(diagramItem.key)))
   }
 
   const renderContent = (): ReactElement => {
@@ -147,7 +167,11 @@ const DiagramComponent: FC = () => {
           closeCallback={handleOnCloseCallback}
           isLoadingDiagram={isLoading} />
 
-          <DiagramItemsComponent diagramItems={diagramItems} onDiagramItemChange={onDiagramItemChange}/>
+          <DiagramItemsComponent
+            diagramItems={diagramItems}
+            onDiagramItemChange={onDiagramItemChange}
+            onDiagramItemAdded={onDiagramItemAdded}
+            onDiagramItemDeleted={onDiagramItemDeleted} />
       </>
     )
   }

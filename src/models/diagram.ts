@@ -33,6 +33,7 @@ export interface DiagramItemCanvasData {
 
 export interface DiagramItem extends GenericEntity {
   id?: string
+  key?: string
   name: string
   itemDescription: string
   details: string

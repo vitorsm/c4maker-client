@@ -75,3 +75,12 @@ export const roundRect = (context: CanvasRenderingContext2D, x: number, y: numbe
 
   context.fill()
 }
+
+export const drawLineFromPositionToPosition = (context: CanvasRenderingContext2D, fromPosition: Position | null, toPosition: Position | null): void => {
+  if (fromPosition === null || toPosition === null) return
+
+  context.beginPath()
+  context.moveTo(fromPosition?.x, fromPosition.y)
+  context.lineTo(toPosition.x, toPosition.y)
+  context.stroke()
+}

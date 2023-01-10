@@ -22,3 +22,6 @@ export const ItemTitleNameContainer = styled.div`
 export const DiagramItemFormContainer = styled.div`
   padding: 10px;
 `
+export const DiagramItemConfirmDeleteBody = styled.div`
+  padding: 10px;
+`

@@ -1,5 +1,5 @@
 import React, { FC, RefObject, useEffect, useRef, useState } from 'react'
-import { extractEventPosition, getClickedItem, handleSelectItem } from './utils'
+import { drawLineFromPositionToPosition, extractEventPosition, getClickedItem, handleSelectItem } from './utils'
 
 export enum DrawType {
   IMG,
@@ -20,7 +20,7 @@ export interface DrawableItem {
   img: HTMLImageElement | null
   position: Position
   isSelected: boolean
-  drawItem: any | null
+  drawItem: Function | null
   name: string
   details: string
   description: string
@@ -41,6 +41,7 @@ export interface CanvasContainerProps {
   parentComponentRef: RefObject<HTMLElement>
   onItemPositionChange: (item: DrawableItem, newPosition: Position) => void
   onItemSelectionChange: (items: DrawableItem[]) => void
+  drawLineToMouse: boolean
 }
 
 const ITEMS_COLOR = '#0000FF'
@@ -50,16 +51,20 @@ const SELECTED_LINE_SIZE = 4
 const BACKGROUND_DISTANCE_BETWEEN_CIRCLE = 30
 const BACKGROUND_SIZE_OF_CIRCLE = 3
 
-const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange }: CanvasContainerProps) => {
+const CanvasContainer: FC<CanvasContainerProps> = ({
+  drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange, drawLineToMouse
+}: CanvasContainerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [itemsToDraw, setItemsToDraw] = useState<DrawableItem[]>([])
   const [diffClickPosition, setDiffClickPosition] = useState<Position>({ x: 0, y: 0, width: 0, height: 0 })
-  const [isMouseDown, setMouseDown] = useState(false)
+  const [isMouseDown, setMouseDown] = useState<boolean>(false)
+  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
+  const [mousePosition, setMousePosition] = useState<Position | null>(null)
 
   useEffect(() => {
     render()
-  }, [canvasWidth, canvasHeight, itemsToDraw])
+  }, [canvasWidth, canvasHeight, itemsToDraw, mousePosition, drawLineToMouse])
 
   useEffect(() => {
     setItemsToDraw(drawableItems)
@@ -92,7 +97,6 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
 
   const drawItems = (context: CanvasRenderingContext2D): void => {
     context.fillStyle = ITEMS_COLOR
-    // context.beginPath()
 
     itemsToDraw.forEach(item => {
       switch (item.type) {
@@ -100,9 +104,6 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
           if (item.drawItem !== null) {
             context.fillStyle = item.color
             item.drawItem(context)
-            // context.setTransform(item.width / item.path2DData.originalWidth, 0, 0, item.height / item.path2DData.originalHeight, item.x, item.y)
-            // context.fill(item.path2DData.path2D)
-            // context.resetTransform()
           } else if (item.img !== null) {
             const position = item.position
             context.fillStyle = item.color
@@ -125,6 +126,10 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
       context.stroke()
       context.closePath()
     })
+
+    if (drawLineToMouse) {
+      drawLineFromPositionToPosition(context, selectedPosition, mousePosition)
+    }
   }
 
   const getSelectedItems = (): DrawableItem[] => {
@@ -142,11 +147,11 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
         width: 0,
         height: 0
       })
+      setSelectedPosition(position)
     }
 
     const newItems = handleSelectItem(position, itemsToDraw)
     if (newItems !== null) {
-      // setItemsToDraw([...newItems])
       onItemSelectionChange([...newItems])
     }
 
@@ -159,9 +164,16 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
   }
 
   const handleOnMouseMove = (event: any): void => {
-    if (!isMouseDown) return
+    if (!isMouseDown && (selectedPosition === null || !drawLineToMouse)) return
 
     const position = extractEventPosition(event, parentComponentRef)
+
+    if (drawLineToMouse) {
+      setMousePosition(position)
+    }
+
+    if (!isMouseDown) return
+
     const selectedItem = itemsToDraw.find(item => item.isSelected)
 
     if (selectedItem === undefined) return
@@ -171,7 +183,6 @@ const CanvasContainer: FC<CanvasContainerProps> = ({ drawableItems, canvasWidth,
     newPosition.y = position.y - diffClickPosition.y
 
     onItemPositionChange(selectedItem, newPosition)
-    // setItemsToDraw([...itemsToDraw])
   }
 
   return (

@@ -3,7 +3,7 @@ import { defaultColors } from '../../configs/colors'
 import PlainButton from '../plain-button'
 import { Screen, Container, TitleContainer, DetailContainer, ButtonContainer } from './style'
 
-interface DialogProps {
+export interface DialogProps {
   title?: string
   children: ReactElement
   show: boolean

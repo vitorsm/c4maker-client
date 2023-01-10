@@ -7,7 +7,7 @@ import { DiagramItemFormContainer } from './style'
 interface AddDiagramItemDialogProps {
   diagramItem: DiagramItem | null
   show: boolean
-  onOkClick: Function
+  onOkClick: (diagramItem: DiagramItem) => void
   onCancelClick: Function
   dataTestId?: string
 }
@@ -46,8 +46,29 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
   }
 
   const onOkClickInternal = (): void => {
-    onOkClick(updatedDiagramItem)
+    if (updatedDiagramItem !== null) {
+      onOkClick(updatedDiagramItem)
+    }
+
     setUpdatedDiagramItem(null)
+  }
+
+  const onNameChange = (newName: string): void => {
+    if (updatedDiagramItem === null) return
+    updatedDiagramItem.name = newName
+    setUpdatedDiagramItem(updatedDiagramItem)
+  }
+
+  const onDescriptionChange = (newDescription: string): void => {
+    if (updatedDiagramItem === null) return
+    updatedDiagramItem.itemDescription = newDescription
+    setUpdatedDiagramItem(updatedDiagramItem)
+  }
+
+  const onDetailsChange = (newDetails: string): void => {
+    if (updatedDiagramItem === null) return
+    updatedDiagramItem.details = newDetails
+    setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const renderFormBody = (): ReactElement | null => {
@@ -55,9 +76,9 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
 
     return (
       <DiagramItemFormContainer>
-        <TextInput title={'Name'} value={updatedDiagramItem.name}></TextInput>
-        <TextInput title={'Description'} value={updatedDiagramItem.itemDescription}></TextInput>
-        <TextInput title={'Details'} value={updatedDiagramItem.details} type="text-area"></TextInput>
+        <TextInput title={'Name'} value={updatedDiagramItem.name} onChange={onNameChange}></TextInput>
+        <TextInput title={'Description'} value={updatedDiagramItem.itemDescription} onChange={onDescriptionChange}></TextInput>
+        <TextInput title={'Details'} value={updatedDiagramItem.details} type="text-area" onChange={onDetailsChange}></TextInput>
       </DiagramItemFormContainer>
     )
   }
