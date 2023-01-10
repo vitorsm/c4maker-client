@@ -10,5 +10,15 @@ export const CanvasParentContainer = styled.div`
 `
 
 export const ButtonContainer = styled.div`
-  
+  display: flex;
+`
+
+export const ItemTitleNameContainer = styled.div`
+  padding: 10px;
+  display: flex;
+  align-items: center;
+`
+
+export const DiagramItemFormContainer = styled.div`
+  padding: 10px;
 `

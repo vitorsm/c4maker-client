@@ -1,12 +1,13 @@
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
 import { DiagramItem, DiagramItemType } from '../../models/diagram'
 import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-container/canvas-container'
 import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
 import { roundRect } from '../canvas-container/utils'
 import Card from '../card'
-import { CanvasParentContainer, ButtonContainer } from './style'
+import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer } from './style'
+import AddDiagramItemDialog from './add-diagram-item-dialog'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
@@ -32,6 +33,8 @@ COLOR_BY_ITEM_TYPE.set(DiagramItemType[DiagramItemType.COMPONENT], '#55aa55')
 const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
   const [drawableItems, setDrawableItems] = useState<DrawableItem[]>([])
+  const [selectedDiagramItems, setSelectedDiagramItems] = useState<DiagramItem[]>([])
+  const [showItemDialog, setShowItemDialog] = useState<boolean>(false)
 
   useEffect(() => {
     instantiateDrawItems()
@@ -148,14 +151,60 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     })
 
     onDiagramItemChange(newDiagramItems)
+    setSelectedDiagramItems(newDiagramItems.filter(i => i.isSelected))
+  }
+
+  const onAddItemClick = (): void => {
+    setShowItemDialog(true)
+  }
+
+  const onAddItemDialogOkClick = (): void => {
+
+  }
+
+  const onAddItemDialogCancelClick = (): void => {
+    setShowItemDialog(false)
+  }
+
+  const renderItemDialog = (): ReactElement => {
+    const selectedItem = selectedDiagramItems.length === 1 ? selectedDiagramItems[0] : null
+
+    return (
+      <AddDiagramItemDialog
+        diagramItem={selectedItem}
+        show={showItemDialog}
+        onOkClick={onAddItemDialogOkClick}
+        onCancelClick={onAddItemDialogCancelClick} />
+    )
+  }
+
+  const renderButtonsForSelection = (): ReactElement | null => {
+    if (selectedDiagramItems.length === 0) return null
+
+    return (
+      <>
+        <Card key='diagram-button-edit-item' description={'edit'}>
+          <FontAwesomeIcon icon={faPenToSquare} size="1x" />
+        </Card>
+        <Card key='diagram-button-delete-item' description={'delete'}>
+          <FontAwesomeIcon icon={faPenToSquare} size="1x" />
+        </Card>
+        <ItemTitleNameContainer>
+          {selectedDiagramItems.map(i => i.name).join(', ')}
+        </ItemTitleNameContainer>
+      </>
+    )
   }
 
   return (
     <>
       <ButtonContainer>
-        <Card key='diagram-button-create-new' description={'add item'}>
-          <FontAwesomeIcon icon={faPlus} size="2x" />
+        <Card key='diagram-button-create-new-item' description={'add'} onClick={onAddItemClick}>
+          <FontAwesomeIcon icon={faPlus} size="1x" />
         </Card>
+
+        {renderButtonsForSelection()}
+
       </ButtonContainer>
       <CanvasParentContainer ref={componentRef}>
         <CanvasContainer
@@ -166,6 +215,8 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
           onItemPositionChange={onItemPositionChange}
           onItemSelectionChange={onItemSelectionChange} />
       </CanvasParentContainer>
+
+      {renderItemDialog()}
     </>
 
   )
