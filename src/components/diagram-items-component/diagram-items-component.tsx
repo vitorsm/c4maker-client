@@ -1,10 +1,10 @@
 import { faPlus, faPenToSquare, faDeleteLeft, faLink } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
-import { DiagramItem, DiagramItemType } from '../../models/diagram'
+import { DiagramItem, DiagramItemRelationship, DiagramItemType } from '../../models/diagram'
 import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-container/canvas-container'
 import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
-import { roundRect } from '../canvas-container/utils'
+import { drawLineFromPositionToPosition, roundRect } from '../canvas-container/utils'
 import Card from '../card'
 import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
@@ -80,6 +80,25 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     writeTextsAndAdjustPosition(context, texts, position, topPadding, leftPadding, borderRadius)
   }
 
+  const generateRelationshipComponent = (context: CanvasRenderingContext2D, texts: string[],
+    relationship: DiagramItemRelationship, sourceItemPosition: Position, targetItemPosition: Position): void => {
+    const fromPosition = {
+      x: relationship.fromPosition.x + sourceItemPosition.x,
+      y: relationship.fromPosition.y + sourceItemPosition.y,
+      width: 0,
+      height: 0
+    }
+
+    const toPosition = {
+      x: relationship.toPosition.x + targetItemPosition.x,
+      y: relationship.toPosition.y + targetItemPosition.y,
+      width: 0,
+      height: 0
+    }
+
+    drawLineFromPositionToPosition(context, fromPosition, toPosition)
+  }
+
   const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
     const strType = DiagramItemType[diagramItem.itemType]
     const dimension = SIZE_BY_ITEM_TYPE.get(strType)
@@ -131,7 +150,35 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     })
 
     diagramItems.filter(diagramItem => diagramItem.key !== undefined).forEach(diagramItem => {
+      const sourceItemPosition = diagramItem.canvasData.position
 
+      if (sourceItemPosition === null) {
+        return null
+      }
+
+      diagramItem.relationships.forEach(relation => {
+        const targetItemPosition = relation.diagramItem.canvasData.position
+
+        if (targetItemPosition === null) {
+          return null
+        }
+
+        newItems.push({
+          id: diagramItem.key !== undefined ? diagramItem.key : 'only to avoid error',
+          type: DrawType.IMG,
+          img: null,
+          position: relation.fromPosition,
+          isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
+          name: diagramItem.name,
+          description: diagramItem.itemDescription,
+          details: diagramItem.details,
+          color: '#000000',
+          drawItem: (context: CanvasRenderingContext2D) => {
+            const texts = [relation.description, relation.details]
+            generateRelationshipComponent(context, texts, relation, sourceItemPosition, targetItemPosition)
+          }
+        })
+      })
     })
 
     setDrawableItems(newItems)
@@ -151,21 +198,36 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     onDiagramItemChange([diagramItem])
   }
 
-  const handleLinkSelection = (items: DrawableItem[]): void => {
+  const onLink = (targetItem: DrawableItem, fromPosition: Position, toPosition: Position): void => {
     if (selectedDiagramItems.length !== 1) {
       return
     }
 
     const previouslySelectedItem = selectedDiagramItems[0]
-    const selectedDrawbleItem = items[0]
-    const selectedDiagramItem = diagramItems.find(d => d.key === selectedDrawbleItem.id)
+    const selectedDiagramItem = diagramItems.find(d => d.key === targetItem.id)
 
     if (selectedDiagramItem === undefined) return
+
+    let sourceX = 0
+    let sourceY = 0
+    let targetX = 0
+    let targetY = 0
+
+    if (previouslySelectedItem.canvasData.position !== null) {
+      sourceX = fromPosition.x - previouslySelectedItem.canvasData.position.x
+      sourceY = fromPosition.y - previouslySelectedItem.canvasData.position.y
+    }
+    if (selectedDiagramItem.canvasData.position !== null) {
+      targetX = toPosition.x - selectedDiagramItem.canvasData.position.x
+      targetY = toPosition.y - selectedDiagramItem.canvasData.position.y
+    }
 
     previouslySelectedItem.relationships.push({
       diagramItem: selectedDiagramItem,
       description: '',
-      details: ''
+      details: '',
+      fromPosition: { ...fromPosition, x: sourceX, y: sourceY },
+      toPosition: { ...toPosition, x: targetX, y: targetY }
     })
 
     setIsLinkingItem(false)
@@ -177,11 +239,6 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     items.filter(item => item.id).forEach(item => {
       itemsMap.set(item.id, item)
     })
-
-    if (isLinkingItem) {
-      handleLinkSelection(items)
-      return
-    }
 
     const newDiagramItems = diagramItems.map(diagramItem => {
       const drawableItem = itemsMap.get(diagramItem.key)
@@ -310,6 +367,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
           parentComponentRef={componentRef}
           onItemPositionChange={onItemPositionChange}
           onItemSelectionChange={onItemSelectionChange}
+          onLink={onLink}
           drawLineToMouse={isLinkingItem} />
       </CanvasParentContainer>
 

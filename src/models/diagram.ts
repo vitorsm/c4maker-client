@@ -17,6 +17,8 @@ export interface DiagramItemRelationship {
   diagramItem: DiagramItem
   description: string
   details: string
+  fromPosition: DiagramItemPosition
+  toPosition: DiagramItemPosition
 }
 
 export interface DiagramItemPosition {

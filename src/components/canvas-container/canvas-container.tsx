@@ -41,6 +41,7 @@ export interface CanvasContainerProps {
   parentComponentRef: RefObject<HTMLElement>
   onItemPositionChange: (item: DrawableItem, newPosition: Position) => void
   onItemSelectionChange: (items: DrawableItem[]) => void
+  onLink: (targetItem: DrawableItem, fromPosition: Position, toPosition: Position) => void
   drawLineToMouse: boolean
 }
 
@@ -52,14 +53,14 @@ const BACKGROUND_DISTANCE_BETWEEN_CIRCLE = 30
 const BACKGROUND_SIZE_OF_CIRCLE = 3
 
 const CanvasContainer: FC<CanvasContainerProps> = ({
-  drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange, drawLineToMouse
+  drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange, onLink, drawLineToMouse
 }: CanvasContainerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [itemsToDraw, setItemsToDraw] = useState<DrawableItem[]>([])
   const [diffClickPosition, setDiffClickPosition] = useState<Position>({ x: 0, y: 0, width: 0, height: 0 })
   const [isMouseDown, setMouseDown] = useState<boolean>(false)
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
+  const [fromPosition, setFromPosition] = useState<Position | null>(null)
   const [mousePosition, setMousePosition] = useState<Position | null>(null)
 
   useEffect(() => {
@@ -128,7 +129,7 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
     })
 
     if (drawLineToMouse) {
-      drawLineFromPositionToPosition(context, selectedPosition, mousePosition)
+      drawLineFromPositionToPosition(context, fromPosition, mousePosition)
     }
   }
 
@@ -147,7 +148,11 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
         width: 0,
         height: 0
       })
-      setSelectedPosition(position)
+
+      if (drawLineToMouse) {
+        setFromPosition(position)
+        setMousePosition(null)
+      }
     }
 
     const newItems = handleSelectItem(position, itemsToDraw)
@@ -161,15 +166,25 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
   const handleOnMouseUp = (event: any): void => {
     setMouseDown(false)
     setDiffClickPosition({ x: 0, y: 0, width: 0, height: 0 })
+
+    if (drawLineToMouse && fromPosition !== null && mousePosition !== null) {
+      const destinationItem = getClickedItem(mousePosition, itemsToDraw)
+      if (destinationItem !== null) {
+        onLink(destinationItem, fromPosition, mousePosition)
+      }
+    }
+
+    setFromPosition(null)
   }
 
   const handleOnMouseMove = (event: any): void => {
-    if (!isMouseDown && (selectedPosition === null || !drawLineToMouse)) return
+    if (!isMouseDown && (fromPosition === null || !drawLineToMouse)) return
 
     const position = extractEventPosition(event, parentComponentRef)
 
     if (drawLineToMouse) {
       setMousePosition(position)
+      return
     }
 
     if (!isMouseDown) return
