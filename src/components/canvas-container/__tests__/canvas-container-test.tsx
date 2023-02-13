@@ -2,6 +2,7 @@ import React from 'react'
 import { render, fireEvent, screen } from '@testing-library/react'
 import CanvasContainer from '../canvas-container'
 import { generateDrawableItem, generatePosition, generateScrollComponentRef } from '../../../utils/jest.mock'
+import { DrawType } from '../models'
 
 test('test render canvas components', async () => {
   const drawFunction = jest.fn()
@@ -209,4 +210,30 @@ test('test link items without destination', async () => {
   await fireEvent.mouseUp(canvasComponent)
 
   expect(onLinkFunction).not.toBeCalled()
+})
+
+test('test draw line items', async () => {
+  const itemPosition1 = generatePosition(100, 100, 100, 100)
+  const itemPosition2 = generatePosition(202, 100, 100, 100)
+
+  const drawFunction = jest.fn()
+
+  const item1 = generateDrawableItem(itemPosition1, drawFunction, DrawType.LINE)
+  const item2 = generateDrawableItem(itemPosition2, drawFunction, DrawType.LINE)
+  const drawableItems = [item1, item2]
+  const mockParentComponentRef = generateScrollComponentRef(0, 0)
+
+  render(
+    <CanvasContainer
+    drawableItems={drawableItems}
+    canvasWidth={1000}
+    canvasHeight={500}
+    parentComponentRef={mockParentComponentRef}
+    onItemPositionChange={jest.fn()}
+    onItemSelectionChange={jest.fn()}
+    onLink={jest.fn()}
+    drawLineToMouse={true} />
+  )
+
+  expect(drawFunction).toBeCalledTimes(2)
 })

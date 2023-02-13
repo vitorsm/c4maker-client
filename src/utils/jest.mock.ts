@@ -3,12 +3,12 @@ import { DiagramItem, DiagramItemType } from '../models/diagram'
 
 const ITEM_IDS = { drawableItemCount: 0, diagramItemCount: 0 }
 
-export const generateDrawableItem = (position: Position, drawFunction: Function): DrawableItem => {
+export const generateDrawableItem = (position: Position, drawFunction: Function, itemType: DrawType = DrawType.IMG): DrawableItem => {
   const itemCount = ITEM_IDS.drawableItemCount++
 
   return {
     id: `id_${itemCount}`,
-    type: DrawType.IMG,
+    type: itemType,
     img: null,
     position,
     isSelected: false,

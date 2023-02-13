@@ -17,7 +17,7 @@ const writeText = (context: CanvasRenderingContext2D, text: string, position: Po
       tempText += text[textIndex]
     } else {
       textsToWrite.push(tempText)
-      tempText = ''
+      tempText = text[textIndex]
     }
   }
 
