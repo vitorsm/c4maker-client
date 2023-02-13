@@ -1,38 +1,6 @@
 import React, { FC, RefObject, useEffect, useRef, useState } from 'react'
+import { DrawableItem, DrawType, Position } from './models'
 import { drawLineFromPositionToPosition, extractEventPosition, getClickedItem, handleSelectItem } from './utils'
-
-export enum DrawType {
-  IMG,
-  LINE,
-  REC,
-  ARC
-}
-
-export interface Path2DData {
-  path2D: Path2D
-  originalWidth: number
-  originalHeight: number
-}
-
-export interface DrawableItem {
-  id: string
-  type: DrawType
-  img: HTMLImageElement | null
-  position: Position
-  isSelected: boolean
-  drawItem: Function | null
-  name: string
-  details: string
-  description: string
-  color: string
-}
-
-export interface Position {
-  x: number
-  y: number
-  width: number
-  height: number
-}
 
 export interface CanvasContainerProps {
   drawableItems: DrawableItem[]
@@ -47,8 +15,8 @@ export interface CanvasContainerProps {
 
 const ITEMS_COLOR = '#0000FF'
 const BACKGROUND_ITEM_COLOR = '#bdb7b7'
-const SELECTED_ITEM_COLOR = '#b83d3d'
-const SELECTED_LINE_SIZE = 4
+export const SELECTED_ITEM_COLOR = '#b83d3d'
+export const SELECTED_LINE_SIZE = 4
 const BACKGROUND_DISTANCE_BETWEEN_CIRCLE = 30
 const BACKGROUND_SIZE_OF_CIRCLE = 3
 
@@ -77,6 +45,10 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
 
     drawBackground(context)
     drawItems(context)
+
+    if (drawLineToMouse) {
+      drawLineFromPositionToPosition(context, fromPosition, mousePosition)
+    }
   }
 
   const drawBackground = (context: CanvasRenderingContext2D): void => {
@@ -98,17 +70,21 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
 
   const drawItems = (context: CanvasRenderingContext2D): void => {
     context.fillStyle = ITEMS_COLOR
-
     itemsToDraw.forEach(item => {
+      context.fillStyle = item.color
+
       switch (item.type) {
         case DrawType.IMG:
           if (item.drawItem !== null) {
-            context.fillStyle = item.color
             item.drawItem(context)
           } else if (item.img !== null) {
             const position = item.position
-            context.fillStyle = item.color
             context.drawImage(item.img, position.x, position.y, position.width, position.height)
+          }
+          break
+        case DrawType.LINE:
+          if (item.drawItem !== null) {
+            item.drawItem(context)
           }
           break
         default:
@@ -127,10 +103,6 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
       context.stroke()
       context.closePath()
     })
-
-    if (drawLineToMouse) {
-      drawLineFromPositionToPosition(context, fromPosition, mousePosition)
-    }
   }
 
   const getSelectedItems = (): DrawableItem[] => {
@@ -138,24 +110,24 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
   }
 
   const handleOnMouseDown = (event: any): void => {
-    const position = extractEventPosition(event, parentComponentRef)
-    const selectedItem = getClickedItem(position, itemsToDraw)
+    const clickPosition = extractEventPosition(event, parentComponentRef)
+    const selectedItem = getClickedItem(clickPosition, itemsToDraw)
 
     if (selectedItem !== null) {
       setDiffClickPosition({
-        x: position.x - selectedItem.position.x,
-        y: position.y - selectedItem.position.y,
+        x: clickPosition.x - selectedItem.position.x,
+        y: clickPosition.y - selectedItem.position.y,
         width: 0,
         height: 0
       })
 
       if (drawLineToMouse) {
-        setFromPosition(position)
+        setFromPosition(clickPosition)
         setMousePosition(null)
       }
     }
 
-    const newItems = handleSelectItem(position, itemsToDraw)
+    const newItems = handleSelectItem(clickPosition, itemsToDraw)
     if (newItems !== null) {
       onItemSelectionChange([...newItems])
     }
@@ -202,6 +174,7 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
 
   return (
     <canvas
+      data-testid={'canvas-component-test-id'}
       ref={canvasRef}
       width={canvasWidth}
       height={canvasHeight}

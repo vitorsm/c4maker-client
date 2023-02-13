@@ -84,8 +84,6 @@ const DiagramComponent: FC = () => {
       void diagramOperations.fetchDiagram(diagramId, dispatch)
       setIsLoading(true)
     }
-
-    console.log('define the first diagramItems')
   })
 
   useEffect(() => {
@@ -120,8 +118,6 @@ const DiagramComponent: FC = () => {
   }
 
   const onDiagramItemChange = (newDiagramItems: DiagramItem[]): void => {
-    console.log('onDiagramItemChange')
-
     const diagramItemIds = newDiagramItems.map(diagramItem => diagramItem.id)
     const persistedDiagramMap = new Map()
     diagramItems.filter(diagramItem => diagramItemIds.includes(diagramItem.id)).forEach(diagramItem => {
@@ -141,11 +137,9 @@ const DiagramComponent: FC = () => {
   }
 
   const onDiagramItemAdded = (diagramItem: DiagramItem): void => {
-    console.log('will add diagramItem', diagramItem)
     setDiagramItems([...diagramItems, diagramItem])
   }
   const onDiagramItemDeleted = (diagramItemsToDelete: DiagramItem[]): void => {
-    console.log('will delete', diagramItemsToDelete)
     const itemKeys = diagramItemsToDelete.map(diagramItem => diagramItem.key)
 
     setDiagramItems(diagramItems.filter(diagramItem => !itemKeys.includes(diagramItem.key)))

@@ -6,9 +6,9 @@ test('test card - content without description', () => {
   const cardTestId = 'card-test-id'
   const contentText = 'test-text'
 
-  render(<Card dataTestId={cardTestId}><div data-testid='content-id'>{contentText}</div></Card>)
+  const { getByTestId } = render(<Card dataTestId={cardTestId}><div data-testid='content-id'>{contentText}</div></Card>)
 
-  const card = screen.getByTestId(cardTestId)
+  const card = getByTestId(cardTestId)
 
   expect(card).toHaveTextContent(contentText)
   expect(screen.queryByTestId(`description-container-${cardTestId}`)).not.toBeInTheDocument()

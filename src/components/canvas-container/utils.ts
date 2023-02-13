@@ -1,5 +1,6 @@
 import { RefObject } from 'react'
-import { DrawableItem, Position } from './canvas-container'
+import { SELECTED_ITEM_COLOR, SELECTED_LINE_SIZE } from './canvas-container'
+import { DrawableItem, DrawType, Position } from './models'
 
 export const extractEventPosition = (event: any, componentRef: RefObject<HTMLElement>): Position => {
   const containerComponent = componentRef.current
@@ -35,7 +36,7 @@ export const isPositionInItem = (drawItem: DrawableItem, position: Position): bo
 }
 
 export const getClickedItem = (position: Position, items: DrawableItem[]): DrawableItem | null => {
-  const selectedItem = items.filter(item => isPositionInItem(item, position))
+  const selectedItem = items.filter(item => item.type === DrawType.IMG && isPositionInItem(item, position))
   return selectedItem.length === 0 ? null : selectedItem[selectedItem.length - 1]
 }
 
@@ -80,6 +81,10 @@ export const drawLineFromPositionToPosition = (context: CanvasRenderingContext2D
   if (fromPosition === null || toPosition === null) return
 
   context.beginPath()
+
+  context.lineWidth = SELECTED_LINE_SIZE + 1
+  context.strokeStyle = SELECTED_ITEM_COLOR
+
   context.moveTo(fromPosition?.x, fromPosition.y)
   context.lineTo(toPosition.x, toPosition.y)
   context.stroke()

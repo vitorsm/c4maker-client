@@ -1,4 +1,4 @@
-import { Position } from './canvas-container'
+import { Position } from './models'
 
 const TITLE_FONT_SIZE = 18
 const BODY_FONT_SIZE = 14

@@ -1,14 +1,15 @@
 import { faPlus, faPenToSquare, faDeleteLeft, faLink } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
-import { DiagramItem, DiagramItemRelationship, DiagramItemType } from '../../models/diagram'
-import CanvasContainer, { DrawableItem, DrawType, Position } from '../canvas-container/canvas-container'
-import { writeTextsAndAdjustPosition } from '../canvas-container/text-utils'
-import { drawLineFromPositionToPosition, roundRect } from '../canvas-container/utils'
+import { DiagramItem, DiagramItemType } from '../../models/diagram'
+import CanvasContainer from '../canvas-container/canvas-container'
+import { DrawableItem, DrawType, Position } from '../canvas-container/models'
+
 import Card from '../card'
 import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
+import { generateContainerComponent, generateRelationshipComponent, generateUserComponent } from './component_utils'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
@@ -45,64 +46,14 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   const [isLinkingItem, setIsLinkingItem] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log('will instantiate items', diagramItems)
     instantiateDrawItems()
   }, [diagramItems])
-
-  const generateUserComponent = (context: CanvasRenderingContext2D, position: Position, texts: string[]): void => {
-    const circleRadius = position.height * 0.23
-    const circleX = position.x + position.width / 2
-    const startBoxY = 0.8 * circleRadius * 2
-    const boxHeight = position.height - circleRadius * 2 * 0.8
-    const borderRadius = 50
-    const topPadding = 10
-    const leftPadding = 2
-
-    const boxPosition = { x: position.x, y: position.y + startBoxY, width: position.width, height: boxHeight }
-
-    context.beginPath()
-    context.arc(circleX, position.y + circleRadius, circleRadius, 0, 2 * Math.PI)
-    roundRect(context, boxPosition.x, boxPosition.y, boxPosition.width, boxPosition.height, borderRadius)
-    context.closePath()
-
-    writeTextsAndAdjustPosition(context, texts, boxPosition, topPadding, leftPadding, borderRadius)
-  }
-
-  const generateContainerComponent = (context: CanvasRenderingContext2D, position: Position, texts: string[]): void => {
-    const topPadding = 10
-    const leftPadding = 2
-    const borderRadius = 10
-
-    context.beginPath()
-    roundRect(context, position.x, position.y, position.width, position.height, borderRadius)
-    context.closePath()
-
-    writeTextsAndAdjustPosition(context, texts, position, topPadding, leftPadding, borderRadius)
-  }
-
-  const generateRelationshipComponent = (context: CanvasRenderingContext2D, texts: string[],
-    relationship: DiagramItemRelationship, sourceItemPosition: Position, targetItemPosition: Position): void => {
-    const fromPosition = {
-      x: relationship.fromPosition.x + sourceItemPosition.x,
-      y: relationship.fromPosition.y + sourceItemPosition.y,
-      width: 0,
-      height: 0
-    }
-
-    const toPosition = {
-      x: relationship.toPosition.x + targetItemPosition.x,
-      y: relationship.toPosition.y + targetItemPosition.y,
-      width: 0,
-      height: 0
-    }
-
-    drawLineFromPositionToPosition(context, fromPosition, toPosition)
-  }
 
   const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
     const strType = DiagramItemType[diagramItem.itemType]
     const dimension = SIZE_BY_ITEM_TYPE.get(strType)
 
+    // todo - define the square center as default x, y
     const position = { x: 10, y: 200, width: dimension.width, height: dimension.height }
 
     if (diagramItem.canvasData.position !== null) {
@@ -118,35 +69,39 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     return diagramItem.canvasData.color !== null ? diagramItem.canvasData.color : COLOR_BY_ITEM_TYPE.get(strType)
   }
 
-  const instantiateDrawItems = (): void => {
-    const newItems = diagramItems.filter(diagramItem => diagramItem.key !== undefined).map(diagramItem => {
-      const position = getPositionByDiagramItem(diagramItem)
-      const itemType = DiagramItemType[diagramItem.itemType]
-      const color = getColorByDiagramItem(diagramItem)
+  const convertDiagramItemToDrawableItem = (diagramItem: DiagramItem): DrawableItem => {
+    const position = getPositionByDiagramItem(diagramItem)
+    const itemType = DiagramItemType[diagramItem.itemType]
+    const color = getColorByDiagramItem(diagramItem)
 
-      return {
-        id: diagramItem.key !== undefined ? diagramItem.key : 'only to avoid error',
-        type: DrawType.IMG,
-        img: null,
-        position,
-        isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
-        name: diagramItem.name,
-        description: diagramItem.itemDescription,
-        details: diagramItem.details,
-        color,
-        drawItem: (context: CanvasRenderingContext2D) => {
-          const texts = [diagramItem.name, diagramItem.itemDescription, diagramItem.details]
+    return {
+      id: diagramItem.key !== undefined ? diagramItem.key : 'only to avoid error',
+      type: DrawType.IMG,
+      img: null,
+      position,
+      isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
+      name: diagramItem.name,
+      description: diagramItem.itemDescription,
+      details: diagramItem.details,
+      color,
+      drawItem: (context: CanvasRenderingContext2D) => {
+        const texts = [diagramItem.name, diagramItem.itemDescription, diagramItem.details]
 
-          switch (itemType) {
-            case DiagramItemType[DiagramItemType.PERSON]:
-              return generateUserComponent(context, position, texts)
-            case DiagramItemType[DiagramItemType.CONTAINER]:
-              return generateContainerComponent(context, position, texts)
-            default:
-              return generateUserComponent(context, position, texts)
-          }
+        switch (itemType) {
+          case DiagramItemType[DiagramItemType.PERSON]:
+            return generateUserComponent(context, position, texts)
+          case DiagramItemType[DiagramItemType.CONTAINER]:
+            return generateContainerComponent(context, position, texts)
+          default:
+            return generateUserComponent(context, position, texts)
         }
       }
+    }
+  }
+
+  const instantiateDrawItems = (): void => {
+    const newItems = diagramItems.filter(diagramItem => diagramItem.key !== undefined).map(diagramItem => {
+      return convertDiagramItemToDrawableItem(diagramItem)
     })
 
     diagramItems.filter(diagramItem => diagramItem.key !== undefined).forEach(diagramItem => {
@@ -156,26 +111,28 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         return null
       }
 
-      diagramItem.relationships.forEach(relation => {
-        const targetItemPosition = relation.diagramItem.canvasData.position
+      diagramItem.relationships.forEach(relationship => {
+        const targetItem = relationship.diagramItem
+        const targetKey = targetItem.key !== undefined ? targetItem.key : 'only to avoid error'
+        const targetItemPosition = targetItem.canvasData.position
 
         if (targetItemPosition === null) {
           return null
         }
 
         newItems.push({
-          id: diagramItem.key !== undefined ? diagramItem.key : 'only to avoid error',
-          type: DrawType.IMG,
+          id: diagramItem.key !== undefined ? `RELATIONSHIP_FROM_${diagramItem.key}_TO_${targetKey}` : 'only to avoid error',
+          type: DrawType.LINE,
           img: null,
-          position: relation.fromPosition,
+          position: relationship.fromPosition,
           isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
-          name: diagramItem.name,
-          description: diagramItem.itemDescription,
-          details: diagramItem.details,
+          name: `Relationship from ${diagramItem.name} to ${targetItem.name}`,
+          description: relationship.description,
+          details: relationship.details,
           color: '#000000',
           drawItem: (context: CanvasRenderingContext2D) => {
-            const texts = [relation.description, relation.details]
-            generateRelationshipComponent(context, texts, relation, sourceItemPosition, targetItemPosition)
+            const texts = [relationship.description, relationship.details]
+            generateRelationshipComponent(context, texts, relationship, sourceItemPosition, targetItemPosition)
           }
         })
       })
@@ -200,6 +157,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
 
   const onLink = (targetItem: DrawableItem, fromPosition: Position, toPosition: Position): void => {
     if (selectedDiagramItems.length !== 1) {
+      console.error('to link components the source should be only 1 item')
       return
     }
 
@@ -272,11 +230,9 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     const isCreation = diagramItem.key === undefined
 
     if (isCreation) {
-      console.log('diagramItem created', diagramItem)
       diagramItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
       onDiagramItemAdded(diagramItem)
     } else {
-      console.log('diagramItem updated')
       onDiagramItemChange([diagramItem])
     }
 
