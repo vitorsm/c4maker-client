@@ -4,3 +4,11 @@ export default interface ObjectWrapper<Type> {
   error: boolean
   errorMessage: string | null
 }
+
+export const generateEmptyObject = (): ObjectWrapper<any> => {
+  return {
+    data: null,
+    error: false,
+    errorMessage: null
+  }
+}

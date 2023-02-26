@@ -1,8 +1,23 @@
 import { Reducer } from 'redux'
-import { DiagramsState, DiagramsTypes } from './types'
+import Diagram from '../../../models/diagram'
+import ObjectWrapper, { generateEmptyObject } from '../../../models/object_wrapper'
+
+export enum DiagramsTypes {
+  GET_USER_DIAGRAMS = '@diagrams/GET_USER_DIAGRAMS',
+  GET_DIAGRAM = '@diagrams/GET_DIAGRAM',
+  PERSIST_DIAGRAM = '@diagrams/PERSIST_DIAGRAM'
+}
+
+export interface DiagramsState {
+  readonly diagrams: ObjectWrapper<Diagram[]>
+  readonly diagram: ObjectWrapper<Diagram>
+  readonly persistedDiagram: ObjectWrapper<Diagram>
+}
 
 const INITIAL_STATE: DiagramsState = {
-  diagrams: undefined
+  diagrams: generateEmptyObject(),
+  diagram: generateEmptyObject(),
+  persistedDiagram: generateEmptyObject()
 }
 
 const reducer: Reducer<DiagramsState> = (state = INITIAL_STATE, action) => {
