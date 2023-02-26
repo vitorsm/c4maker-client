@@ -14,12 +14,13 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test('create new diagram error', async () => {
-  const { store } = renderWithProvideres(<BrowserRouter><DiagramComponent /></BrowserRouter>)
   const errorDescription = 'Name is required'
 
   server.use(rest.post('http://localhost:5000/diagram', (req, res, ctx) => {
     return res(ctx.status(400), ctx.json({ description: errorDescription }), ctx.delay(150))
   }))
+
+  const { store } = renderWithProvideres(<BrowserRouter><DiagramComponent /></BrowserRouter>)
 
   const nameComponent = screen.getByTestId('create-diagram-component-name')
   const descriptionComponent = screen.getByTestId('create-diagram-component-description')

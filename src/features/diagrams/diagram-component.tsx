@@ -41,20 +41,6 @@ const DIAGRAM_ITEMS = [
   }
 ]
 
-// const DIAGRAM_ITEMS = [
-//   {
-//     id: 'id1',
-//     name: 'name 1',
-//     itemDescription: 'description 1',
-//     details: 'details 1',
-//     itemType: DiagramItemType.PERSON,
-//     diagram: null,
-//     parent: null,
-//     relationships: [],
-//     position: null
-//   }
-// ]
-
 const DiagramComponent: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -81,6 +67,7 @@ const DiagramComponent: FC = () => {
     }
 
     if (shouldRequestDiagram() && diagramId !== undefined) {
+      console.log('will call')
       void diagramOperations.fetchDiagram(diagramId, dispatch)
       setIsLoading(true)
     }
