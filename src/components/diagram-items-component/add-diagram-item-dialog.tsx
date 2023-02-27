@@ -1,5 +1,6 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react'
-import { DiagramItem, DiagramItemType } from '../../models/diagram'
+import { DiagramItem } from '../../models/diagram'
+import { WorkspaceItemType } from '../../models/workspace'
 import Dialog from '../dialog/dialog'
 import TextInput from '../text-input'
 import { DiagramItemFormContainer } from './style'
@@ -25,10 +26,14 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
     }
 
     return {
-      name: '',
-      itemDescription: '',
-      details: '',
-      itemType: DiagramItemType.PERSON,
+      workspaceItem: {
+        name: '',
+        key: '',
+        description: '',
+        details: '',
+        itemType: WorkspaceItemType.PERSONA,
+        workspace: null
+      },
       diagram: null,
       parent: null,
       relationships: [],
@@ -55,19 +60,19 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
 
   const onNameChange = (newName: string): void => {
     if (updatedDiagramItem === null) return
-    updatedDiagramItem.name = newName
+    updatedDiagramItem.workspaceItem.name = newName
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const onDescriptionChange = (newDescription: string): void => {
     if (updatedDiagramItem === null) return
-    updatedDiagramItem.itemDescription = newDescription
+    updatedDiagramItem.workspaceItem.description = newDescription
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const onDetailsChange = (newDetails: string): void => {
     if (updatedDiagramItem === null) return
-    updatedDiagramItem.details = newDetails
+    updatedDiagramItem.workspaceItem.details = newDetails
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
@@ -76,9 +81,9 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
 
     return (
       <DiagramItemFormContainer>
-        <TextInput title={'Name'} value={updatedDiagramItem.name} onChange={onNameChange}></TextInput>
-        <TextInput title={'Description'} value={updatedDiagramItem.itemDescription} onChange={onDescriptionChange}></TextInput>
-        <TextInput title={'Details'} value={updatedDiagramItem.details} type="text-area" onChange={onDetailsChange}></TextInput>
+        <TextInput title={'Name'} value={updatedDiagramItem.workspaceItem.name} onChange={onNameChange}></TextInput>
+        <TextInput title={'Description'} value={updatedDiagramItem.workspaceItem.description ?? ''} onChange={onDescriptionChange}></TextInput>
+        <TextInput title={'Details'} value={updatedDiagramItem.workspaceItem.details ?? ''} type="text-area" onChange={onDetailsChange}></TextInput>
       </DiagramItemFormContainer>
     )
   }

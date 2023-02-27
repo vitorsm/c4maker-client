@@ -3,10 +3,6 @@ import Diagram from '../models/diagram'
 import APIClient from './api_client'
 
 export default class DiagramService extends APIClient<Diagram> {
-  getDiagrams = (dispatch: Dispatch<any>, typeToDispatch: string): void => {
-    this.get('diagram', dispatch, typeToDispatch)
-  }
-
   getDiagram = (diagramId: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
     this.get(`diagram/${diagramId}`, dispatch, typeToDispatch)
   }
@@ -21,5 +17,9 @@ export default class DiagramService extends APIClient<Diagram> {
     }
 
     this.postOrPut(`diagram/${diagram.id}`, diagram, dispatch, typeToDispatch, null, 'PUT')
+  }
+
+  getItemsByDiagram = (diagramId: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    this.get(`diagram/${diagramId}/diagram-items`, dispatch, typeToDispatch)
   }
 }

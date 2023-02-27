@@ -1,52 +1,49 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react'
 import Card from '../../components/card'
-import { Container, DiagramButtons, EmptyStateContainer, ProgressContainer, ProgressDescriptionContainer } from './style'
+import { Container, WorkspaceButtons, EmptyStateContainer, ProgressContainer, ProgressDescriptionContainer } from './style'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faInbox, faDiagramProject } from '@fortawesome/free-solid-svg-icons'
 import TextLink from '../../components/text-link'
-import { diagramOperations } from '../../store/reducers/diagrams'
+import { workspaceOperations } from '../../store/reducers/workspaces'
 import { useDispatch, useSelector } from 'react-redux'
 import ObjectWrapper from '../../models/object_wrapper'
-import Diagram from '../../models/diagram'
 import CircularProgress from '../../components/circular-progress'
 import AnimatedContainer from '../../components/animated-container'
 import { Route, Routes, useNavigate } from 'react-router-dom'
-import DiagramComponent from './diagram-component'
+import DiagramComponent from './workspace-component'
+import Workspace from '../../models/workspace'
+import { RootState } from '../../store/reducers'
 
-interface DiagramListComponentProps {
+interface WorkspaceListComponentProps {
   setContentTitle: Function
 }
 
-const DiagramListComponent: FC<DiagramListComponentProps> = ({ setContentTitle }: DiagramListComponentProps) => {
+const WorkspaceListComponent: FC<WorkspaceListComponentProps> = ({ setContentTitle }: WorkspaceListComponentProps) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const diagrams: ObjectWrapper<Diagram[]> | undefined = useSelector((state: any) => state.diagramReducer.diagrams)
+  const workspaces: ObjectWrapper<Workspace[]> = useSelector((state: RootState) => state.workspaceReducer.workspaces)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setContentTitle('Diagrams')
+    setContentTitle('Workspaces')
   })
 
   useEffect(() => {
-    if (diagrams === undefined) {
+    if (workspaces.data === null) {
       if (!isLoading) {
-        void diagramOperations.fetchUserDiagrams(dispatch)
+        void workspaceOperations.fetchUserWorkspaces(dispatch)
         setIsLoading(true)
       }
     } else {
       setIsLoading(false)
     }
-  }, [diagrams])
+  }, [workspaces])
 
-  const hasDiagrams = (): boolean => {
-    if (diagrams === undefined) {
-      return false
-    }
-
-    return diagrams.data !== null && diagrams.data.length > 0
+  const hasWorkspaces = (): boolean => {
+    return workspaces.data !== null && workspaces.data.length > 0
   }
 
-  const onClickNewDiagram = (): void => {
+  const onClickNewWorkspace = (): void => {
     navigate('new')
   }
 
@@ -56,47 +53,47 @@ const DiagramListComponent: FC<DiagramListComponentProps> = ({ setContentTitle }
         <ProgressContainer>
           <CircularProgress size={100}/>
           <ProgressDescriptionContainer>
-            buscando diagramas
+            buscando workspaces
           </ProgressDescriptionContainer>
         </ProgressContainer>
       )
     }
 
-    if (hasDiagrams()) {
+    if (hasWorkspaces()) {
       return null
     }
 
     return (
       <EmptyStateContainer>
         <FontAwesomeIcon icon={faInbox} size="10x" style={{ padding: 20 }}/>
-        Voce ainda não tem diagramas.
-        <TextLink text='Clique aqui para criar um novo diagrama' onClick={onClickNewDiagram}/>
+        Voce ainda não tem workspaces.
+        <TextLink text='Clique aqui para criar um novo workspace' onClick={onClickNewWorkspace}/>
       </EmptyStateContainer>
     )
   }
 
-  const defineDiagramOnClick = (diagramId?: string): Function | null => {
-    if (diagramId === undefined || diagramId === null) {
+  const defineWorkspaceOnClick = (workspaceId?: string): Function | null => {
+    if (workspaceId === undefined || workspaceId === null) {
       return null
     }
 
     return () => {
-      navigate(`${diagramId}`)
+      navigate(`${workspaceId}`)
     }
   }
 
-  const renderDiagrams = (): null | ReactElement[] => {
+  const renderWorkspaces = (): null | ReactElement[] => {
     if (isLoading) {
       return null
     }
 
-    if (!hasDiagrams()) {
+    if (!hasWorkspaces()) {
       return null
     }
 
-    const result = diagrams?.data?.map((diagram, index) => {
+    const result = workspaces.data?.map((workspace, index) => {
       return (
-        <Card key={`diagram-button-${index}`} description={diagram.name} onClick={defineDiagramOnClick(diagram.id)}>
+        <Card key={`workspace-button-${index}`} description={workspace.name} onClick={defineWorkspaceOnClick(workspace.id)}>
           <FontAwesomeIcon icon={faDiagramProject} size="2x" />
         </Card>
       )
@@ -104,19 +101,19 @@ const DiagramListComponent: FC<DiagramListComponentProps> = ({ setContentTitle }
 
     return result !== undefined
       ? [(
-      <Card key='diagram-button-create-new' description={'Novo diagrama'} onClick={onClickNewDiagram}>
+      <Card key='workspace-button-create-new' description={'Novo workspace'} onClick={onClickNewWorkspace}>
         <FontAwesomeIcon icon={faPlus} size="2x" />
       </Card>
         ), ...result]
       : null
   }
 
-  const renderDiagramButtons = (): ReactElement => {
+  const renderWorkspaceButtons = (): ReactElement => {
     return (
       <AnimatedContainer>
-        <DiagramButtons>
-          {renderDiagrams()}
-        </DiagramButtons>
+        <WorkspaceButtons>
+          {renderWorkspaces()}
+        </WorkspaceButtons>
       </AnimatedContainer>
     )
   }
@@ -125,18 +122,18 @@ const DiagramListComponent: FC<DiagramListComponentProps> = ({ setContentTitle }
     return (
       <Routes>
         <Route path='new' element={<DiagramComponent />} />
-        <Route path='/:diagramId' element={<DiagramComponent />} />
-        <Route path='' element={renderDiagramButtons()} />
+        <Route path='/:workspaceId' element={<DiagramComponent />} />
+        <Route path='' element={renderWorkspaceButtons()} />
       </Routes>
     )
   }
 
   return (
-    <Container data-testid='diagrams-container-component'>
+    <Container data-testid='workspaces-container-component'>
       {renderEmptyStateOrLoading()}
       {renderContent()}
     </Container>
   )
 }
 
-export default DiagramListComponent
+export default WorkspaceListComponent

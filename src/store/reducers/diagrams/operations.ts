@@ -1,10 +1,11 @@
 import { Dispatch } from 'react'
 import Diagram from '../../../models/diagram'
 import DiagramService from '../../../services/diagram_service'
+import WorkspaceService from '../../../services/workspace_service'
 import { DiagramsTypes } from './reducer'
 
-export const fetchUserDiagrams = async (dispatch: Dispatch<any>): Promise<void> => {
-  new DiagramService().getDiagrams(dispatch, DiagramsTypes.GET_USER_DIAGRAMS)
+export const fetchDiagramsByWorkspace = async (workspaceId: string, dispatch: Dispatch<any>): Promise<void> => {
+  new WorkspaceService().getDiagramsByWorkspae(workspaceId, dispatch, DiagramsTypes.GET_USER_DIAGRAMS)
 }
 
 export const fetchDiagram = async (diagramId: string, dispatch: Dispatch<any>): Promise<void> => {

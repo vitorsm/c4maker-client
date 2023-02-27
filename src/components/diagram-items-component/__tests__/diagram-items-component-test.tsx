@@ -27,7 +27,7 @@ test('test add diagram item', async () => {
   const canvasContainerParamters = Object.values(canvasComponent)[1]
 
   expect(canvasContainerParamters.drawableItems.length).toBe(3)
-  expect(canvasContainerParamters.drawableItems.map(i => i.id)).toStrictEqual(diagramItems.map(i => i.key))
+  expect(canvasContainerParamters.drawableItems.map(i => i.id)).toStrictEqual(diagramItems.map(i => i.workspaceItem.key))
 })
 
 test('test updating item position', async () => {
@@ -45,7 +45,7 @@ test('test updating item position', async () => {
   const canvasComponent = screen.getByTestId('canvas-component-for-test')
   const canvasContainerParamters = Object.values(canvasComponent)[1]
   const drawableItem: any = {
-    id: diagramItems[1].key,
+    id: diagramItems[1].workspaceItem.key,
     position: newPosition,
     isSelected: true
   }
@@ -75,7 +75,7 @@ test('test updating item selection', async () => {
   const canvasContainerParamters = Object.values(canvasComponent)[1]
 
   const drawableItems = diagramItems.map(diagramItem => ({
-    id: diagramItem.key,
+    id: diagramItem.workspaceItem.key,
     position: newPosition,
     isSelected: false
   }))

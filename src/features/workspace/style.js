@@ -5,7 +5,7 @@ export const Container = styled.div`
   height: 100%;
 `
 
-export const DiagramButtons = styled.div`
+export const WorkspaceButtons = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

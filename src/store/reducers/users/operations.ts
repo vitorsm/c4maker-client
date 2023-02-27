@@ -2,7 +2,7 @@ import { Dispatch } from 'react'
 import User, { LoginToken } from '../../../models/user'
 import UserService from '../../../services/user_service'
 import { setToken } from '../../token_utils'
-import { UserTypes } from './types'
+import { UserTypes } from './reducer'
 
 export const createUser = async (user: User, dispatch: Dispatch<any>): Promise<void> => {
   new UserService().createUser(user, dispatch, UserTypes.SET_CREATED)
