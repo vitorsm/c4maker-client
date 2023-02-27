@@ -1,15 +1,17 @@
 import GenericEntity from './generic'
+import Workspace, { WorkspaceItem } from './workspace'
 
-export enum DiagramItemType {
-  PERSON,
-  SOFTWARE_SYSTEM,
-  CONTAINER,
-  COMPONENT
+export enum DiagramType {
+  C4,
+  SEQUENCE,
+  TEXT
 }
 
 export default interface Diagram extends GenericEntity {
   id?: string
   name: string
+  diagramType: DiagramType
+  workspace: Workspace
   description: string | null
 }
 
@@ -35,11 +37,7 @@ export interface DiagramItemCanvasData {
 
 export interface DiagramItem extends GenericEntity {
   id?: string
-  key?: string
-  name: string
-  itemDescription: string
-  details: string
-  itemType: DiagramItemType
+  workspaceItem: WorkspaceItem
   diagram: Diagram | null
   parent: DiagramItem | null
   relationships: DiagramItemRelationship[]

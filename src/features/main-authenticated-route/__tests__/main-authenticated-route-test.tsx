@@ -9,11 +9,11 @@ test('test opening main authenticated menus', () => {
 
   const mainContentTitle = screen.getByTestId('main-content-title')
 
-  expect(mainContentTitle).toHaveTextContent('Diagrams')
+  expect(mainContentTitle).toHaveTextContent('Workspaces')
   expect(screen.queryByTestId('main-content-card')).toBeInTheDocument()
-  expect(screen.queryByTestId('diagrams-container-component')).toBeInTheDocument()
+  expect(screen.queryByTestId('workspaces-container-component')).toBeInTheDocument()
 })
 
-test('test opening diagrams content', () => {
+test('test opening workspace content', () => {
   renderWithProvideres(<BrowserRouter><MainAuthenticatedRoute /></BrowserRouter>)
 })

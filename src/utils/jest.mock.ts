@@ -1,5 +1,6 @@
 import { DrawableItem, DrawType, Position } from '../components/canvas-container/models'
-import { DiagramItem, DiagramItemType } from '../models/diagram'
+import { DiagramItem } from '../models/diagram'
+import { WorkspaceItemType } from '../models/workspace'
 
 const ITEM_IDS = { drawableItemCount: 0, diagramItemCount: 0 }
 
@@ -38,11 +39,14 @@ export const generateDiagramItem = (): DiagramItem => {
 
   return {
     id: `id_${itemCount}`,
-    key: `id_${itemCount}`,
-    name: `name_${itemCount}`,
-    itemDescription: `[description ${itemCount}]`,
-    details: `details ${itemCount}`,
-    itemType: DiagramItemType.PERSON,
+    workspaceItem: {
+      key: `id_${itemCount}`,
+      name: `name_${itemCount}`,
+      description: `[description ${itemCount}]`,
+      details: `details ${itemCount}`,
+      itemType: WorkspaceItemType.PERSONA,
+      workspace: null
+    },
     diagram: null,
     parent: null,
     relationships: [],

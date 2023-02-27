@@ -5,9 +5,9 @@ import { Container, ContentCard, TitleContainer, TopLeftMenuContainer, TopRightM
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faBars } from '@fortawesome/free-solid-svg-icons'
 import { setToken } from '../../store/token_utils'
-import DiagramListComponent from '../diagrams/diagram-list-component'
+import WorkspaceListComponent from '../workspace/workspace-list-component'
 
-const DEFAULT_ROUTE = 'diagrams'
+const DEFAULT_ROUTE = 'workspaces'
 
 const MainAuthenticatedRoute: FC = () => {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ const MainAuthenticatedRoute: FC = () => {
   }
 
   const leftMenuItems = [{
-    text: 'Diagramas',
+    text: 'Workspaces',
     onClick: () => {},
     disabled: false
   }, {
@@ -54,7 +54,7 @@ const MainAuthenticatedRoute: FC = () => {
       <ContentCard data-testid='main-content-card'>
         <Routes>
           <Route index element={<Navigate to={DEFAULT_ROUTE}/>}/>
-          <Route path='diagrams/*' element={<DiagramListComponent setContentTitle={setContentTitle} />} />
+          <Route path='workspaces/*' element={<WorkspaceListComponent setContentTitle={setContentTitle} />} />
         </Routes>
       </ContentCard>
 
