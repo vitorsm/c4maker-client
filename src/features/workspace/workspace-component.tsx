@@ -5,6 +5,7 @@ import AnimatedContainer from '../../components/animated-container'
 import { BreadcrumbsItem } from '../../components/breadcrumbs/breadcrumbs'
 import CircularProgress from '../../components/circular-progress'
 import DiagramItemsComponent from '../../components/diagram-items-component'
+import SearchInput from '../../components/search-input'
 import { DiagramItem } from '../../models/diagram'
 import ObjectWrapper from '../../models/object_wrapper'
 import Workspace from '../../models/workspace'
@@ -249,11 +250,16 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
           persistedWorkspaceCallback={afterPersistWorkspace}
           setIsCreating={setIsCreating} />
 
-          <DiagramItemsComponent
-            diagramItems={diagramItems}
-            onDiagramItemChange={onDiagramItemChange}
-            onDiagramItemAdded={onDiagramItemAdded}
-            onDiagramItemDeleted={onDiagramItemDeleted} />
+          <SearchInput onChange={() => null} placeholder={'Buscar diagrama...'} onClickInfo={() => null} />
+
+          {false && (
+            <DiagramItemsComponent
+              diagramItems={diagramItems}
+              onDiagramItemChange={onDiagramItemChange}
+              onDiagramItemAdded={onDiagramItemAdded}
+              onDiagramItemDeleted={onDiagramItemDeleted} />
+          )}
+
       </>
     )
   }

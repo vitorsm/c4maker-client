@@ -82,9 +82,6 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
     void workspaceOperations.updateWorkspacesList(newWorkspaces, dispatch)
   }
 
-  const descriptionOnDoubleClick = (): void => {
-    setIsEditingDetails(true)
-  }
   const handleEditOnClick = (): void => {
     setIsEditingDetails(true)
   }
@@ -208,8 +205,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
             onChange={setWorkspaceDescription}
             value={workspaceDescription}
             edit={isEditingDetails}
-            dataTestId='create-workspace-component-description'
-            onDoubleClick={descriptionOnDoubleClick} />
+            dataTestId='create-workspace-component-description' />
 
           {renderButtons()}
         </InputsComponent>

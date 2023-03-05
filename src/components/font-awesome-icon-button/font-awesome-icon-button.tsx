@@ -5,7 +5,7 @@ import { Container } from './style'
 
 interface FontAwesomeIconButtonProps {
   icon: IconDefinition
-  size: SizeProp
+  size?: SizeProp
   onClick: Function
   dataTestId?: string | undefined
   border?: boolean

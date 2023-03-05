@@ -2,14 +2,6 @@ import styled from 'styled-components'
 import { defaultColors } from '../../configs/colors'
 
 export const Container = styled.div`
-  display: block;
-  padding: 10px;
-`
-
-export const InputContainer = styled.div`
-  border: 1px solid ${defaultColors.primary.main};
-  border-radius: 10px;
-  padding: 5px;
   display: flex;
 `
 
@@ -20,24 +12,27 @@ export const Input = styled.input`
   padding: 5px;
   color: ${props => props.isPlaceholder ? defaultColors.primary.light : defaultColors.primary.main};
 
-  &:focus {
-    outline: 0;
+  &:hover {
   }
-`
-
-export const TextArea = styled.textarea`
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
-  padding: 5px;
-  border: none;
 
   &:focus {
     outline: 0;
   }
-`
 
-export const Title = styled.div`
-  font-size: 12px
+  &:focus-visible {
+  }
+
+  &:focus-within {
+  }
+
+  &:active {
+  }
+
+  &:target {
+  }
+
+  &:visited {
+  }
 `
 
 export const IconContainer = styled.div`

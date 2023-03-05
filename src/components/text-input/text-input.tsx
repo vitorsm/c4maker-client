@@ -1,53 +1,59 @@
 import React, { FC, useState, ReactElement, useEffect } from 'react'
-import { Input, Container, Title, TextArea } from './style.js'
+import { Input, Container, Title, TextArea, InputContainer, IconContainer } from './style.js'
 
 interface TextInputProps {
-  title: string | null
+  title?: string | null
+  placeholder?: string
   value?: string | undefined
   type?: string | undefined
   onChange?: Function | undefined
   fillWidth?: boolean | undefined
   dataTestId?: string | undefined
   edit?: boolean
-  onDoubleClick?: Function | null
+  icon?: ReactElement | null
 }
 
-const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true, onDoubleClick = null }: TextInputProps) => {
-  const [inputValue, setInputValue] = useState(value)
+const TextInput: FC<TextInputProps> = ({ title = null, placeholder, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true, icon = null }: TextInputProps) => {
+  const [textValue, setTextValue] = useState(value)
+  const [inputTextValue, setInputTextValue] = useState(textValue)
+  const [isInputFocused, setIsInputFocused] = useState<boolean>(false)
+  const [isPlaceholder, setIsPlaceholder] = useState<boolean>(false)
 
   useEffect(() => {
-    setInputValue(value)
+    setTextValue(value)
   }, [value])
+
+  useEffect(() => {
+    const textToSet = isPlaceholder ? placeholder : textValue
+    setInputTextValue(textToSet ?? '')
+  }, [textValue, isPlaceholder])
+
+  useEffect(() => {
+    setIsPlaceholder(textValue === '' && placeholder !== undefined && !isInputFocused)
+  }, [isInputFocused, placeholder, textValue])
 
   const isTextArea = (): boolean => {
     return type === 'text-area'
   }
 
   const onChangeHandler = (event: any): void => {
-    setInputValue(event.target.value)
+    setTextValue(event.target.value)
 
     if (onChange !== undefined) {
       onChange(event.target.value)
     }
   }
 
-  const internalOnDoubleClick = (): void => {
-    if (onDoubleClick === null) {
-      return
-    }
-
-    onDoubleClick()
-  }
-
   const renderTextArea = (): ReactElement => {
     return <TextArea
               disabled={!edit}
               data-testid={dataTestId}
-              value={inputValue}
+              value={inputTextValue}
               onChange={onChangeHandler}
               type={type}
               fillWidth={fillWidth}
-              onDoubleClick={internalOnDoubleClick} />
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)} />
   }
 
   const renderInputNotEditMode = (): ReactElement => {
@@ -66,7 +72,16 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
     if (isTextArea()) {
       return renderTextArea()
     } else {
-      return <Input data-testid={dataTestId} value={inputValue} onChange={onChangeHandler} type={type} fillWidth={fillWidth}></Input>
+      return (
+        <Input
+          data-testid={dataTestId}
+          value={inputTextValue}
+          onChange={onChangeHandler}
+          type={type}
+          fillWidth={fillWidth}
+          onFocus={() => setIsInputFocused(true)}
+          onBlur={() => setIsInputFocused(false)} />
+      )
     }
   }
 
@@ -78,13 +93,37 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
     }
   }
 
-  return (
-    <Container>
+  const renderIcon = (): ReactElement | null => {
+    if (icon === null) {
+      return null
+    }
+
+    return (
+      <IconContainer>
+        {icon}
+      </IconContainer>
+    )
+  }
+
+  const renderTitle = (): ReactElement | null => {
+    if (title === null) {
+      return null
+    }
+
+    return (
       <Title>
         {title}
       </Title>
+    )
+  }
+  return (
+    <Container>
+      {renderTitle()}
 
-      {renderContent()}
+      <InputContainer>
+        {renderContent()}
+        {renderIcon()}
+      </InputContainer>
     </Container>
   )
 }
