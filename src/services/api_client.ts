@@ -26,8 +26,8 @@ export default class APIClient<Type> {
     }
 
     fetch(address, requestOptions).then(
-      async (response) => await this.handleRequestResponse(response, dispatch, typeToDispatch, successFunctionCallback),
-      async () => await this.handleRequestResponse(null, dispatch, typeToDispatch, successFunctionCallback)
+      async (response) => await this.handleRequestResponse(response, dispatch, typeToDispatch, successFunctionCallback, null),
+      async () => await this.handleRequestResponse(null, dispatch, typeToDispatch, successFunctionCallback, null)
     )
   }
 
@@ -48,8 +48,22 @@ export default class APIClient<Type> {
     }
 
     fetch(address, requestOptions).then(
-      async (response) => await this.handleRequestResponse(response, dispatch, typeToDispatch, successFunctionCallback),
-      async () => await this.handleRequestResponse(null, dispatch, typeToDispatch, successFunctionCallback)
+      async (response) => await this.handleRequestResponse(response, dispatch, typeToDispatch, successFunctionCallback, null),
+      async () => await this.handleRequestResponse(null, dispatch, typeToDispatch, successFunctionCallback, null)
+    )
+  }
+
+  delete = (endpoint: string, dispatch: Dispatch<any>, typeToDispatch: string, itemToDispatch: any): void => {
+    const address = this.getAddress(endpoint)
+    const headers = this.getAuthenticatedHeader()
+    const requestOptions = {
+      method: 'DELETE',
+      headers
+    }
+
+    fetch(address, requestOptions).then(
+      async (response) => await this.handleRequestResponse(response, dispatch, typeToDispatch, null, itemToDispatch),
+      async () => await this.handleRequestResponse(null, dispatch, typeToDispatch, null, null)
     )
   }
 
@@ -57,8 +71,15 @@ export default class APIClient<Type> {
     response: Response | null,
     dispatch: Dispatch<any>,
     typeToDispatch: string,
-    successFunctionCallback: Function | null): Promise<void> => {
-    const responseData = response !== null ? await response.json() : null
+    successFunctionCallback: Function | null,
+    itemToDispatch: any): Promise<void> => {
+    let responseData = null
+
+    try {
+      responseData = await response?.json()
+    } catch (Error) {
+      responseData = itemToDispatch
+    }
 
     if (response !== null && this.isSuccessStatus(response.status)) {
       dispatch(this.dispatchFunction(typeToDispatch, { data: responseData, error: false, errorMessage: null }))

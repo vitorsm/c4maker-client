@@ -6,7 +6,7 @@ test('test link value and on click', () => {
   const value = 'Value link'
   const onClick = jest.fn()
 
-  render(<TextLink text={value} onClick={onClick} />)
+  render(<TextLink onClick={onClick}>{value}</TextLink>)
   const link = screen.getByTestId('text-link')
   fireEvent.click(link)
 

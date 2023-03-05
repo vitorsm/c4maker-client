@@ -31,8 +31,7 @@ export const ProgressDescriptionContainer = styled.div`
 `
 
 export const EditImageContainer = styled.div`
-  cursor: pointer;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 `
 
 export const InputsContainer = styled.div`

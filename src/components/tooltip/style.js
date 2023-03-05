@@ -6,7 +6,7 @@ export const TooltipText = styled.div`
   color: ${props => props.textColor};
   border-radius: 10%;
   position: absolute;
-  left: 10%;
-  top: 50%;
+  left: ${props => props.positionX};
+  top: ${props => props.positionY};
   font-size: 0.7em;
 `

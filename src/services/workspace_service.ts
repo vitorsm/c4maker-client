@@ -23,6 +23,10 @@ export default class WorkspaceService extends APIClient<Workspace> {
     this.postOrPut(`workspace/${workspace.id}`, workspace, dispatch, typeToDispatch, null, 'PUT')
   }
 
+  deleteWorkspace = (workspaceId: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    this.delete(`workspace/${workspaceId}`, dispatch, typeToDispatch, workspaceId)
+  }
+
   getDiagramsByWorkspae = (workspaceId: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
     this.get(`workspace/${workspaceId}/diagrams`, dispatch, typeToDispatch)
   }

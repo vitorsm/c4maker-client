@@ -7,7 +7,7 @@ import MainAuthenticatedRoute from '../main-authenticated-route'
 test('test opening main authenticated menus', () => {
   renderWithProvideres(<BrowserRouter><MainAuthenticatedRoute /></BrowserRouter>)
 
-  const mainContentTitle = screen.getByTestId('main-content-title')
+  const mainContentTitle = screen.getByTestId('main-title-breadcrumbs-text-link-0')
 
   expect(mainContentTitle).toHaveTextContent('Workspaces')
   expect(screen.queryByTestId('main-content-card')).toBeInTheDocument()

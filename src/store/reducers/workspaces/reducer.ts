@@ -7,6 +7,7 @@ export enum WorkspaceTypes {
   GET_USER_WORKSPACE = '@workspaces/GET_USER_WORKSPACE',
   PERSIST_WORKSPACE = '@workspaces/PERSIST_WORKSPACE',
   GET_WORKSPACE_ITEMS = '@workspaces/GET_WORKSPACE_ITEMS',
+  DELETE_WORKSPACE = '@worksapces/DELETE_WORKSPACE'
 }
 
 export interface WorkspaceState {
@@ -14,13 +15,15 @@ export interface WorkspaceState {
   persistedWorkspace: ObjectWrapper<Workspace>
   workspace: ObjectWrapper<Workspace>
   workspaceItems: ObjectWrapper<WorkspaceItem[]>
+  deletedWorkspace: ObjectWrapper<string>
 }
 
 const INITIAL_STATE: WorkspaceState = {
   workspaces: generateEmptyObject(),
   persistedWorkspace: generateEmptyObject(),
   workspace: generateEmptyObject(),
-  workspaceItems: generateEmptyObject()
+  workspaceItems: generateEmptyObject(),
+  deletedWorkspace: generateEmptyObject()
 }
 
 const reducer: Reducer<WorkspaceState> = (state = INITIAL_STATE, action) => {
@@ -44,6 +47,11 @@ const reducer: Reducer<WorkspaceState> = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         workspaceItems: action.payload
+      }
+    case WorkspaceTypes.DELETE_WORKSPACE:
+      return {
+        ...state,
+        deletedWorkspace: action.payload
       }
     default:
       return state

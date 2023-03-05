@@ -35,7 +35,7 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, 
       setIsLogging(!finishedLoading)
 
       if (finishedLoading && tokenData.data !== null) {
-        navigate('/diagrams')
+        navigate('/')
       }
     }
   }, [tokenData])
@@ -73,7 +73,7 @@ const CredentialsComponent: FC<CredentialsComponentProps> = ({ login, password, 
       </ButtonContainer>
 
       <NewAccountContainer>
-        <TextLink text={'Criar conta'} onClick={createNewAccountOnClick} dataTestId={'text-link-create-new-user'} />
+        <TextLink onClick={createNewAccountOnClick} dataTestId={'text-link-create-new-user'}>Criar conta</TextLink>
       </NewAccountContainer>
     </>
   )

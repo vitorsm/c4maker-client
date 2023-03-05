@@ -3,7 +3,7 @@ import { defaultColors } from '../../configs/colors'
 import { TooltipText } from './style'
 
 interface TooltipProps {
-  text: string
+  text: string | null
   children: ReactElement
   color?: string
   textColor?: string
@@ -16,6 +16,7 @@ const Tooltip: FC<TooltipProps> = ({
 }: TooltipProps) => {
   const [showDescription, setShowDescription] = useState(false)
   const [mouseOnComponents, setMouseOnComponents] = useState({ onTooltip: false, onText: false })
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   const timeToShowTooltip = 1000
   const timeToHideTooltip = 100
@@ -34,8 +35,9 @@ const Tooltip: FC<TooltipProps> = ({
     })
   }
 
-  const handleMouseOver = (): void => {
+  const handleMouseOver = (event: any): void => {
     mouseOnComponents.onTooltip = true
+    setMousePosition({ x: event.clientX, y: event.clientY })
     setMouseOnComponents(mouseOnComponents)
     void handleShowDescription()
   }
@@ -59,12 +61,19 @@ const Tooltip: FC<TooltipProps> = ({
   }
 
   const renderTooltip = (): ReactElement | null => {
-    if (!showDescription || text === '') {
+    if (!showDescription || text === null || text === '') {
       return null
     }
 
     return (
-      <TooltipText data-testid={dataTestId} color={color} textColor={textColor} onMouseOver={handleMouseOverText} onMouseOut={handleMouseOutText}>
+      <TooltipText
+        data-testid={dataTestId}
+        color={color}
+        textColor={textColor}
+        onMouseOver={handleMouseOverText}
+        onMouseOut={handleMouseOutText}
+        positionX={mousePosition.x}
+        positionY={mousePosition.y}>
         { text }
       </TooltipText>
     )

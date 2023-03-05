@@ -2,16 +2,17 @@ import React, { FC, useState, ReactElement, useEffect } from 'react'
 import { Input, Container, Title, TextArea } from './style.js'
 
 interface TextInputProps {
-  title: string
+  title: string | null
   value?: string | undefined
   type?: string | undefined
   onChange?: Function | undefined
   fillWidth?: boolean | undefined
   dataTestId?: string | undefined
   edit?: boolean
+  onDoubleClick?: Function | null
 }
 
-const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true }: TextInputProps) => {
+const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true, onDoubleClick = null }: TextInputProps) => {
   const [inputValue, setInputValue] = useState(value)
 
   useEffect(() => {
@@ -21,12 +22,21 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
   const isTextArea = (): boolean => {
     return type === 'text-area'
   }
+
   const onChangeHandler = (event: any): void => {
     setInputValue(event.target.value)
 
     if (onChange !== undefined) {
       onChange(event.target.value)
     }
+  }
+
+  const internalOnDoubleClick = (): void => {
+    if (onDoubleClick === null) {
+      return
+    }
+
+    onDoubleClick()
   }
 
   const renderTextArea = (): ReactElement => {
@@ -36,7 +46,8 @@ const TextInput: FC<TextInputProps> = ({ title, value = '', type = 'text', onCha
               value={inputValue}
               onChange={onChangeHandler}
               type={type}
-              fillWidth={fillWidth} />
+              fillWidth={fillWidth}
+              onDoubleClick={internalOnDoubleClick} />
   }
 
   const renderInputNotEditMode = (): ReactElement => {
