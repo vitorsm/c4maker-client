@@ -45,7 +45,8 @@ test('test render breadcrumbs with edit button', async () => {
     key: 'item_2',
     name: 'Item 2',
     details: null,
-    onClick: null
+    onClick: null,
+    editable: true
   }]
 
   const onLastItemChange = jest.fn()
@@ -54,11 +55,17 @@ test('test render breadcrumbs with edit button', async () => {
 
   const editItemButton = screen.getByTestId(`${dataTestId ?? ''}-edit-button`)
 
-  await fireEvent.click(editItemButton)
+  fireEvent.click(editItemButton)
 
   await waitFor(() => {
     expect(screen.queryByTestId(`${dataTestId ?? ''}-confirm-button`)).toBeInTheDocument()
   })
 
-  expect(onLastItemChange).toBeCalledWith(breadcrumbsItems[1])
+  const confirmEditButton = screen.getByTestId(`${dataTestId ?? ''}-confirm-button`)
+
+  fireEvent.click(confirmEditButton)
+
+  await waitFor(() => {
+    expect(onLastItemChange).toBeCalledWith(breadcrumbsItems[1])
+  })
 })

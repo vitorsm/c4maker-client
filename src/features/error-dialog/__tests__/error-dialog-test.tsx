@@ -10,22 +10,24 @@ test('test open and close modal', async () => {
   const errorName = 'Error name'
   const errorDescription = 'Error description'
 
-  expect(screen.queryByTestId('error-dialog')).toHaveStyle({ display: 'none' })
+  const dataTestId = 'error-dialog'
+
+  expect(screen.queryByTestId(dataTestId)).toHaveStyle({ display: 'none' })
 
   act(() => {
     store.dispatch({ type: ErrorTypes.SET_ERROR, payload: { name: errorName, description: errorDescription } })
   })
 
   await waitFor(() => {
-    expect(screen.queryByTestId('error-dialog')).not.toHaveStyle({ display: 'none' })
+    expect(screen.queryByTestId(dataTestId)).not.toHaveStyle({ display: 'none' })
     expect(screen.getByTestId('error-dialog-message-container')).toHaveTextContent(errorDescription)
   })
 
-  const okBtn = screen.getByTestId('dialog-ok-btn')
+  const okBtn = screen.getByTestId(`${dataTestId}-dialog-ok-btn`)
   fireEvent.click(okBtn)
 
   await waitFor(() => {
-    expect(screen.queryByTestId('error-dialog')).toHaveStyle({ display: 'none' })
+    expect(screen.queryByTestId(dataTestId)).toHaveStyle({ display: 'none' })
     expect(screen.getByTestId('error-dialog-message-container')).toHaveTextContent(errorDescription)
   })
 })
