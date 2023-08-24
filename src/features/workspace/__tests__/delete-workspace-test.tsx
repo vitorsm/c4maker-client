@@ -36,11 +36,19 @@ test('test delete workspace error', async () => {
     return res(ctx.status(200), ctx.json(mockWorkspace), ctx.delay(150))
   }))
 
+  server.use(rest.get(`http://localhost:5000/workspace/${WORKSPACE_ID}/diagrams`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
+  server.use(rest.get(`http://localhost:5000/workspace/${WORKSPACE_ID}/workspace-items`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
   server.use(rest.delete(`http://localhost:5000/workspace/${WORKSPACE_ID}`, (req, res, ctx) => {
     return res(ctx.status(403), ctx.json({ description: errorDescription }), ctx.delay(150))
   }))
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={[]}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={new Map()}/></BrowserRouter>)
 
   act(() => {
     store.dispatch({
@@ -90,11 +98,19 @@ test('test delete workspace success', async () => {
     return res(ctx.status(200), ctx.json(mockWorkspace), ctx.delay(150))
   }))
 
+  server.use(rest.get(`http://localhost:5000/workspace/${WORKSPACE_ID}/diagrams`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
+  server.use(rest.get(`http://localhost:5000/workspace/${WORKSPACE_ID}/workspace-items`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
   server.use(rest.delete(`http://localhost:5000/workspace/${WORKSPACE_ID}`, (req, res, ctx) => {
     return res(ctx.status(204), ctx.json(null), ctx.delay(150))
   }))
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={[]}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={new Map()}/></BrowserRouter>)
 
   act(() => {
     store.dispatch({

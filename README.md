@@ -3,5 +3,6 @@
 ## TODO
 
 ### Tests
-- diagram-items-component: add crud tests, relationship
+- canvas-container/utils: add test to roundRect
+- diagram-items-component: add crud tests, relationship, utils
 - diagram-component

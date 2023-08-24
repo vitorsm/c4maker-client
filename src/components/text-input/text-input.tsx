@@ -121,8 +121,8 @@ const TextInput: FC<TextInputProps> = ({ title = null, placeholder, value = '', 
       {renderTitle()}
 
       <InputContainer>
-        {renderContent()}
         {renderIcon()}
+        {renderContent()}
       </InputContainer>
     </Container>
   )

@@ -13,6 +13,7 @@ export interface BreadcrumbsItem {
   details: string | null
   onClick: Function | null
   editable?: boolean
+  timestamp?: number | undefined
 }
 
 interface BreadcrumbsProps {
@@ -22,6 +23,15 @@ interface BreadcrumbsProps {
   lastTextLinkColor?: string
   dataTestId?: string
 }
+
+export const generateEmptyBreadcrumbs = (key: string, name: string): BreadcrumbsItem => ({
+  key,
+  name,
+  details: null,
+  onClick: null,
+  editable: true,
+  timestamp: 0
+})
 
 const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkColor, lastTextLinkColor, dataTestId }: BreadcrumbsProps) => {
   const [isEditing, setIsEditing] = useState(false)

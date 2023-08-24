@@ -20,7 +20,7 @@ export const TopLeftMenuContainer = styled.div`
 export const TitleContainer = styled.div`
   display: flex;
   justify-content: center;
-  padding: 30px;
+  padding: 10px;
   font-size: 1.1em;
 `
 export const ContentCard = styled.div`

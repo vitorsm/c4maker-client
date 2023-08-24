@@ -2,15 +2,15 @@ import GenericEntity from './generic'
 import Workspace, { WorkspaceItem } from './workspace'
 
 export enum DiagramType {
-  C4,
-  SEQUENCE,
-  TEXT
+  C4 = 'C4',
+  SEQUENCE = 'SEQUENCE',
+  TEXT = 'TEXT'
 }
 
 export default interface Diagram extends GenericEntity {
   id?: string
   name: string
-  diagramType: DiagramType
+  diagram_type: DiagramType | string
   workspace: Workspace
   description: string | null
 }

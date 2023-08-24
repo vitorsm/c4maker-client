@@ -4,7 +4,7 @@ import { screen, fireEvent, waitFor } from '@testing-library/react'
 import { renderWithProvideres } from '../../../utils/test-utils'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { BrowserRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import WorkspaceComponent, { NEW_WORKSPACE_NAME } from '../workspace-component'
 import { BreadcrumbsTypes } from '../../../store/reducers/breadcrumbs/reducer'
 import { act } from 'react-dom/test-utils'
@@ -12,7 +12,9 @@ import { act } from 'react-dom/test-utils'
 const server = setupServer()
 
 beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
+afterEach(() => {
+  server.resetHandlers()
+})
 afterAll(() => server.close())
 
 test('create new workspace error', async () => {
@@ -22,20 +24,21 @@ test('create new workspace error', async () => {
     return res(ctx.status(400), ctx.json({ description: errorDescription }), ctx.delay(150))
   }))
 
-  const breadcrumbsItems = [{
+  const breadcrumbsItems = new Map()
+  breadcrumbsItems.set(0, {
     key: 'new_item',
     name: '',
     details: null,
     onClick: null,
     editable: true
-  }]
+  })
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></MemoryRouter>)
 
   act(() => {
     store.dispatch({
       type: BreadcrumbsTypes.SET_BREADCRUMBS,
-      payload: breadcrumbsItems[0]
+      payload: breadcrumbsItems.get(0)
     })
   })
 
@@ -54,23 +57,24 @@ test('create new workspace from name success', async () => {
   const workspaceDescription = 'Description test'
 
   server.use(rest.post('http://localhost:5000/workspace', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({ id: 'item-id', name: workspaceName, description: workspaceDescription }), ctx.delay(150))
+    return res(ctx.status(200), ctx.json({ id: 'item-id-test-1', name: workspaceName, description: workspaceDescription }), ctx.delay(150))
   }))
 
-  const breadcrumbsItems = [{
+  const breadcrumbsItems = new Map()
+  breadcrumbsItems.set(0, {
     key: 'new_item',
     name: '',
     details: null,
     onClick: null,
     editable: true
-  }]
+  })
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></MemoryRouter>)
 
   act(() => {
     store.dispatch({
       type: BreadcrumbsTypes.SET_BREADCRUMBS,
-      payload: breadcrumbsItems[0]
+      payload: breadcrumbsItems.get(0)
     })
   })
 
@@ -84,22 +88,24 @@ test('create new workspace from name success', async () => {
   })
 })
 
+// false - true
 test('create new workspace from details success', async () => {
   const workspaceName = NEW_WORKSPACE_NAME
   const workspaceDescription = 'Description test'
 
-  const breadcrumbsItems = [{
+  const breadcrumbsItems = new Map()
+  breadcrumbsItems.set(0, {
     key: 'new_item',
     name: NEW_WORKSPACE_NAME,
     details: workspaceDescription,
     onClick: null,
     editable: true
-  }]
+  })
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={breadcrumbsItems} /></BrowserRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems} /></MemoryRouter>)
 
   server.use(rest.post('http://localhost:5000/workspace', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({ id: 'item-id', name: workspaceName, description: workspaceDescription }), ctx.delay(150))
+    return res(ctx.status(200), ctx.json({ id: 'item-id-test-2', name: workspaceName, description: workspaceDescription }), ctx.delay(150))
   }))
 
   const descriptionComponent = screen.getByTestId('create-workspace-component-description')

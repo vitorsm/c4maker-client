@@ -32,6 +32,14 @@ test('test edit workspace success - complete flow', async () => {
     return res(ctx.status(200), ctx.json(workspace), ctx.delay(50))
   }))
 
+  server.use(rest.get(`http://localhost:5000/workspace/${workspaceId}/diagrams`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
+  server.use(rest.get(`http://localhost:5000/workspace/${workspaceId}/workspace-items`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+  }))
+
   server.use(rest.put(`http://localhost:5000/workspace/${workspaceId}`, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ ...workspace, description: newWorkspaceDescription }), ctx.delay(50))
   }))

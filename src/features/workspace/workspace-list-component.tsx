@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import ObjectWrapper from '../../models/object_wrapper'
 import CircularProgress from '../../components/circular-progress'
 import AnimatedContainer from '../../components/animated-container'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate, useResolvedPath } from 'react-router-dom'
 import WorkspaceComponent from './workspace-component'
 import Workspace from '../../models/workspace'
 import { RootState } from '../../store/reducers'
@@ -20,19 +20,14 @@ import Tooltip from '../../components/tooltip'
 const WorkspaceListComponent: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const resolvedPath = useResolvedPath('')
   const workspaces: ObjectWrapper<Workspace[]> = useSelector((state: RootState) => state.workspaceReducer.workspaces)
+
   const [isLoading, setIsLoading] = useState(false)
 
-  const localBreadcrumbsItems: BreadcrumbsItem[] = [{
-    key: 'workspaces',
-    name: 'Workspaces',
-    details: 'List of Workspace',
-    onClick: () => navigate('/workspaces')
-  }]
-
   useEffect(() => {
-    breadcrumbsOperations.setBreadcrumbsItems(localBreadcrumbsItems, dispatch)
-  })
+    void breadcrumbsOperations.addBreadcrumbsItemsMap(generateLocalBreadcrumbItems(), dispatch)
+  }, [resolvedPath])
 
   useEffect(() => {
     if (workspaces.data === null) {
@@ -45,6 +40,17 @@ const WorkspaceListComponent: FC = () => {
     }
   }, [workspaces])
 
+  const generateLocalBreadcrumbItems = (): Map<number, BreadcrumbsItem> => {
+    const breadcrumbItems = new Map()
+    breadcrumbItems.set(0, {
+      key: 'workspaces',
+      name: 'Workspaces',
+      details: 'List of Workspace',
+      onClick: () => navigate('/workspaces')
+    })
+
+    return breadcrumbItems
+  }
   const hasWorkspaces = (): boolean => {
     return workspaces.data !== null && workspaces.data.length > 0
   }
@@ -72,7 +78,7 @@ const WorkspaceListComponent: FC = () => {
     return (
       <EmptyStateContainer>
         <FontAwesomeIcon icon={faInbox} size="10x" style={{ padding: 20 }}/>
-        Voce ainda não tem workspaces.
+          Voce ainda não tem workspaces.
         <TextLink onClick={onClickNewWorkspace}>Clique aqui para criar um novo workspace</TextLink>
       </EmptyStateContainer>
     )
@@ -129,8 +135,8 @@ const WorkspaceListComponent: FC = () => {
   const renderContent = (): ReactElement => {
     return (
       <Routes>
-        <Route path='new' element={<WorkspaceComponent breadcrumbsItems={localBreadcrumbsItems} />} />
-        <Route path='/:workspaceId' element={<WorkspaceComponent breadcrumbsItems={localBreadcrumbsItems} />} />
+        <Route path='new' element={<WorkspaceComponent breadcrumbsItems={generateLocalBreadcrumbItems()} />} />
+        <Route path='/:workspaceId/*' element={<WorkspaceComponent breadcrumbsItems={generateLocalBreadcrumbItems()} />} />
         <Route path='' element={renderWorkspaceButtons()} />
       </Routes>
     )

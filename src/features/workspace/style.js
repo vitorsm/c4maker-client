@@ -47,3 +47,11 @@ export const ButtonsComponent = styled.div`
   display: flex;
   flex-direction: column;
 `
+
+export const WorkspaceComponentBody = styled.div`
+  display: flex;
+`
+
+export const WorkspaceItemsContainer = styled.div`
+  display: flex;
+`
