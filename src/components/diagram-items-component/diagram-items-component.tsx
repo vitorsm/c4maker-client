@@ -11,6 +11,9 @@ import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
 import { generateContainerComponent, generateRelationshipComponent, generateUserComponent } from './component_utils'
 import { WorkspaceItemType } from '../../models/workspace'
+import { BreadcrumbsItem } from '../breadcrumbs/breadcrumbs'
+import { RootState } from '../../store/reducers'
+import { useSelector } from 'react-redux'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
@@ -48,9 +51,15 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
   const [isLinkingItem, setIsLinkingItem] = useState<boolean>(false)
 
+  const updatedBreadcrumbsItem: BreadcrumbsItem | null = useSelector((state: RootState) => state.breadcrumbsReducer.updatedBreadcrumbsItem)
+
   useEffect(() => {
     instantiateDrawItems()
   }, [diagramItems])
+
+  useEffect(() => {
+    if (updatedBreadcrumbsItem !== null) { alert(`updated name ${updatedBreadcrumbsItem.name}`) }
+  }, [updatedBreadcrumbsItem])
 
   const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
     const strType = WorkspaceItemType[diagramItem.workspaceItem.itemType]

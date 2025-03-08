@@ -5,15 +5,16 @@ import { BreadcrumbsTypes } from './reducer'
 const MAXIMUM_TIME_TO_CONSIDER = 1000
 
 export const addBreadcrumbsItemsMap = async (breadcrumbsItemsMap: Map<number, BreadcrumbsItem>, dispatch: Dispatch<any>, currentBreadcrumbsItemsMap: Map<number, BreadcrumbsItem> | null = null): Promise<void> => {
-  await dispatch({ type: BreadcrumbsTypes.SET_BREADCRUMBS_MAP, payload: getNewBreadcrumbsItems(breadcrumbsItemsMap, currentBreadcrumbsItemsMap) })
+  await dispatch({ type: BreadcrumbsTypes.SET_BREADCRUMBS_MAP, payload: generateNewBreadcrumbsItems(breadcrumbsItemsMap, currentBreadcrumbsItemsMap) })
 }
 
-const getNewBreadcrumbsItems = (breadcrumbsItemsMap: Map<number, BreadcrumbsItem>, currentBreadcrumbsItemsMap: Map<number, BreadcrumbsItem> | null): Map<number, BreadcrumbsItem> => {
+const generateNewBreadcrumbsItems = (breadcrumbsItemsMap: Map<number, BreadcrumbsItem>, currentBreadcrumbsItemsMap: Map<number, BreadcrumbsItem> | null): Map<number, BreadcrumbsItem> => {
+  const newBreadcrumbsItemsMap = new Map(breadcrumbsItemsMap)
+
   if (currentBreadcrumbsItemsMap === null) {
-    return new Map(breadcrumbsItemsMap)
+    return newBreadcrumbsItemsMap
   }
 
-  const newBreadcrumbsItemsMap = new Map(breadcrumbsItemsMap)
   currentBreadcrumbsItemsMap.forEach((item, key) => {
     const shouldAddItem = newBreadcrumbsItemsMap.get(key) === undefined && item.timestamp !== undefined && Date.now() - item.timestamp < MAXIMUM_TIME_TO_CONSIDER
     if (shouldAddItem) {
