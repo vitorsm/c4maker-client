@@ -7,9 +7,12 @@ const SCROLL_INCREMENT = 100
 
 interface HorizontalListProps {
   items: ReactElement[] | HTMLElement[]
+  dataTestId?: string
 }
 
-const HorizontalList: FC<HorizontalListProps> = ({ items }: HorizontalListProps) => {
+const DEFAULT_TEST_ID = 'horizontal-list-default'
+
+const HorizontalList: FC<HorizontalListProps> = ({ items, dataTestId = DEFAULT_TEST_ID }: HorizontalListProps) => {
   const itemsContainerRef = useRef<HTMLDivElement | null>(null)
 
   const onClickScrollPositionButton = (isLeft: boolean): void => {
@@ -34,15 +37,15 @@ const HorizontalList: FC<HorizontalListProps> = ({ items }: HorizontalListProps)
   return (
     <Container>
       <IconContainer>
-        <FontAwesomeIconButton icon={faChevronLeft} onClick={() => onClickScrollPositionButton(true)}/>
+        <FontAwesomeIconButton icon={faChevronLeft} onClick={() => onClickScrollPositionButton(true)} dataTestId={`${dataTestId}-left-button`}/>
       </IconContainer>
 
-      <ItemsContainer ref={itemsContainerRef}>
+      <ItemsContainer ref={itemsContainerRef} data-testid={dataTestId}>
         {items}
       </ItemsContainer>
 
       <IconContainer>
-        <FontAwesomeIconButton icon={faChevronRight} onClick={() => onClickScrollPositionButton(false)}/>
+        <FontAwesomeIconButton icon={faChevronRight} onClick={() => onClickScrollPositionButton(false)} dataTestId={`${dataTestId}-right-button`}/>
       </IconContainer>
     </Container>
   )

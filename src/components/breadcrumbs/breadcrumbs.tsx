@@ -33,9 +33,11 @@ export const generateEmptyBreadcrumbs = (key: string | null, name: string): Brea
   timestamp: 0
 })
 
-const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkColor, lastTextLinkColor, dataTestId }: BreadcrumbsProps) => {
+export const DEFAULT_BREADCRUMBS_TEST_ID = 'default-breadcrumbs'
+
+const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkColor, lastTextLinkColor, dataTestId = DEFAULT_BREADCRUMBS_TEST_ID }: BreadcrumbsProps) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [lastItemName, setLastItemName] = useState<string | null>(null)
+  const [lastItemName, setLastItemName] = useState<string>('')
 
   useEffect(() => {
     if (items.length > 0) {
@@ -52,10 +54,6 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkCo
   }
 
   const onClickConfirmEdit = (): void => {
-    if (lastItemName === null) {
-      return
-    }
-
     const lastItem = items[items.length - 1]
     lastItem.name = lastItemName
     onLastItemChange(lastItem)
@@ -74,15 +72,15 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkCo
     if (!isEditing) {
       return (
         <ButtonsContainer>
-          <FontAwesomeIconButton icon={faPen} size="1x" onClick={onClickEditButton} dataTestId={`${dataTestId ?? ''}-edit-button`}/>
+          <FontAwesomeIconButton icon={faPen} size="1x" onClick={onClickEditButton} dataTestId={`${dataTestId}-edit-button`}/>
         </ButtonsContainer>
       )
     }
 
     return (
       <ButtonsContainer>
-        <FontAwesomeIconButton icon={faCheck} size="1x" onClick={onClickConfirmEdit} border dataTestId={`${dataTestId ?? ''}-confirm-button`}/>
-        <FontAwesomeIconButton icon={faXmark} size="1x" onClick={onClickCancelEdit} border />
+        <FontAwesomeIconButton icon={faCheck} size="1x" onClick={onClickConfirmEdit} border dataTestId={`${dataTestId}-confirm-button`}/>
+        <FontAwesomeIconButton icon={faXmark} size="1x" onClick={onClickCancelEdit} border dataTestId={`${dataTestId}-cancel-button`}/>
       </ButtonsContainer>
     )
   }
@@ -102,7 +100,7 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkCo
     if (!isLastItem || !isEditing) {
       return (
         <Tooltip text={item.details}>
-          <TextLink onClick={item.onClick} color={getColor()} dataTestId={`${dataTestId ?? ''}-text-link-${index}`}>
+          <TextLink onClick={item.onClick} color={getColor()} dataTestId={`${dataTestId}-text-link-${index}`}>
             {item.name}
           </TextLink>
         </Tooltip>
@@ -111,7 +109,7 @@ const Breadcrumbs: FC<BreadcrumbsProps> = ({ items, onLastItemChange, textLinkCo
 
     return (
       <Content>
-        <TextInput title={null} value={lastItemName ?? ''} onChange={setLastItemName} dataTestId={`${dataTestId ?? ''}-text-input-${index}`}/>
+        <TextInput title={null} value={lastItemName} onChange={setLastItemName} dataTestId={`${dataTestId}-text-input-${index}`}/>
       </Content>
     )
   }

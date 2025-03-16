@@ -1,22 +1,26 @@
 import React from 'react'
 import { screen, render, fireEvent, waitFor } from '@testing-library/react'
-import Breadcrumbs from '../breadcrumbs'
+import Breadcrumbs, { BreadcrumbsItem } from '../breadcrumbs'
 
-test('test render breadcrumbs without edit button', () => {
-  const dataTestId = 'data-test-id'
-  const item1Function = jest.fn()
-
-  const breadcrumbsItems = [{
+const mockBreadcrumbsItems = (firstItemFunction?: Function): BreadcrumbsItem[] => {
+  return [{
     key: 'item_1',
     name: 'Item 1',
     details: null,
-    onClick: item1Function
+    onClick: firstItemFunction ?? null
   }, {
     key: 'item_2',
     name: 'Item 2',
     details: null,
     onClick: null
   }]
+}
+
+test('test render breadcrumbs without edit button', () => {
+  const dataTestId = 'data-test-id'
+  const item1Function = jest.fn()
+
+  const breadcrumbsItems = mockBreadcrumbsItems(item1Function)
 
   const onLastItemChange = jest.fn()
 
@@ -36,18 +40,8 @@ test('test render breadcrumbs without edit button', () => {
 test('test render breadcrumbs with edit button', async () => {
   const dataTestId = 'data-test-id'
 
-  const breadcrumbsItems = [{
-    key: 'item_1',
-    name: 'Item 1',
-    details: null,
-    onClick: null
-  }, {
-    key: 'item_2',
-    name: 'Item 2',
-    details: null,
-    onClick: null,
-    editable: true
-  }]
+  const breadcrumbsItems = mockBreadcrumbsItems()
+  breadcrumbsItems[1].editable = true
 
   const onLastItemChange = jest.fn()
 
@@ -68,4 +62,29 @@ test('test render breadcrumbs with edit button', async () => {
   await waitFor(() => {
     expect(onLastItemChange).toBeCalledWith(breadcrumbsItems[1])
   })
+})
+
+test('test edit breadcrumb and cancel', async () => {
+  const dataTestId = 'data-test-id'
+
+  const breadcrumbsItems = mockBreadcrumbsItems()
+  breadcrumbsItems[1].editable = true
+
+  const onLastItemChange = jest.fn()
+
+  render(<Breadcrumbs items={breadcrumbsItems} onLastItemChange={onLastItemChange} dataTestId={dataTestId} />)
+
+  const editItemButton = screen.getByTestId(`${dataTestId ?? ''}-edit-button`)
+
+  fireEvent.click(editItemButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(`${dataTestId ?? ''}-cancel-button`)).toBeInTheDocument()
+  })
+
+  const cancelEditButton = screen.getByTestId(`${dataTestId ?? ''}-cancel-button`)
+
+  fireEvent.click(cancelEditButton)
+
+  expect(onLastItemChange).not.toBeCalled()
 })

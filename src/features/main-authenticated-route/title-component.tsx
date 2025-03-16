@@ -32,8 +32,7 @@ const TitleComponent: FC = () => {
         items={breadcrumbsItems}
         onLastItemChange={onBreadcrumbsUpdated}
         textLinkColor={defaultColors.primary.main}
-        lastTextLinkColor={defaultColors.primary.dark}
-        dataTestId={'main-title-breadcrumbs'} />
+        lastTextLinkColor={defaultColors.primary.dark} />
     </TitleContainer>
   )
 }
