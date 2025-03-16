@@ -9,32 +9,33 @@ import { DiagramItem } from '../../models/diagram'
 import ObjectWrapper from '../../models/object_wrapper'
 import Workspace from '../../models/workspace'
 import { RootState } from '../../store/reducers'
-import { breadcrumbsOperations } from '../../store/reducers/breadcrumbs'
 import { workspaceOperations } from '../../store/reducers/workspaces'
 import WorkspaceDiagramComponent from './diagram/workspace-diagram-component'
 import { WorkspaceComponentBody } from './style'
 import WorkspaceHeaderComponent from './workspace-header-component'
 import WorkspaceItemsComponent from './workspace-items-component'
 import DiagramComponent from '../diagram/diagram-component'
-import { addItemToNumericMap } from '../../utils/utils'
+import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
 
 export const NEW_WORKSPACE_NAME = 'New Workspace'
 
-interface WorkspaceComponentProps {
-  breadcrumbsItems: Map<number, BreadcrumbsItem>
-}
-
-const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: WorkspaceComponentProps) => {
+const WorkspaceComponent: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const resolvedPath = useResolvedPath('')
+
+  const onBreadcrumbsItemUpdate = (breadcrumbsItem: BreadcrumbsItem): void => {
+    if (currentBreadcrumbsItem.key === breadcrumbsItem.key) {
+      updateWorkspaceName(breadcrumbsItem.name)
+    }
+  }
+
+  const { addBreadcrumbItem } = useBreadcrumbs(onBreadcrumbsItemUpdate)
 
   const { workspaceId } = useParams()
 
   const loadedWorkspace: ObjectWrapper<Workspace> = useSelector((state: RootState) => state.workspaceReducer.workspace)
   const workspaces: ObjectWrapper<Workspace[]> = useSelector((state: RootState) => state.workspaceReducer.workspaces)
-  const updatedBreadcrumbsItem: BreadcrumbsItem | null = useSelector((state: RootState) => state.breadcrumbsReducer.updatedBreadcrumbsItem)
-  const breadcrumbItemsMap: Map<number, BreadcrumbsItem> = useSelector((state: RootState) => state.breadcrumbsReducer.breadcrumbsItemsMap)
 
   const [isLoading, setIsLoading] = useState(false)
   const [isCreation, setIsCreation] = useState(false)
@@ -42,8 +43,7 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
   const [isUpdating, setIsUpdating] = useState(false)
   const [workspace, setWorkspace] = useState(loadedWorkspace.data)
   const [diagramItems, setDiagramItems] = useState<DiagramItem[]>([])
-  const [currentBreadcrumbsItem, setCurrentBreadcrumbsItems] = useState<BreadcrumbsItem>(generateEmptyBreadcrumbs('new_item', NEW_WORKSPACE_NAME))
-  const [localBreadcrumbsItems, setLocalBreadcrumbsItems] = useState<Map<number, BreadcrumbsItem>>(breadcrumbsItems)
+  const [currentBreadcrumbsItem, setCurrentBreadcrumbsItems] = useState<BreadcrumbsItem>(generateEmptyBreadcrumbs(null, NEW_WORKSPACE_NAME))
 
   const shouldRequestWorkspace = (): boolean => {
     return workspaceId !== undefined && loadedWorkspace.data?.id !== workspaceId && !loadedWorkspace?.error
@@ -56,6 +56,7 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
   useEffect(() => {
     if (workspaceId === undefined && workspaceId !== null) {
       setIsCreation(true)
+      void workspaceOperations.cleanWorkspaceState(dispatch)
     } else {
       setIsCreation(false)
     }
@@ -64,67 +65,58 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
       void workspaceOperations.fetchWorkspace(workspaceId, dispatch)
       setIsLoading(true)
     }
-  })
+  }, [])
 
   useEffect(() => {
-    if (loadedWorkspace !== undefined) {
-      setIsLoading(false)
+    if (loadedWorkspace.data == null && !loadedWorkspace.error) {
+      return
+    }
 
-      if (!loadedWorkspace.error) {
-        handleSetWorkspace(loadedWorkspace.data)
+    setIsLoading(false)
 
-        if (isUpdating || isCreation) {
-          setIsUpdating(false)
-          updateWorkspacesListByPersistedWorkspace()
-        }
+    if (!loadedWorkspace.error && loadedWorkspace.data !== null) {
+      handleSetWorkspace(loadedWorkspace.data)
 
-        if (isCreating && ((loadedWorkspace?.data?.id) != null)) {
-          navigate(`/workspaces/${loadedWorkspace?.data?.id}`, {
-            replace: true,
-            state: undefined,
-            preventScrollReset: undefined,
-            relative: undefined // "route" | "path"
-          })
-        }
+      if (isUpdating || isCreation) {
+        setIsUpdating(false)
+        updateWorkspacesListByPersistedWorkspace()
       }
 
-      setIsCreating(false)
+      if (isCreating && ((loadedWorkspace?.data?.id) != null)) {
+        navigate(`/workspaces/${loadedWorkspace?.data?.id}`, {
+          replace: true,
+          state: undefined,
+          preventScrollReset: undefined,
+          relative: undefined // "route" | "path"
+        })
+      }
     }
-  }, [loadedWorkspace, workspaceId])
+
+    setIsCreating(false)
+  }, [loadedWorkspace])
 
   useEffect(() => {
-    const newBreadcrumbItem = addItemToNumericMap(breadcrumbsItems, currentBreadcrumbsItem)
-    setLocalBreadcrumbsItems(newBreadcrumbItem)
-    void breadcrumbsOperations.addBreadcrumbsItemsMap(newBreadcrumbItem, dispatch, breadcrumbItemsMap)
+    addBreadcrumbItem(currentBreadcrumbsItem, 2)
   }, [currentBreadcrumbsItem])
 
-  useEffect(() => {
-    if (updatedBreadcrumbsItem !== null && currentBreadcrumbsItem.key === updatedBreadcrumbsItem.key) {
-      updateWorkspaceName(updatedBreadcrumbsItem.name)
-    }
-  }, [updatedBreadcrumbsItem])
-
   const updateWorkspaceName = (workspaceName: string): void => {
-    let workspace = getWorkspace()
-    const shouldCreate = workspace === null
+    let workspaceToSave = getWorkspaceOrNull(workspace)
+    const shouldCreate = workspaceToSave === null
 
-    if (workspace === null) {
-      workspace = {
+    if (workspaceToSave === null) {
+      workspaceToSave = {
         name: '',
         description: ''
       }
     }
 
-    // todo - this check is useless
-    if (workspace === null) return
-
-    workspace.name = workspaceName
+    workspaceToSave.name = workspaceName
 
     if (shouldCreate) {
       setIsCreating(true)
-      void workspaceOperations.createWorkspace(workspace, dispatch)
+      void workspaceOperations.createWorkspace(workspaceToSave, dispatch)
     } else {
-      void workspaceOperations.updateWorkspace(workspace, dispatch)
+      void workspaceOperations.updateWorkspace(workspaceToSave, dispatch)
     }
 
     setIsLoading(true)
@@ -157,15 +149,14 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
     const currentWorkspace = getWorkspaceOrNull(workspace)
     if (currentWorkspace === null) {
       generateAndSetBreadcrumbsItems(null)
-      return
+    } else {
+      generateAndSetBreadcrumbsItems(currentWorkspace)
     }
-
-    generateAndSetBreadcrumbsItems(currentWorkspace)
   }
 
   const generateAndSetBreadcrumbsItems = (workspace: Workspace | null): void => {
     if (workspace === null) {
-      setCurrentBreadcrumbsItems(generateEmptyBreadcrumbs('new_item', NEW_WORKSPACE_NAME))
+      setCurrentBreadcrumbsItems(generateEmptyBreadcrumbs(null, NEW_WORKSPACE_NAME))
     } else {
       const breadcrumbsItem = {
         key: workspace.id ?? '',
@@ -285,7 +276,7 @@ const WorkspaceComponent: FC<WorkspaceComponentProps> = ({ breadcrumbsItems }: W
 
   return (
     <Routes>
-      <Route path='diagram/:diagramId' element={<DiagramComponent breadcrumbsItems={localBreadcrumbsItems} />} />
+      <Route path='diagram/:diagramId' element={<DiagramComponent />} />
       <Route path='' element={renderContent()} />
     </Routes>
   )

@@ -6,30 +6,31 @@ import CircularProgress from '../../components/circular-progress'
 import Diagram, { DiagramItem } from '../../models/diagram'
 import ObjectWrapper from '../../models/object_wrapper'
 import { RootState } from '../../store/reducers'
-import { breadcrumbsOperations } from '../../store/reducers/breadcrumbs'
 import { diagramOperations } from '../../store/reducers/diagrams'
 import { DiagramContainer } from './style'
-import { addItemToNumericMap } from '../../utils/utils'
 import DiagramItemsComponent from '../../components/diagram-items-component'
 import AnimatedContainer from '../../components/animated-container'
+import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
 
-interface DiagramComponentProp {
-  breadcrumbsItems: Map<number, BreadcrumbsItem>
-}
-
-const DiagramComponent: FC<DiagramComponentProp> = ({ breadcrumbsItems }: DiagramComponentProp) => {
+const DiagramComponent: FC = () => {
   const { diagramId } = useParams()
 
   const dispatch = useDispatch()
 
+  const onBreadcrumbsItemChanged = (breadcrumbsItem: BreadcrumbsItem): void => {
+    const diagram = getDiagramOrNull()
+    if (diagram?.id !== breadcrumbsItem.key) {
+      return
+    }
+
+    updateDiagramName(breadcrumbsItem.name)
+  }
+  const { addBreadcrumbItem } = useBreadcrumbs(onBreadcrumbsItemChanged)
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [localBreadcrumbsItem, setLocalBreadcrumbsItem] = useState<BreadcrumbsItem | null>(null)
   const [diagramItems, setDiagramItems] = useState<DiagramItem[]>([])
 
   const diagram: ObjectWrapper<Diagram> = useSelector((rootState: RootState) => rootState.diagramReducer.diagram)
-  console.log('diagram', diagram)
-
-  const breadcrumbItemsMap: Map<number, BreadcrumbsItem> = useSelector((state: RootState) => state.breadcrumbsReducer.breadcrumbsItemsMap)
 
   useEffect(() => {
     fetchDiagram()
@@ -40,28 +41,18 @@ const DiagramComponent: FC<DiagramComponentProp> = ({ breadcrumbsItems }: Diagra
     generateBreadcrumbsItem()
   }, [diagram])
 
-  useEffect(() => {
-    if (localBreadcrumbsItem === null) {
-      return
-    }
-
-    const newBreadcrumbItems = addItemToNumericMap(breadcrumbsItems, localBreadcrumbsItem)
-
-    void breadcrumbsOperations.addBreadcrumbsItemsMap(newBreadcrumbItems, dispatch, breadcrumbItemsMap)
-  }, [localBreadcrumbsItem, breadcrumbsItems])
-
   const generateBreadcrumbsItem = (): void => {
     if (diagram.data === null || diagram.data.id === undefined) {
       return
     }
 
-    setLocalBreadcrumbsItem({
+    addBreadcrumbItem({
       key: diagram.data.id,
       name: diagram.data.name,
       details: diagram.data.description,
       onClick: () => {},
       editable: true
-    })
+    }, 3)
   }
 
   const fetchDiagram = (): void => {
@@ -100,6 +91,22 @@ const DiagramComponent: FC<DiagramComponentProp> = ({ breadcrumbsItems }: Diagra
     const itemKeys = diagramItemsToDelete.map(diagramItem => diagramItem.workspaceItem.key)
 
     setDiagramItems(diagramItems.filter(diagramItem => !itemKeys.includes(diagramItem.workspaceItem.key)))
+  }
+
+  const updateDiagramName = (diagramName: string): void => {
+    const diagram = getDiagramOrNull()
+    if (diagram === null) return
+
+    diagram.name = diagramName
+    void diagramOperations.updateDiagram(diagram, dispatch)
+  }
+
+  const getDiagramOrNull = (): Diagram | null => {
+    if (diagramId !== diagram?.data?.id) {
+      return null
+    }
+
+    return diagram.data
   }
 
   const renderContent = (): ReactElement => {

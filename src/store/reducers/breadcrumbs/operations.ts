@@ -4,6 +4,10 @@ import { BreadcrumbsTypes } from './reducer'
 
 const MAXIMUM_TIME_TO_CONSIDER = 1000
 
+export const setBreadcrumbsMap = async (breadcrumbsItemsMap: Map<number, BreadcrumbsItem>, dispatch: Dispatch<any>): Promise<void> => {
+  await dispatch({ type: BreadcrumbsTypes.SET_BREADCRUMBS_MAP, payload: breadcrumbsItemsMap })
+}
+
 export const addBreadcrumbsItemsMap = async (breadcrumbsItemsMap: Map<number, BreadcrumbsItem>, dispatch: Dispatch<any>, currentBreadcrumbsItemsMap: Map<number, BreadcrumbsItem> | null = null): Promise<void> => {
   await dispatch({ type: BreadcrumbsTypes.SET_BREADCRUMBS_MAP, payload: generateNewBreadcrumbsItems(breadcrumbsItemsMap, currentBreadcrumbsItemsMap) })
 }
@@ -16,7 +20,10 @@ const generateNewBreadcrumbsItems = (breadcrumbsItemsMap: Map<number, Breadcrumb
   }
 
   currentBreadcrumbsItemsMap.forEach((item, key) => {
-    const shouldAddItem = newBreadcrumbsItemsMap.get(key) === undefined && item.timestamp !== undefined && Date.now() - item.timestamp < MAXIMUM_TIME_TO_CONSIDER
+    // @ts-expect-error
+    const isAlreadyInTheMap: boolean = newBreadcrumbsItemsMap.values().some(_item => _item.key === item.key)
+    const shouldAddItem = !isAlreadyInTheMap && newBreadcrumbsItemsMap.get(key) === undefined && item.timestamp !== undefined && Date.now() - item.timestamp < MAXIMUM_TIME_TO_CONSIDER
+
     if (shouldAddItem) {
       newBreadcrumbsItemsMap.set(key, item)
     }

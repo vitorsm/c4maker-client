@@ -8,7 +8,7 @@ import TextInput from '../text-input'
 import Tooltip from '../tooltip'
 
 export interface BreadcrumbsItem {
-  key: string
+  key: string | null
   name: string
   details: string | null
   onClick: Function | null
@@ -24,7 +24,7 @@ interface BreadcrumbsProps {
   dataTestId?: string
 }
 
-export const generateEmptyBreadcrumbs = (key: string, name: string): BreadcrumbsItem => ({
+export const generateEmptyBreadcrumbs = (key: string | null, name: string): BreadcrumbsItem => ({
   key,
   name,
   details: null,

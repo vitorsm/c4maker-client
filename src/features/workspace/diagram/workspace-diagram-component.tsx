@@ -26,6 +26,7 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showDialogCreate, setShowDialogCreate] = useState<boolean>(false)
+  const [filteredDiagrams, setFilteredDiagrams] = useState<Diagram[]>([])
 
   const diagrams = useSelector((rootState: RootState) => rootState.diagramReducer.diagrams)
 
@@ -35,6 +36,7 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
 
   useEffect(() => {
     setIsLoading(false)
+    setFilteredDiagrams(diagrams.data ?? [])
   }, [diagrams])
 
   const fetchDiagrams = (): void => {
@@ -67,12 +69,14 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
     })
   }
 
-  const renderDiagramItems = (): ReactElement[] => {
-    if (diagrams.data === null) {
-      return []
-    }
+  const onSearchChange = (text: string): void => {
+    let filtered = diagrams.data ?? []
+    filtered = filtered.filter(diagram => diagram.name.toLowerCase().includes(text.toLowerCase()))
+    setFilteredDiagrams(filtered)
+  }
 
-    return diagrams.data.map((diagram, index) => (
+  const renderDiagramItems = (): ReactElement[] => {
+    return filteredDiagrams.map((diagram, index) => (
       <Tooltip text={diagram.description} key={`diagram-button-${index}`}>
         <Card description={diagram.name} onClick={() => onClickDiagram(diagram)} dataTestId={`list-diagram-card-${index}`}>
           <FontAwesomeIcon icon={faDiagramProject} size="2x" />
@@ -94,7 +98,7 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
   return (
     <Container>
       <DiagramHeader>
-        <SearchInput onChange={() => null} placeholder={'Buscar diagrama...'} onClickInfo={() => null} />
+        <SearchInput onChange={onSearchChange} placeholder={'Buscar diagrama...'} onClickInfo={() => null} />
         <PlainButton text={'Criar diagrama'} onClick={onClickCreateNewDiagram} />
       </DiagramHeader>
 

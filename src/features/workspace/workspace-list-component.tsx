@@ -13,44 +13,42 @@ import { Route, Routes, useNavigate, useResolvedPath } from 'react-router-dom'
 import WorkspaceComponent from './workspace-component'
 import Workspace from '../../models/workspace'
 import { RootState } from '../../store/reducers'
-import { BreadcrumbsItem } from '../../components/breadcrumbs/breadcrumbs'
-import { breadcrumbsOperations } from '../../store/reducers/breadcrumbs'
 import Tooltip from '../../components/tooltip'
+import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
+import User from '../../models/user'
 
 const WorkspaceListComponent: FC = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const resolvedPath = useResolvedPath('')
   const workspaces: ObjectWrapper<Workspace[]> = useSelector((state: RootState) => state.workspaceReducer.workspaces)
+  const currentUser: ObjectWrapper<User> = useSelector((state: RootState) => state.userReducer.currentUser)
 
+  const { addBreadcrumbItem } = useBreadcrumbs()
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    void breadcrumbsOperations.addBreadcrumbsItemsMap(generateLocalBreadcrumbItems(), dispatch)
-  }, [resolvedPath])
-
-  useEffect(() => {
-    if (workspaces.data === null) {
-      if (!isLoading) {
-        void workspaceOperations.fetchUserWorkspaces(dispatch)
-        setIsLoading(true)
-      }
-    } else {
-      setIsLoading(false)
-    }
-  }, [workspaces])
-
-  const generateLocalBreadcrumbItems = (): Map<number, BreadcrumbsItem> => {
-    const breadcrumbItems = new Map()
-    breadcrumbItems.set(0, {
+    addBreadcrumbItem({
       key: 'workspaces',
       name: 'Workspaces',
       details: 'List of Workspace',
       onClick: () => navigate('/workspaces')
-    })
+    }, 1)
+  }, [resolvedPath])
 
-    return breadcrumbItems
-  }
+  useEffect(() => {
+    if (currentUser.data !== null) {
+      void workspaceOperations.fetchUserWorkspaces(dispatch)
+      setIsLoading(true)
+    }
+  }, [currentUser])
+
+  useEffect(() => {
+    if (workspaces.data !== null) {
+      setIsLoading(false)
+    }
+  }, [workspaces])
+
   const hasWorkspaces = (): boolean => {
     return workspaces.data !== null && workspaces.data.length > 0
   }
@@ -135,8 +133,8 @@ const WorkspaceListComponent: FC = () => {
   const renderContent = (): ReactElement => {
     return (
       <Routes>
-        <Route path='new' element={<WorkspaceComponent breadcrumbsItems={generateLocalBreadcrumbItems()} />} />
-        <Route path='/:workspaceId/*' element={<WorkspaceComponent breadcrumbsItems={generateLocalBreadcrumbItems()} />} />
+        <Route path='new' element={<WorkspaceComponent />} />
+        <Route path='/:workspaceId/*' element={<WorkspaceComponent />} />
         <Route path='' element={renderWorkspaceButtons()} />
       </Routes>
     )

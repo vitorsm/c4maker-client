@@ -48,7 +48,7 @@ test('test delete workspace error', async () => {
     return res(ctx.status(403), ctx.json({ description: errorDescription }), ctx.delay(150))
   }))
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={new Map()}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent /></BrowserRouter>)
 
   act(() => {
     store.dispatch({
@@ -110,7 +110,7 @@ test('test delete workspace success', async () => {
     return res(ctx.status(204), ctx.json(null), ctx.delay(150))
   }))
 
-  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent breadcrumbsItems={new Map()}/></BrowserRouter>)
+  const { store } = renderWithProvideres(<BrowserRouter><WorkspaceComponent /></BrowserRouter>)
 
   act(() => {
     store.dispatch({

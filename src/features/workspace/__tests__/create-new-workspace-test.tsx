@@ -26,15 +26,16 @@ test('create new workspace error', async () => {
 
   const breadcrumbsItems = new Map()
   breadcrumbsItems.set(0, {
-    key: 'new_item',
+    key: null,
     name: '',
     details: null,
     onClick: null,
     editable: true
   })
 
-  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></MemoryRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent /></MemoryRouter>)
 
+  // this dispatch simulates the edit of the breadcrumbs, that is used to update the workspace name
   act(() => {
     store.dispatch({
       type: BreadcrumbsTypes.SET_BREADCRUMBS,
@@ -62,14 +63,14 @@ test('create new workspace from name success', async () => {
 
   const breadcrumbsItems = new Map()
   breadcrumbsItems.set(0, {
-    key: 'new_item',
+    key: null,
     name: '',
     details: null,
     onClick: null,
     editable: true
   })
 
-  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems}/></MemoryRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent /></MemoryRouter>)
 
   act(() => {
     store.dispatch({
@@ -102,7 +103,7 @@ test('create new workspace from details success', async () => {
     editable: true
   })
 
-  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent breadcrumbsItems={breadcrumbsItems} /></MemoryRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent /></MemoryRouter>)
 
   server.use(rest.post('http://localhost:5000/workspace', (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ id: 'item-id-test-2', name: workspaceName, description: workspaceDescription }), ctx.delay(150))

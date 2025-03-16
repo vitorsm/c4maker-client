@@ -4,6 +4,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 2;
+  overflow-x: auto;
 `
 
 export const CreateDiagramContainer = styled.div`

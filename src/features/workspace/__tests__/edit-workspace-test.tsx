@@ -6,6 +6,9 @@ import { BrowserRouter } from 'react-router-dom'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
 import Workspace from '../../../models/workspace'
 import WorkspaceListComponent from '../workspace-list-component'
+import { act } from 'react-dom/test-utils'
+import { UserTypes } from '../../../store/reducers/users/reducer'
+import User from '../../../models/user'
 
 const server = setupServer()
 
@@ -22,6 +25,11 @@ test('test edit workspace success - complete flow', async () => {
     id: workspaceId,
     name: 'Workspace',
     description: oldDescription
+  }
+
+  const mockCurrentUser: User = {
+    name: 'UserName',
+    login: 'login'
   }
 
   server.use(rest.get('http://localhost:5000/workspace', (req, res, ctx) => {
@@ -45,6 +53,13 @@ test('test edit workspace success - complete flow', async () => {
   }))
 
   const { store } = renderWithProvideres(<BrowserRouter><WorkspaceListComponent /></BrowserRouter>)
+
+  act(() => {
+    store.dispatch({
+      type: UserTypes.SET_CURRENT_USER,
+      payload: mockCurrentUser
+    })
+  })
 
   await waitFor(() => {
     expect(screen.queryByTestId('workspace-list-progress')).toBeInTheDocument()

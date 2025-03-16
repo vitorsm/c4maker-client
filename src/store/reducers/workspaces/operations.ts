@@ -7,6 +7,13 @@ export const createWorkspace = async (workspace: Workspace, dispatch: Dispatch<a
   new WorkspaceService().createWorkspace(workspace, dispatch, WorkspaceTypes.GET_USER_WORKSPACE)
 }
 
+export const cleanWorkspaceState = async (dispatch: Dispatch<any>): Promise<void> => {
+  dispatch({
+    type: WorkspaceTypes.GET_USER_WORKSPACE,
+    payload: { data: null, error: false, errorMessage: null }
+  })
+}
+
 export const updateWorkspace = async (workspace: Workspace, dispatch: Dispatch<any>): Promise<void> => {
   new WorkspaceService().updateWorkspace(workspace, dispatch, WorkspaceTypes.GET_USER_WORKSPACE)
 }
