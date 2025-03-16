@@ -11,9 +11,6 @@ import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
 import { generateContainerComponent, generateRelationshipComponent, generateUserComponent } from './component_utils'
 import { WorkspaceItemType } from '../../models/workspace'
-// import { BreadcrumbsItem } from '../breadcrumbs/breadcrumbs'
-// import { RootState } from '../../store/reducers'
-// import { useSelector } from 'react-redux'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
@@ -24,7 +21,6 @@ interface DiagramItemsComponentProps {
 
 const CANVAS_WIDTH = 2246
 const CANVAS_HEIGHT = 1324
-// const BUTTONS_HEIGHT = 80
 
 const SIZE_BY_ITEM_TYPE = new Map()
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], { width: 300, height: 300 })
