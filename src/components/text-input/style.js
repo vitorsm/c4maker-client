@@ -17,7 +17,7 @@ export const Input = styled.input`
   height: calc(100% - 10px);
   border: none;
   padding: 5px;
-  color: ${props => props.isPlaceholder ? defaultColors.primary.light : defaultColors.primary.main};
+  color: ${defaultColors.primary.main};
 
   &:focus {
     outline: 0;

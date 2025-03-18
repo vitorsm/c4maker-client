@@ -13,7 +13,7 @@ interface TextInputProps {
   icon?: ReactElement | null
 }
 
-const TextInput: FC<TextInputProps> = ({ title = null, placeholder, value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true, icon = null }: TextInputProps) => {
+const TextInput: FC<TextInputProps> = ({ title = null, placeholder = '', value = '', type = 'text', onChange, fillWidth, dataTestId = 'text-input', edit = true, icon = null }: TextInputProps) => {
   const [textValue, setTextValue] = useState(value)
   const [inputTextValue, setInputTextValue] = useState(textValue)
   const [isInputFocused, setIsInputFocused] = useState<boolean>(false)
@@ -25,7 +25,7 @@ const TextInput: FC<TextInputProps> = ({ title = null, placeholder, value = '', 
 
   useEffect(() => {
     const textToSet = isPlaceholder ? placeholder : textValue
-    setInputTextValue(textToSet ?? '')
+    setInputTextValue(textToSet)
   }, [textValue, isPlaceholder])
 
   useEffect(() => {

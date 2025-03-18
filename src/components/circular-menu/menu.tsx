@@ -8,23 +8,19 @@ export interface MenuItemObj {
 }
 
 interface MenuProps {
-  setMouseOnMenu?: Function | null
+  setMouseOnMenu: Function
   menuItems: MenuItemObj[]
   marginLeft?: number | null
   dataTestId?: string
 }
 
-const Menu: FC<MenuProps> = ({ menuItems, marginLeft = null, setMouseOnMenu = null, dataTestId = 'circular-menu-items' }: MenuProps) => {
+const Menu: FC<MenuProps> = ({ menuItems, marginLeft = null, setMouseOnMenu, dataTestId = 'circular-menu-items' }: MenuProps) => {
   const mouseOver = (): void => {
-    if (setMouseOnMenu !== null) {
-      setMouseOnMenu(true)
-    }
+    setMouseOnMenu(true)
   }
 
   const mouseOut = (): void => {
-    if (setMouseOnMenu !== null) {
-      setMouseOnMenu(false)
-    }
+    setMouseOnMenu(false)
   }
 
   const renderMenuItems = (): ReactElement[] => {

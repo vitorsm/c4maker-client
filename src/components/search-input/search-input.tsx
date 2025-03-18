@@ -10,11 +10,10 @@ interface SearchInputProps {
   onChange: Function
   onClickInfo?: () => void
   text?: string
-  icon?: ReactElement | null
   dataTestId?: string
 }
 
-const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, icon = null, dataTestId, placeholder }: SearchInputProps) => {
+const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, dataTestId, placeholder }: SearchInputProps) => {
   const renderInfoButton = (): ReactElement | null => {
     if (onClickInfo === undefined) {
       return null
@@ -28,10 +27,6 @@ const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, icon =
   }
 
   const renderIcon = (): ReactElement => {
-    if (icon !== null) {
-      return icon
-    }
-
     return <FontAwesomeIcon icon={faMagnifyingGlass} />
   }
 

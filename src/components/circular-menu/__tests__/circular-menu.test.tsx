@@ -16,6 +16,8 @@ test('test open menu', async () => {
   const menuDataTestId = 'circular-menu-container'
   render(<CircularMenu menuItems={menuItems} size={50} icon={<div>icon</div>} dataTestId={menuDataTestId} />)
 
+  expect(screen.queryByTestId(`menu-item-${menuDataTestId}-${menuItems[0].text}`)).not.toBeInTheDocument()
+
   const menu = screen.getByTestId(menuDataTestId)
 
   await fireEvent.click(menu)
