@@ -14,7 +14,9 @@ interface MenuProps {
   dataTestId?: string
 }
 
-const Menu: FC<MenuProps> = ({ menuItems, marginLeft = null, setMouseOnMenu, dataTestId = 'circular-menu-items' }: MenuProps) => {
+export const DEFAULT_MENU_TEST_ID = 'circular-menu-items'
+
+const Menu: FC<MenuProps> = ({ menuItems, marginLeft = null, setMouseOnMenu, dataTestId = DEFAULT_MENU_TEST_ID }: MenuProps) => {
   const mouseOver = (): void => {
     setMouseOnMenu(true)
   }

@@ -8,6 +8,7 @@ import { MemoryRouter } from 'react-router-dom'
 import WorkspaceComponent, { NEW_WORKSPACE_NAME } from '../workspace-component'
 import { BreadcrumbsTypes } from '../../../store/reducers/breadcrumbs/reducer'
 import { act } from 'react-dom/test-utils'
+import WorkspaceListComponent from '../workspace-list-component'
 
 const server = setupServer()
 
@@ -56,6 +57,8 @@ test('create new workspace error', async () => {
 test('create new workspace from name success', async () => {
   const workspaceName = NEW_WORKSPACE_NAME
   const workspaceDescription = 'Description test'
+  const newWorkspaceLinkDataId = 'workspace-empty-state-new-item-link'
+  const descriptionTestId = 'create-workspace-component-description'
 
   server.use(rest.post('http://localhost:5000/workspace', (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ id: 'item-id-test-1', name: workspaceName, description: workspaceDescription }), ctx.delay(150))
@@ -70,7 +73,14 @@ test('create new workspace from name success', async () => {
     editable: true
   })
 
-  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceComponent /></MemoryRouter>)
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><WorkspaceListComponent /></MemoryRouter>)
+
+  const newWorkspaceLinkComponent = screen.getByTestId(newWorkspaceLinkDataId)
+  fireEvent.click(newWorkspaceLinkComponent)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(descriptionTestId)).toBeInTheDocument()
+  })
 
   act(() => {
     store.dispatch({

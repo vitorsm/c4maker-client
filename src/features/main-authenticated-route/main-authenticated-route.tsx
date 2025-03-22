@@ -10,6 +10,8 @@ import TitleComponent from './title-component'
 
 const DEFAULT_ROUTE = 'workspaces'
 
+export const RIGHT_MENU_TEST_ID = 'right-main-menu'
+
 const MainAuthenticatedRoute: FC = () => {
   const navigate = useNavigate()
 
@@ -45,7 +47,7 @@ const MainAuthenticatedRoute: FC = () => {
       </TopLeftMenuContainer>
 
       <TopRightMenuContainer>
-        <CircularMenu menuItems={rightMenuItems} icon={<FontAwesomeIcon icon={faUser} size="2x" />} size={60} marginLeft={-100} />
+        <CircularMenu menuItems={rightMenuItems} icon={<FontAwesomeIcon icon={faUser} size="2x" />} size={60} marginLeft={-100} dataTestId={RIGHT_MENU_TEST_ID} />
       </TopRightMenuContainer>
 
       <TitleComponent />

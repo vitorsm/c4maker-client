@@ -77,16 +77,12 @@ const WorkspaceListComponent: FC = () => {
       <EmptyStateContainer>
         <FontAwesomeIcon icon={faInbox} size="10x" style={{ padding: 20 }}/>
           Voce ainda não tem workspaces.
-        <TextLink onClick={onClickNewWorkspace}>Clique aqui para criar um novo workspace</TextLink>
+        <TextLink onClick={onClickNewWorkspace} dataTestId='workspace-empty-state-new-item-link'>Clique aqui para criar um novo workspace</TextLink>
       </EmptyStateContainer>
     )
   }
 
-  const defineWorkspaceOnClick = (workspaceId?: string): Function | null => {
-    if (workspaceId === undefined || workspaceId === null) {
-      return null
-    }
-
+  const defineWorkspaceOnClick = (workspaceId: string = ''): Function | null => {
     return () => {
       navigate(`${workspaceId}`)
     }
@@ -97,11 +93,11 @@ const WorkspaceListComponent: FC = () => {
       return null
     }
 
-    if (!hasWorkspaces()) {
+    if (!hasWorkspaces() || workspaces.data == null) {
       return null
     }
 
-    const result = workspaces.data?.map((workspace, index) => {
+    const result = workspaces.data.map((workspace, index) => {
       return (
         <Tooltip text={workspace.description} key={`workspace-button-${index}`}>
           <Card description={workspace.name} onClick={defineWorkspaceOnClick(workspace.id)} dataTestId={`list-workspace-card-${index}`}>
@@ -111,13 +107,11 @@ const WorkspaceListComponent: FC = () => {
       )
     })
 
-    return result !== undefined
-      ? [(
+    return [(
       <Card key='workspace-button-create-new' description={'Novo workspace'} onClick={onClickNewWorkspace}>
         <FontAwesomeIcon icon={faPlus} size="2x" />
       </Card>
-        ), ...result]
-      : null
+    ), ...result]
   }
 
   const renderWorkspaceButtons = (): ReactElement => {
@@ -133,7 +127,7 @@ const WorkspaceListComponent: FC = () => {
   const renderContent = (): ReactElement => {
     return (
       <Routes>
-        <Route path='new' element={<WorkspaceComponent />} />
+        <Route path='new/*' element={<WorkspaceComponent />} />
         <Route path='/:workspaceId/*' element={<WorkspaceComponent />} />
         <Route path='' element={renderWorkspaceButtons()} />
       </Routes>
