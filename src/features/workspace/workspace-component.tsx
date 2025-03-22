@@ -13,7 +13,6 @@ import { workspaceOperations } from '../../store/reducers/workspaces'
 import WorkspaceDiagramComponent from './diagram/workspace-diagram-component'
 import { WorkspaceComponentBody } from './style'
 import WorkspaceHeaderComponent from './workspace-header-component'
-import WorkspaceItemsComponent from './workspace-items-component'
 import DiagramComponent from '../diagram/diagram-component'
 import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
 
@@ -251,7 +250,6 @@ const WorkspaceComponent: FC = () => {
 
           <WorkspaceComponentBody>
             <WorkspaceDiagramComponent workspace={getWorkspace()} />
-            <WorkspaceItemsComponent workspace={getWorkspace()} />
           </WorkspaceComponentBody>
 
           {false && (

@@ -44,7 +44,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
       setIsLoading(false)
       setIsEditingDetails(false)
 
-      setWorkspaceDescription(workspace === undefined || workspace === null || workspace.description === null ? '' : workspace.description)
+      setWorkspaceDescription(workspace?.description == null ? '' : workspace.description)
     } else {
       setIsEditingDetails(true)
 
@@ -66,6 +66,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
 
   useEffect(() => {
     setIsLoading(false)
+
     if (!deletedWorkspace.error && deletedWorkspace.data !== null && deletedWorkspace.data === workspace?.id) {
       updateWorkspacesListByDeletedWorkspace()
       navigate(-1)
@@ -127,7 +128,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
   }
 
   const handleConfirmDeleteOnClick = (): void => {
-    if (workspace === undefined || workspace === null || workspace.id === undefined) {
+    if (workspace?.id == null) {
       return
     }
 

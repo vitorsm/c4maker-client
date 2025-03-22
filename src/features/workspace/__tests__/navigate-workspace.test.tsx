@@ -3,10 +3,10 @@ import { setupServer } from 'msw/lib/node'
 import { renderWithProvideres } from '../../../utils/test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import MainAuthenticatedRoute from '../../main-authenticated-route'
-import { mockServerForUpdate, openWorkspaceToEdit } from './edit-workspace.test'
 import Workspace from '../../../models/workspace'
 import { DEFAULT_BREADCRUMBS_TEST_ID } from '../../../components/breadcrumbs/breadcrumbs'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { mockServerForUpdating, openWorkspaceComponent } from './test_utils.workspace'
 
 const server = setupServer()
 
@@ -23,7 +23,7 @@ test('test navigate using default path', async () => {
     description: workspaceDescription
   }
 
-  await mockServerForUpdate(workspace, null, null)
+  await mockServerForUpdating(server, workspace, undefined, undefined)
 
   renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -46,12 +46,11 @@ test('test navigate using breadcrumbs', async () => {
   }
   const breadcrumbDataTestId = `${DEFAULT_BREADCRUMBS_TEST_ID}-text-link-0`
 
-  await mockServerForUpdate(workspace, null, null)
+  await mockServerForUpdating(server, workspace, undefined, undefined)
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
 
-  await openWorkspaceToEdit(store, workspaceDescription)
-
+  await openWorkspaceComponent(store, workspaceDescription)
   const breadcrumbItem = screen.getByTestId(breadcrumbDataTestId)
 
   fireEvent.click(breadcrumbItem)
