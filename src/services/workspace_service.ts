@@ -16,7 +16,7 @@ export default class WorkspaceService extends APIClient<Workspace> {
   }
 
   updateWorkspace = (workspace: Workspace, dispatch: Dispatch<any>, typeToDispatch: string): void => {
-    if (workspace.id === undefined || workspace.id === null) {
+    if (workspace?.id == null) {
       return
     }
 
