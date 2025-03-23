@@ -7,6 +7,7 @@ import Workspace from '../../../models/workspace'
 import { DEFAULT_BREADCRUMBS_TEST_ID } from '../../../components/breadcrumbs/breadcrumbs'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { mockServerForCreating, mockServerForUpdating, openWorkspaceComponent, openWorkspaceComponentToCreate } from './test_utils.workspace'
+import { mockWorkspace } from './mock.workspace'
 
 const server = setupServer()
 
@@ -17,11 +18,7 @@ afterAll(() => server.close())
 test('test navigate using default path', async () => {
   const workspaceDescription = 'description'
   const workspaceId = 'workspace_id'
-  const workspace: Workspace = {
-    id: workspaceId,
-    name: 'Workspace name',
-    description: workspaceDescription
-  }
+  const workspace = mockWorkspace(workspaceId, 'Workspace name', workspaceDescription)
 
   await mockServerForUpdating(server, workspace, undefined, undefined)
 
@@ -39,11 +36,8 @@ test('test navigate using default path', async () => {
 
 test('test navigate using breadcrumbs', async () => {
   const workspaceDescription = 'description'
-  const workspace: Workspace = {
-    id: 'workspace_id',
-    name: 'Workspace name',
-    description: workspaceDescription
-  }
+  const workspace = mockWorkspace('workspace_id', 'Workspace name', workspaceDescription)
+
   const breadcrumbDataTestId = `${DEFAULT_BREADCRUMBS_TEST_ID}-text-link-0`
 
   await mockServerForUpdating(server, workspace, undefined, undefined)
@@ -62,11 +56,8 @@ test('test navigate using breadcrumbs', async () => {
 
 test('test open edit workspace and cancel', async () => {
   const workspaceDescription = 'description'
-  const workspace: Workspace = {
-    id: 'workspace_id',
-    name: 'Workspace name',
-    description: workspaceDescription
-  }
+  const workspace = mockWorkspace('workspace_id', 'Workspace name', workspaceDescription)
+
   const editButtonTestId = 'edit-workspace-button'
   const cancelButtonTestId = 'create-workspace-component-cancel-button'
 
@@ -108,5 +99,40 @@ test('test open create workspace and cancel', async () => {
 
   await waitFor(() => {
     expect(screen.queryByTestId(newWorkspaceLinkDataId)).toBeInTheDocument()
+  })
+})
+
+test('test workspace item breadcrumbs click', async () => {
+  // this test open a workspace, then one diagram and click in the workspace breadcrumb to return to the workspace screen
+  const workspaceDescription = 'description'
+  const workspace = mockWorkspace('workspace_id', 'Workspace name', workspaceDescription)
+  const diagramCardTestId = 'list-diagram-card-0'
+  const newDiagramItemButtonTestId = 'diagram-button-create-new-item'
+
+  const breadcrumbWorkspaceTestId = `${DEFAULT_BREADCRUMBS_TEST_ID}-text-link-1`
+
+  await mockServerForUpdating(server, workspace, undefined, undefined)
+
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  await openWorkspaceComponent(store, workspaceDescription)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(diagramCardTestId)).toBeInTheDocument()
+  })
+
+  const diagramCardComponent = screen.getByTestId(diagramCardTestId)
+  fireEvent.click(diagramCardComponent)
+
+  // this is the button of the diagram component to add more diagram items
+  await waitFor(() => {
+    expect(screen.queryByTestId(newDiagramItemButtonTestId)).toBeInTheDocument()
+  })
+
+  const workspaceBreadcrumbItem = screen.getByTestId(breadcrumbWorkspaceTestId)
+  fireEvent.click(workspaceBreadcrumbItem)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(diagramCardTestId)).toBeInTheDocument()
   })
 })

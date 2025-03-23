@@ -4,6 +4,7 @@ import Workspace from '../../../models/workspace'
 import { SetupServerApi } from 'msw/lib/node'
 import { rest } from 'msw'
 import { mockLoadCurrentUser } from '../../../__tests__/test_utils'
+import { mockDiagram } from '../../diagram/__tests__/mock.diagram'
 
 export interface WorkspaceMockServerParameters {
   newWorkspaceReturn?: Workspace
@@ -90,6 +91,8 @@ export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParam
     workspaceToReturn = mockParameters.newWorkspaceReturn
   }
 
+  const diagrams = [mockDiagram(undefined, undefined, undefined, workspaceToReturn)]
+
   if (mockParameters.workspaceList !== undefined) {
     server.use(rest.get('http://localhost:5000/workspace', (req, res, ctx) => {
       return res(ctx.status(200), mockParameters.workspaceList === null ? null as any : ctx.json(mockParameters.workspaceList), ctx.delay(50))
@@ -112,7 +115,7 @@ export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParam
       return res(ctx.status(200), ctx.json(workspaceToReturn), ctx.delay(50))
     }))
     server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/diagrams`, (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+      return res(ctx.status(200), ctx.json(diagrams), ctx.delay(150))
     }))
     server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/workspace-items`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json([]), ctx.delay(150))
@@ -151,10 +154,10 @@ export const mockServerForCreating = (server: SetupServerApi, workspace: Workspa
   })
 }
 
-export const mockServerForUpdating = (server: SetupServerApi, workspace: Workspace, newName: string | undefined, newDescription: string | undefined, forcedWorkspaceId?: string): void => {
+export const mockServerForUpdating = (server: SetupServerApi, workspace: Workspace, newName: string | undefined, newDescription: string | undefined, forcedWorkspaceId?: string, workspaceList?: Workspace[]): void => {
   mockServerForManagingWorkspace(server, {
     workspaceToUpdate: workspace,
-    workspaceList: [workspace],
+    workspaceList: workspaceList ?? [workspace],
     newWorkspaceName: newName,
     newWorkspaceDescription: newDescription
   }, forcedWorkspaceId)

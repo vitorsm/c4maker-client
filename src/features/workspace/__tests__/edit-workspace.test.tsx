@@ -7,6 +7,7 @@ import Workspace from '../../../models/workspace'
 import { DEFAULT_BREADCRUMBS_TEST_ID } from '../../../components/breadcrumbs/breadcrumbs'
 import MainAuthenticatedRoute from '../../main-authenticated-route'
 import { assertAfterSaveWorkspace, mockServerForUpdating, openWorkspaceComponent } from './test_utils.workspace'
+import { mockWorkspace } from './mock.workspace'
 
 const server = setupServer()
 
@@ -20,17 +21,14 @@ test('test edit workspace success description - complete flow', async () => {
   const oldDescription = 'old description'
   const newWorkspaceDescription = 'new workspace description'
 
-  const workspace: Workspace = {
-    id: workspaceId,
-    name: oldName,
-    description: oldDescription
-  }
+  const workspace = mockWorkspace(workspaceId, oldName, oldDescription)
+  const anotherWorkspace = mockWorkspace('another_id', 'Another workspace')
 
   const saveButtonTestId = 'create-workspace-component-save-button'
   const editButtonTestId = 'edit-workspace-button'
   const descriptionTestId = 'create-workspace-component-description'
 
-  mockServerForUpdating(server, workspace, undefined, newWorkspaceDescription)
+  mockServerForUpdating(server, workspace, undefined, newWorkspaceDescription, undefined, [workspace, anotherWorkspace])
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -58,11 +56,7 @@ test('test edit workspace name success - complete flow', async () => {
   const newName = 'new name'
   const description = 'Description'
 
-  const workspace: Workspace = {
-    id: workspaceId,
-    name: oldName,
-    description
-  }
+  const workspace = mockWorkspace(workspaceId, oldName, description)
 
   mockServerForUpdating(server, workspace, newName, undefined)
 
@@ -91,11 +85,7 @@ test('test cancelling the editing of workspace', async () => {
   const oldName = 'old name'
   const newName = 'new name'
 
-  const workspace: Workspace = {
-    id: workspaceId,
-    name: oldName,
-    description: null
-  }
+  const workspace = mockWorkspace(workspaceId, oldName)
 
   const editButtonTestId = 'edit-workspace-button'
   const cancelButtonTestId = 'create-workspace-component-cancel-button'
@@ -129,11 +119,8 @@ test('test edit without by description a workspace id', async () => {
   const oldDescription = 'old description'
   const newWorkspaceDescription = 'new workspace description'
 
-  const workspace: Workspace = {
-    id: undefined,
-    name: oldName,
-    description: oldDescription
-  }
+  const workspace = mockWorkspace(workspaceId, oldName, oldDescription)
+  workspace.id = undefined
 
   const saveButtonTestId = 'create-workspace-component-save-button'
   const editButtonTestId = 'edit-workspace-button'
@@ -142,8 +129,6 @@ test('test edit without by description a workspace id', async () => {
   mockServerForUpdating(server, workspace, undefined, newWorkspaceDescription, workspaceId)
 
   renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
-
-  // await openWorkspaceComponent(store, oldDescription)
 
   await waitFor(() => {
     expect(screen.queryByTestId('workspace-component-progress')).toBeInTheDocument()

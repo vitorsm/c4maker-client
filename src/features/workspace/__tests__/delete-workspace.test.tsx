@@ -7,6 +7,7 @@ import Workspace from '../../../models/workspace'
 import MainAuthenticatedRoute from '../../main-authenticated-route'
 import { assertAfterSaveWorkspace, mockServerForDelete } from './test_utils.workspace'
 import { mockLoadCurrentUser } from '../../../__tests__/test_utils'
+import { mockWorkspace } from './mock.workspace'
 
 const server = setupServer()
 
@@ -17,13 +18,9 @@ afterAll(() => server.close())
 test('test delete workspace error', async () => {
   const workspaceId = 'workspace_id'
   const errorDescription = 'Current user has no permission'
-  const mockWorkspace: Workspace = {
-    id: workspaceId,
-    name: 'Workspace',
-    description: null
-  }
+  const workspace = mockWorkspace(workspaceId, 'Workspace')
 
-  mockServerForDelete(server, mockWorkspace, errorDescription)
+  mockServerForDelete(server, workspace, errorDescription)
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -48,19 +45,10 @@ test('test delete workspace error', async () => {
 
 const testDeleteWorkspace = async (withoutListOfWorkspaces: boolean): Promise<void> => {
   const workspaceId = 'workspace_id'
-  const mockWorkspace: Workspace = {
-    id: workspaceId,
-    name: 'Workspace',
-    description: null
-  }
+  const workspace = mockWorkspace(workspaceId, 'Workspace')
+  const anotherWorkspace = mockWorkspace('another_workspace_id', 'Another Workspace')
 
-  const anotherWorkspace: Workspace = {
-    id: 'another_workspace_id',
-    name: 'Another Workspace',
-    description: null
-  }
-
-  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace], withoutListOfWorkspaces)
+  mockServerForDelete(server, workspace, undefined, [workspace, anotherWorkspace], withoutListOfWorkspaces)
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -106,19 +94,11 @@ test('test delete with no workspace list', async () => {
 
 test('test canceling the deletion', async () => {
   const workspaceId = 'workspace_id'
-  const mockWorkspace: Workspace = {
-    id: workspaceId,
-    name: 'Workspace',
-    description: null
-  }
 
-  const anotherWorkspace: Workspace = {
-    id: 'another_workspace_id',
-    name: 'Another Workspace',
-    description: null
-  }
+  const workspace = mockWorkspace(workspaceId, 'Workspace')
+  const anotherWorkspace = mockWorkspace('another_workspace_id', 'Another Workspace')
 
-  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace])
+  mockServerForDelete(server, workspace, undefined, [workspace, anotherWorkspace])
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -149,19 +129,12 @@ test('test deletion without a workspace.id', async () => {
   // this shouldn't be possible because the button to delete will be available only for a workspace that exists. If the workspace exists it has a valid id.
   // I'm forcing this scenario to ensure the test coverage
   const workspaceId = 'workspace_id'
-  const mockWorkspace: Workspace = {
-    id: undefined,
-    name: 'Workspace',
-    description: null
-  }
 
-  const anotherWorkspace: Workspace = {
-    id: 'another_workspace_id',
-    name: 'Another Workspace',
-    description: null
-  }
+  const workspace = mockWorkspace(workspaceId, 'Workspace')
+  const anotherWorkspace = mockWorkspace('another_workspace_id', 'Another Workspace')
+  workspace.id = undefined
 
-  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace], false, workspaceId)
+  mockServerForDelete(server, workspace, undefined, [workspace, anotherWorkspace], false, workspaceId)
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 

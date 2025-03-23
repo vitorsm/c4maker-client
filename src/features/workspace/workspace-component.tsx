@@ -15,6 +15,7 @@ import { WorkspaceComponentBody } from './style'
 import WorkspaceHeaderComponent from './workspace-header-component'
 import DiagramComponent from '../diagram/diagram-component'
 import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
+import { updateItemInList } from '../../utils/list-utils'
 
 export const NEW_WORKSPACE_NAME = 'New Workspace'
 
@@ -174,20 +175,8 @@ const WorkspaceComponent: FC = () => {
   }
 
   const updateWorkspacesListByPersistedWorkspace = (): void => {
-    const persistedWorkspaceOnState = workspaces.data?.find(w => w.id === loadedWorkspace.data?.id)
-
-    let newWorkspaces: Workspace[]
-    if (persistedWorkspaceOnState === undefined) {
-      newWorkspaces = workspaces.data !== null ? [...workspaces.data] : []
-      newWorkspaces = loadedWorkspace.data !== null ? [...newWorkspaces, loadedWorkspace.data] : []
-    } else {
-      newWorkspaces = workspaces.data?.map(w => {
-        if (loadedWorkspace.data !== null && w.id === loadedWorkspace.data.id) {
-          return loadedWorkspace.data
-        }
-        return w
-      }) ?? []
-    }
+    const getWorkspaceId = (item: Workspace): string | undefined => item.id
+    const newWorkspaces: any = updateItemInList(loadedWorkspace.data, workspaces.data, getWorkspaceId)
 
     void workspaceOperations.updateWorkspacesList(newWorkspaces, dispatch)
   }
@@ -196,10 +185,6 @@ const WorkspaceComponent: FC = () => {
     if (isCreation) {
       navigate(-1)
     }
-  }
-
-  const handleOnCloseCallback = (): void => {
-    navigate(-1)
   }
 
   const onDiagramItemChange = (newDiagramItems: DiagramItem[]): void => {
@@ -243,7 +228,6 @@ const WorkspaceComponent: FC = () => {
           workspace={getWorkspace()}
           isCreation={isCreation}
           cancelCallback={handleCancelOnClick}
-          closeCallback={handleOnCloseCallback}
           isLoadingWorkspace={isLoading}
           persistedWorkspaceCallback={afterPersistWorkspace}
           setIsCreating={setIsCreating} />

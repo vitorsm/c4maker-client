@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
 import { renderWithProvideres } from '../../../utils/test-utils'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router-dom'
@@ -9,6 +9,7 @@ import { mockChangeInBreadcrumbs } from '../../../__tests__/test_utils'
 import { assertAfterSaveWorkspace, mockServerForCreating, openWorkspaceComponentToCreate } from './test_utils.workspace'
 import MainAuthenticatedRoute from '../../main-authenticated-route'
 import Workspace from '../../../models/workspace'
+import { mockWorkspace } from './mock.workspace'
 
 const server = setupServer()
 
@@ -44,7 +45,7 @@ test('create new workspace from name success', async () => {
   const workspaceName = NEW_WORKSPACE_NAME
   const workspaceDescription = null
 
-  const workspaceCreated: Workspace = { id: 'item-id-test-1', name: workspaceName, description: workspaceDescription }
+  const workspaceCreated = mockWorkspace('item-id-test-1', workspaceName, workspaceDescription)
 
   mockServerForCreating(server, workspaceCreated)
 
@@ -83,7 +84,7 @@ test('create new workspace from details success', async () => {
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={['/workspaces/new']}><MainAuthenticatedRoute /></MemoryRouter>)
 
-  const workspaceToCreate: Workspace = { id: 'item-id-test-2', name: workspaceName, description: workspaceDescription }
+  const workspaceToCreate = mockWorkspace('item-id-test-2', workspaceName, workspaceDescription)
 
   mockServerForCreating(server, workspaceToCreate)
 

@@ -20,6 +20,7 @@ export default class APIClient<Type> {
     successFunctionCallback: Function | null = null): void => {
     const address = this.getAddress(endpoint)
     const headers = this.getAuthenticatedHeader()
+
     const requestOptions = {
       method: 'GET',
       headers

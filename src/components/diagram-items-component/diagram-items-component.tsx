@@ -311,7 +311,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   return (
     <>
       <ButtonContainer>
-        <Card key='diagram-button-create-new-item' description={'add'} onClick={onAddItemClick}>
+        <Card key='diagram-button-create-new-item' description={'add'} onClick={onAddItemClick} dataTestId='diagram-button-create-new-item'>
           <FontAwesomeIcon icon={faPlus} size="1x" />
         </Card>
 

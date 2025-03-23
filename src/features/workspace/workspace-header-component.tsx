@@ -19,13 +19,12 @@ interface WorkspaceHeaderComponentProps {
   workspace: Workspace | undefined | null
   isCreation: boolean
   cancelCallback: Function
-  closeCallback: Function
   isLoadingWorkspace: boolean
   persistedWorkspaceCallback: Function
   setIsCreating: Function
 }
 
-const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace, isCreation, cancelCallback, closeCallback, isLoadingWorkspace, persistedWorkspaceCallback, setIsCreating }: WorkspaceHeaderComponentProps) => {
+const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace, isCreation, cancelCallback, isLoadingWorkspace, persistedWorkspaceCallback, setIsCreating }: WorkspaceHeaderComponentProps) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
