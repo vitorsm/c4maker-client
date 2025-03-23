@@ -6,7 +6,7 @@ import MainAuthenticatedRoute from '../../main-authenticated-route'
 import Workspace from '../../../models/workspace'
 import { DEFAULT_BREADCRUMBS_TEST_ID } from '../../../components/breadcrumbs/breadcrumbs'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
-import { mockServerForUpdating, openWorkspaceComponent } from './test_utils.workspace'
+import { mockServerForCreating, mockServerForUpdating, openWorkspaceComponent, openWorkspaceComponentToCreate } from './test_utils.workspace'
 
 const server = setupServer()
 
@@ -57,5 +57,56 @@ test('test navigate using breadcrumbs', async () => {
 
   await waitFor(() => {
     expect(screen.queryByTestId('list-workspace-card-0')).toBeInTheDocument()
+  })
+})
+
+test('test open edit workspace and cancel', async () => {
+  const workspaceDescription = 'description'
+  const workspace: Workspace = {
+    id: 'workspace_id',
+    name: 'Workspace name',
+    description: workspaceDescription
+  }
+  const editButtonTestId = 'edit-workspace-button'
+  const cancelButtonTestId = 'create-workspace-component-cancel-button'
+
+  await mockServerForUpdating(server, workspace, undefined, undefined)
+
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  await openWorkspaceComponent(store, workspaceDescription)
+  const editButtonComponent = screen.getByTestId(editButtonTestId)
+
+  fireEvent.click(editButtonComponent)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(editButtonTestId)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(cancelButtonTestId)).toBeInTheDocument()
+  })
+
+  const cancelButton = screen.getByTestId(cancelButtonTestId)
+  fireEvent.click(cancelButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(cancelButtonTestId)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(editButtonTestId)).toBeInTheDocument()
+  })
+})
+
+test('test open create workspace and cancel', async () => {
+  const newWorkspaceLinkDataId = 'workspace-empty-state-new-item-link'
+  const cancelButtonTestId = 'create-workspace-component-cancel-button'
+
+  await mockServerForCreating(server, undefined)
+
+  renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  await openWorkspaceComponentToCreate()
+
+  const cancelButton = screen.getByTestId(cancelButtonTestId)
+  fireEvent.click(cancelButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(newWorkspaceLinkDataId)).toBeInTheDocument()
   })
 })

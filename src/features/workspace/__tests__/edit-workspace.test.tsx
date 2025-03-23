@@ -16,14 +16,19 @@ afterAll(() => server.close())
 
 test('test edit workspace success description - complete flow', async () => {
   const workspaceId = 'workpace_id1'
+  const oldName = 'Workspace'
   const oldDescription = 'old description'
   const newWorkspaceDescription = 'new workspace description'
 
   const workspace: Workspace = {
     id: workspaceId,
-    name: 'Workspace',
+    name: oldName,
     description: oldDescription
   }
+
+  const saveButtonTestId = 'create-workspace-component-save-button'
+  const editButtonTestId = 'edit-workspace-button'
+  const descriptionTestId = 'create-workspace-component-description'
 
   mockServerForUpdating(server, workspace, undefined, newWorkspaceDescription)
 
@@ -31,15 +36,15 @@ test('test edit workspace success description - complete flow', async () => {
 
   await openWorkspaceComponent(store, oldDescription)
 
-  const editButton = screen.getByTestId('edit-workspace-button')
+  const editButton = screen.getByTestId(editButtonTestId)
   await fireEvent.click(editButton)
 
   await waitFor(() => {
-    expect(screen.queryByTestId('create-workspace-component-save-button')).toBeInTheDocument()
+    expect(screen.queryByTestId(saveButtonTestId)).toBeInTheDocument()
   })
 
-  const saveButtonComponent = screen.getByTestId('create-workspace-component-save-button')
-  const descriptionComponent = screen.getByTestId('create-workspace-component-description')
+  const saveButtonComponent = screen.getByTestId(saveButtonTestId)
+  const descriptionComponent = screen.getByTestId(descriptionTestId)
 
   fireEvent.change(descriptionComponent, { target: { value: newWorkspaceDescription } })
 
@@ -79,4 +84,93 @@ test('test edit workspace name success - complete flow', async () => {
   await fireEvent.click(saveButtonComponent)
 
   await assertAfterSaveWorkspace(store, newName, null, null)
+})
+
+test('test cancelling the editing of workspace', async () => {
+  const workspaceId = 'workpace_id2'
+  const oldName = 'old name'
+  const newName = 'new name'
+
+  const workspace: Workspace = {
+    id: workspaceId,
+    name: oldName,
+    description: null
+  }
+
+  const editButtonTestId = 'edit-workspace-button'
+  const cancelButtonTestId = 'create-workspace-component-cancel-button'
+
+  mockServerForUpdating(server, workspace, newName, undefined)
+
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  await openWorkspaceComponent(store, '')
+
+  const editButton = screen.getByTestId(editButtonTestId)
+  await fireEvent.click(editButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(editButtonTestId)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(cancelButtonTestId)).toBeInTheDocument()
+  })
+
+  const cancelButtonComponent = screen.getByTestId(cancelButtonTestId)
+  fireEvent.click(cancelButtonComponent)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(cancelButtonTestId)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(editButtonTestId)).toBeInTheDocument()
+  })
+})
+
+test('test edit without by description a workspace id', async () => {
+  const workspaceId = 'workpace_id1'
+  const oldName = 'Workspace'
+  const oldDescription = 'old description'
+  const newWorkspaceDescription = 'new workspace description'
+
+  const workspace: Workspace = {
+    id: undefined,
+    name: oldName,
+    description: oldDescription
+  }
+
+  const saveButtonTestId = 'create-workspace-component-save-button'
+  const editButtonTestId = 'edit-workspace-button'
+  const descriptionTestId = 'create-workspace-component-description'
+
+  mockServerForUpdating(server, workspace, undefined, newWorkspaceDescription, workspaceId)
+
+  renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  // await openWorkspaceComponent(store, oldDescription)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('workspace-component-progress')).toBeInTheDocument()
+  })
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('workspace-component-progress')).not.toBeInTheDocument()
+    // it will be empty because the workspace id is different from the path, then it will not fill the inputs
+    expect(screen.queryByTestId('create-workspace-component-description')).toHaveTextContent('')
+  })
+
+  const editButton = screen.getByTestId(editButtonTestId)
+  await fireEvent.click(editButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(saveButtonTestId)).toBeInTheDocument()
+  })
+
+  const saveButtonComponent = screen.getByTestId(saveButtonTestId)
+  const descriptionComponent = screen.getByTestId(descriptionTestId)
+
+  fireEvent.change(descriptionComponent, { target: { value: newWorkspaceDescription } })
+
+  await fireEvent.click(saveButtonComponent)
+
+  // if there is workspace id, it should't perform any action, then the save button will still visible
+  await waitFor(() => {
+    expect(screen.queryByTestId(saveButtonTestId)).toBeInTheDocument()
+  })
 })

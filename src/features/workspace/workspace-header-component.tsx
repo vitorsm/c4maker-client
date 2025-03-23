@@ -30,7 +30,8 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
   const navigate = useNavigate()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [workspaceDescription, setWorkspaceDescription] = useState<string>('')
+  // it can't be initialized with an empty string because it is the only way to know that it is ready for test in case the description is null
+  const [workspaceDescription, setWorkspaceDescription] = useState<string>('Description')
   const [isEditingDetails, setIsEditingDetails] = useState(false)
   const [isAfterPersist, setIsAfterPersist] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
@@ -43,8 +44,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
     if (workspace !== undefined && !isCreation) {
       setIsLoading(false)
       setIsEditingDetails(false)
-
-      setWorkspaceDescription(workspace?.description == null ? '' : workspace.description)
+      setWorkspaceDescription(workspace?.description ?? '')
     } else {
       setIsEditingDetails(true)
 
@@ -74,11 +74,11 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
   }, [deletedWorkspace])
 
   const updateWorkspacesListByDeletedWorkspace = (): void => {
-    if (workspaces.data === null || deletedWorkspace.data === null) {
+    if (workspaces.data === null) {
       return
     }
 
-    const newWorkspaces = workspaces.data.filter(w => w.id !== deletedWorkspace.data)
+    const newWorkspaces = workspaces.data?.filter(w => w.id !== deletedWorkspace.data)
 
     void workspaceOperations.updateWorkspacesList(newWorkspaces, dispatch)
   }
@@ -94,8 +94,8 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
   const handleCancelOnClick = (): void => {
     setIsEditingDetails(false)
 
-    if (workspace !== null && workspace !== undefined && !isCreation) {
-      setWorkspaceDescription(workspace.description !== null ? workspace.description : '')
+    if (workspace != null && !isCreation) {
+      setWorkspaceDescription(workspace.description ?? '')
     } else {
       setWorkspaceDescription('')
       cancelCallback()
@@ -103,10 +103,6 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
   }
 
   const handleSaveOnClick = async (): Promise<void> => {
-    if (workspaceDescription === null) {
-      return
-    }
-
     if (isCreation) {
       const newWorkspace = {
         name: NEW_WORKSPACE_NAME,
@@ -115,16 +111,19 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
 
       setIsCreating(true)
       void workspaceOperations.createWorkspace(newWorkspace, dispatch)
-    } else if (workspace !== undefined && workspace !== null) {
+
+      setIsAfterPersist(true)
+      setIsLoading(true)
+    } else if (workspace?.id != null) {
       const newWorkspace = { ...workspace }
 
       newWorkspace.description = workspaceDescription
 
       void workspaceOperations.updateWorkspace(newWorkspace, dispatch)
-    }
 
-    setIsAfterPersist(true)
-    setIsLoading(true)
+      setIsAfterPersist(true)
+      setIsLoading(true)
+    }
   }
 
   const handleConfirmDeleteOnClick = (): void => {
@@ -189,7 +188,7 @@ const WorkspaceHeaderComponent: FC<WorkspaceHeaderComponentProps> = ({ workspace
 
     return (
       <>
-        <PlainButton text='Cancelar' onClick={handleCancelOnClick} />
+        <PlainButton text='Cancelar' onClick={handleCancelOnClick} dataTestId='create-workspace-component-cancel-button'/>
         <PlainButton text='Salvar' onClick={handleSaveOnClick} dataTestId='create-workspace-component-save-button' />
       </>
     )

@@ -8,7 +8,7 @@ import { mockLoadCurrentUser } from '../../../__tests__/test_utils'
 export interface WorkspaceMockServerParameters {
   newWorkspaceReturn?: Workspace
   workspaceToUpdate?: Workspace
-  workspaceList?: Workspace[]
+  workspaceList?: Workspace[] | null
   newWorkspaceName?: string
   newWorkspaceDescription?: string
   errorDescription?: string
@@ -40,7 +40,23 @@ export const assertAfterSaveWorkspace = async (store: any, newName: string | nul
   })
 }
 
-export const openWorkspaceComponent = async (store: any, oldDescription: string, indexOfWorkspaceToOpen: number = 0): Promise<void> => {
+export const openWorkspaceComponentToCreate = async (): Promise<void> => {
+  const newWorkspaceLinkDataId = 'workspace-empty-state-new-item-link'
+  const descriptionTestId = 'create-workspace-component-description'
+  const editButtonTestId = 'edit-workspace-button'
+  const cancelButtonTestId = 'create-workspace-component-cancel-button'
+
+  const newWorkspaceLinkComponent = screen.getByTestId(newWorkspaceLinkDataId)
+  fireEvent.click(newWorkspaceLinkComponent)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId(descriptionTestId)).toBeInTheDocument()
+    expect(screen.queryByTestId(editButtonTestId)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(cancelButtonTestId)).toBeInTheDocument()
+  })
+}
+
+export const openWorkspaceComponent = async (store: any, workspaceDescription: string, indexOfWorkspaceToOpen: number = 0): Promise<void> => {
   mockLoadCurrentUser(store)
 
   await waitFor(() => {
@@ -62,13 +78,13 @@ export const openWorkspaceComponent = async (store: any, oldDescription: string,
 
   await waitFor(() => {
     expect(screen.queryByTestId('workspace-component-progress')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('create-workspace-component-description')).toHaveTextContent(oldDescription)
+    expect(screen.queryByTestId('create-workspace-component-description')).toHaveTextContent(workspaceDescription)
   })
 }
 
-export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParameters: WorkspaceMockServerParameters): void => {
+export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParameters: WorkspaceMockServerParameters, forcedWorkspaceId?: string): void => {
   let workspaceToReturn = null
-  if (mockParameters.workspaceToUpdate?.id != null) {
+  if (mockParameters.workspaceToUpdate?.id != null || forcedWorkspaceId != null) {
     workspaceToReturn = mockParameters.workspaceToUpdate
   } else if (mockParameters.newWorkspaceReturn?.id != null) {
     workspaceToReturn = mockParameters.newWorkspaceReturn
@@ -76,7 +92,7 @@ export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParam
 
   if (mockParameters.workspaceList !== undefined) {
     server.use(rest.get('http://localhost:5000/workspace', (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json(mockParameters.workspaceList), ctx.delay(50))
+      return res(ctx.status(200), mockParameters.workspaceList === null ? null as any : ctx.json(mockParameters.workspaceList), ctx.delay(50))
     }))
   }
 
@@ -86,26 +102,28 @@ export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParam
     }))
   }
 
-  if (workspaceToReturn?.id != null) {
+  if (workspaceToReturn != null && (workspaceToReturn.id != null || forcedWorkspaceId != null)) {
+    const workspaceIdToMock = workspaceToReturn?.id != null ? workspaceToReturn.id : forcedWorkspaceId
+
     server.use(rest.post('http://localhost:5000/workspace', (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(workspaceToReturn), ctx.delay(50))
     }))
-    server.use(rest.get(`http://localhost:5000/workspace/${workspaceToReturn.id}`, (req, res, ctx) => {
+    server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(workspaceToReturn), ctx.delay(50))
     }))
-    server.use(rest.get(`http://localhost:5000/workspace/${workspaceToReturn.id}/diagrams`, (req, res, ctx) => {
+    server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/diagrams`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json([]), ctx.delay(150))
     }))
-    server.use(rest.get(`http://localhost:5000/workspace/${workspaceToReturn.id}/workspace-items`, (req, res, ctx) => {
+    server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/workspace-items`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json([]), ctx.delay(150))
     }))
 
     if (mockParameters.errorDescription != null) {
-      server.use(rest.delete(`http://localhost:5000/workspace/${workspaceToReturn.id}`, (req, res, ctx) => {
+      server.use(rest.delete(`http://localhost:5000/workspace/${workspaceIdToMock}`, (req, res, ctx) => {
         return res(ctx.status(400), ctx.json({ description: mockParameters.errorDescription }), ctx.delay(50))
       }))
     } else {
-      server.use(rest.delete(`http://localhost:5000/workspace/${workspaceToReturn.id}`, (req, res, ctx) => {
+      server.use(rest.delete(`http://localhost:5000/workspace/${workspaceIdToMock}`, (req, res, ctx) => {
         return res(ctx.status(204), null as any, ctx.delay(50))
       }))
     }
@@ -133,21 +151,22 @@ export const mockServerForCreating = (server: SetupServerApi, workspace: Workspa
   })
 }
 
-export const mockServerForUpdating = (server: SetupServerApi, workspace: Workspace, newName: string | undefined, newDescription: string | undefined): void => {
+export const mockServerForUpdating = (server: SetupServerApi, workspace: Workspace, newName: string | undefined, newDescription: string | undefined, forcedWorkspaceId?: string): void => {
   mockServerForManagingWorkspace(server, {
     workspaceToUpdate: workspace,
     workspaceList: [workspace],
     newWorkspaceName: newName,
     newWorkspaceDescription: newDescription
-  })
+  }, forcedWorkspaceId)
 }
 
-export const mockServerForDelete = (server: SetupServerApi, workspace: Workspace, errorDescription?: string, workspaceList?: Workspace[]): void => {
+export const mockServerForDelete = (server: SetupServerApi, workspace: Workspace, errorDescription?: string, workspaceList?: Workspace[], nullWorkspaceList: boolean = false, forcedWorkspaceId?: string): void => {
+  const workspaceListToUse = nullWorkspaceList ? null : workspaceList ?? [workspace]
   mockServerForManagingWorkspace(server, {
     workspaceToUpdate: workspace,
-    workspaceList: workspaceList ?? [workspace],
+    workspaceList: workspaceListToUse,
     errorDescription
-  })
+  }, forcedWorkspaceId)
 }
 
 test('only to avoid error', () => {})

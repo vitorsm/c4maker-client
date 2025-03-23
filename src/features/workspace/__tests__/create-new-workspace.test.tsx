@@ -6,7 +6,7 @@ import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router-dom'
 import WorkspaceComponent, { NEW_WORKSPACE_NAME } from '../workspace-component'
 import { mockChangeInBreadcrumbs } from '../../../__tests__/test_utils'
-import { assertAfterSaveWorkspace, mockServerForCreating } from './test_utils.workspace'
+import { assertAfterSaveWorkspace, mockServerForCreating, openWorkspaceComponentToCreate } from './test_utils.workspace'
 import MainAuthenticatedRoute from '../../main-authenticated-route'
 import Workspace from '../../../models/workspace'
 
@@ -43,8 +43,6 @@ test('create new workspace error', async () => {
 test('create new workspace from name success', async () => {
   const workspaceName = NEW_WORKSPACE_NAME
   const workspaceDescription = null
-  const newWorkspaceLinkDataId = 'workspace-empty-state-new-item-link'
-  const descriptionTestId = 'create-workspace-component-description'
 
   const workspaceCreated: Workspace = { id: 'item-id-test-1', name: workspaceName, description: workspaceDescription }
 
@@ -61,12 +59,7 @@ test('create new workspace from name success', async () => {
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={['']}><MainAuthenticatedRoute /></MemoryRouter>)
 
-  const newWorkspaceLinkComponent = screen.getByTestId(newWorkspaceLinkDataId)
-  fireEvent.click(newWorkspaceLinkComponent)
-
-  await waitFor(() => {
-    expect(screen.queryByTestId(descriptionTestId)).toBeInTheDocument()
-  })
+  await openWorkspaceComponentToCreate()
 
   // this dispatch simulates the edit of the breadcrumbs, that is used to update the workspace name
   mockChangeInBreadcrumbs(store, breadcrumbsItems.get(0))

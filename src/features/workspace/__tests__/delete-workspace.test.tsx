@@ -46,7 +46,7 @@ test('test delete workspace error', async () => {
   await assertAfterSaveWorkspace(store, null, null, errorDescription, true)
 })
 
-test('test delete workspace success', async () => {
+const testDeleteWorkspace = async (withoutListOfWorkspaces: boolean): Promise<void> => {
   const workspaceId = 'workspace_id'
   const mockWorkspace: Workspace = {
     id: workspaceId,
@@ -60,7 +60,7 @@ test('test delete workspace success', async () => {
     description: null
   }
 
-  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace])
+  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace], withoutListOfWorkspaces)
 
   const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
 
@@ -93,5 +93,96 @@ test('test delete workspace success', async () => {
 
   await waitFor(() => {
     expect(screen.queryByTestId('workspace-empty-state-new-item-link'))
+  })
+}
+
+test('test delete workspace success', async () => {
+  await testDeleteWorkspace(false)
+})
+
+test('test delete with no workspace list', async () => {
+  await testDeleteWorkspace(true)
+})
+
+test('test canceling the deletion', async () => {
+  const workspaceId = 'workspace_id'
+  const mockWorkspace: Workspace = {
+    id: workspaceId,
+    name: 'Workspace',
+    description: null
+  }
+
+  const anotherWorkspace: Workspace = {
+    id: 'another_workspace_id',
+    name: 'Another Workspace',
+    description: null
+  }
+
+  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace])
+
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  mockLoadCurrentUser(store)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-button')).toBeInTheDocument()
+  })
+
+  const deleteButton = screen.getByTestId('delete-workspace-button')
+
+  fireEvent.click(deleteButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-dialog')).toBeInTheDocument()
+  })
+
+  const deleteCancelButton = screen.getByTestId('delete-workspace-dialog-dialog-cancel-btn')
+
+  fireEvent.click(deleteCancelButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-button')).toBeInTheDocument()
+  })
+})
+
+test('test deletion without a workspace.id', async () => {
+  // this shouldn't be possible because the button to delete will be available only for a workspace that exists. If the workspace exists it has a valid id.
+  // I'm forcing this scenario to ensure the test coverage
+  const workspaceId = 'workspace_id'
+  const mockWorkspace: Workspace = {
+    id: undefined,
+    name: 'Workspace',
+    description: null
+  }
+
+  const anotherWorkspace: Workspace = {
+    id: 'another_workspace_id',
+    name: 'Another Workspace',
+    description: null
+  }
+
+  mockServerForDelete(server, mockWorkspace, undefined, [mockWorkspace, anotherWorkspace], false, workspaceId)
+
+  const { store } = renderWithProvideres(<MemoryRouter initialEntries={[`/workspaces/${workspaceId}`]}><MainAuthenticatedRoute /></MemoryRouter>)
+
+  mockLoadCurrentUser(store)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-button')).toBeInTheDocument()
+  })
+
+  const deleteButton = screen.getByTestId('delete-workspace-button')
+
+  fireEvent.click(deleteButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-dialog')).toBeInTheDocument()
+  })
+
+  const deleteConfirmationButton = screen.getByTestId('delete-workspace-dialog-dialog-ok-btn')
+  fireEvent.click(deleteConfirmationButton)
+
+  await waitFor(() => {
+    expect(screen.queryByTestId('delete-workspace-button')).toBeInTheDocument()
   })
 })
