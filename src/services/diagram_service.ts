@@ -1,5 +1,5 @@
 import { Dispatch } from 'react'
-import Diagram from '../models/diagram'
+import Diagram, { DiagramItem } from '../models/diagram'
 import APIClient from './api_client'
 
 export default class DiagramService extends APIClient<Diagram> {
@@ -21,5 +21,25 @@ export default class DiagramService extends APIClient<Diagram> {
 
   getItemsByDiagram = (diagramId: string, dispatch: Dispatch<any>, typeToDispatch: string): void => {
     this.get(`diagram/${diagramId}/diagram-items`, dispatch, typeToDispatch)
+  }
+
+  createDiagramItem = (diagramItem: DiagramItem, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    this.postOrPut('diagram-item', diagramItem, dispatch, typeToDispatch)
+  }
+
+  updateDiagramItem = (diagramItem: DiagramItem, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    if (diagramItem.id == null) {
+      return
+    }
+
+    this.postOrPut(`diagram-item/${diagramItem.id}`, diagramItem, dispatch, typeToDispatch, null, 'PUT')
+  }
+
+  deleteDiagramItem = (diagramItem: DiagramItem, dispatch: Dispatch<any>, typeToDispatch: string): void => {
+    if (diagramItem.id == null) {
+      return
+    }
+
+    return this.delete(`diagram-item/${diagramItem.id}`, dispatch, typeToDispatch, diagramItem.id)
   }
 }

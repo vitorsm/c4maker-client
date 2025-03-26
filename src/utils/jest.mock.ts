@@ -44,13 +44,13 @@ export const generateDiagramItem = (): DiagramItem => {
       name: `name_${itemCount}`,
       description: `[description ${itemCount}]`,
       details: `details ${itemCount}`,
-      itemType: WorkspaceItemType.PERSONA,
+      workspaceItemType: WorkspaceItemType.PERSONA,
       workspace: null
     },
     diagram: null,
     parent: null,
     relationships: [],
-    canvasData: {
+    data: {
       position: null,
       color: null
     }

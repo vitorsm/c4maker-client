@@ -17,6 +17,7 @@ interface DiagramItemsComponentProps {
   onDiagramItemChange: (updatedDiagramItems: DiagramItem[]) => void
   onDiagramItemAdded: (diagramItem: DiagramItem) => void
   onDiagramItemDeleted: (diagramItems: DiagramItem[]) => void
+  onDiagramItemSelected: (diagramItems: DiagramItem[]) => void
 }
 
 const CANVAS_WIDTH = 2246
@@ -36,9 +37,9 @@ COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], '#55aa55'
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], '#55aa55')
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], '#55aa55')
 
-let createdItemCount = 0
+// const createdItemCount = 0
 
-const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted }: DiagramItemsComponentProps) => {
+const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted, onDiagramItemSelected }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
   const [drawableItems, setDrawableItems] = useState<DrawableItem[]>([])
   const [selectedDiagramItems, setSelectedDiagramItems] = useState<DiagramItem[]>([])
@@ -52,28 +53,28 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }, [diagramItems])
 
   const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
-    const strType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
+    const strType = WorkspaceItemType[diagramItem.workspaceItem.workspaceItemType]
     const dimension = SIZE_BY_ITEM_TYPE.get(strType)
 
     // todo - define the square center as default x, y
     const position = { x: 10, y: 200, width: dimension.width, height: dimension.height }
 
-    if (diagramItem.canvasData.position !== null) {
-      position.x = diagramItem.canvasData.position.x
-      position.y = diagramItem.canvasData.position.y
+    if (diagramItem.data.position !== null) {
+      position.x = diagramItem.data.position.x
+      position.y = diagramItem.data.position.y
     }
 
     return position
   }
 
   const getColorByDiagramItem = (diagramItem: DiagramItem): string => {
-    const strType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
-    return diagramItem.canvasData.color !== null ? diagramItem.canvasData.color : COLOR_BY_ITEM_TYPE.get(strType)
+    const strType = WorkspaceItemType[diagramItem.workspaceItem.workspaceItemType]
+    return diagramItem.data.color !== null ? diagramItem.data.color : COLOR_BY_ITEM_TYPE.get(strType)
   }
 
   const convertDiagramItemToDrawableItem = (diagramItem: DiagramItem): DrawableItem => {
     const position = getPositionByDiagramItem(diagramItem)
-    const itemType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
+    const itemType = WorkspaceItemType[diagramItem.workspaceItem.workspaceItemType]
     const color = getColorByDiagramItem(diagramItem)
 
     return {
@@ -103,24 +104,32 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     }
   }
 
+  const getDiagramItemFromState = (itemKey: string): DiagramItem | undefined => {
+    return diagramItems.find(diagramItem => diagramItem.workspaceItem.key === itemKey)
+  }
+
   const instantiateDrawItems = (): void => {
     const newItems = diagramItems.filter(diagramItem => diagramItem.workspaceItem.key !== undefined).map(diagramItem => {
       return convertDiagramItemToDrawableItem(diagramItem)
     })
 
     diagramItems.filter(diagramItem => diagramItem.workspaceItem.key !== undefined).forEach(diagramItem => {
-      const sourceItemPosition = diagramItem.canvasData.position
+      const sourceItemPosition = diagramItem.data.position
 
-      if (sourceItemPosition === null) {
+      if (sourceItemPosition == null) {
         return null
       }
 
       diagramItem.relationships.forEach(relationship => {
-        const targetItem = relationship.diagramItem
-        const targetKey = targetItem.workspaceItem.key
-        const targetItemPosition = targetItem.canvasData.position
+        const targetItem = getDiagramItemFromState(relationship.diagramItem.workspaceItem.key)
+        if (targetItem == null) {
+          return
+        }
 
-        if (targetItemPosition === null) {
+        const targetKey = targetItem.workspaceItem.key
+        const targetItemPosition = targetItem.data.position
+
+        if (targetItemPosition == null) {
           return null
         }
 
@@ -128,7 +137,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
           id: `RELATIONSHIP_FROM_${diagramItem.workspaceItem.key}_TO_${targetKey}`,
           type: DrawType.LINE,
           img: null,
-          position: relationship.fromPosition,
+          position: relationship.data.fromPosition,
           isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
           name: `Relationship from ${diagramItem.workspaceItem.name} to ${targetItem.workspaceItem.name}`,
           description: relationship.description,
@@ -153,7 +162,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
       return
     }
 
-    diagramItem.canvasData.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
+    diagramItem.data.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
     diagramItem.isSelected = item.isSelected
 
     onDiagramItemChange([diagramItem])
@@ -175,21 +184,24 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     let targetX = 0
     let targetY = 0
 
-    if (previouslySelectedItem.canvasData.position !== null) {
-      sourceX = fromPosition.x - previouslySelectedItem.canvasData.position.x
-      sourceY = fromPosition.y - previouslySelectedItem.canvasData.position.y
+    if (previouslySelectedItem.data.position !== null) {
+      sourceX = fromPosition.x - previouslySelectedItem.data.position.x
+      sourceY = fromPosition.y - previouslySelectedItem.data.position.y
     }
-    if (selectedDiagramItem.canvasData.position !== null) {
-      targetX = toPosition.x - selectedDiagramItem.canvasData.position.x
-      targetY = toPosition.y - selectedDiagramItem.canvasData.position.y
+    if (selectedDiagramItem.data.position !== null) {
+      targetX = toPosition.x - selectedDiagramItem.data.position.x
+      targetY = toPosition.y - selectedDiagramItem.data.position.y
     }
 
     previouslySelectedItem.relationships.push({
       diagramItem: selectedDiagramItem,
       description: '',
       details: '',
-      fromPosition: { ...fromPosition, x: sourceX, y: sourceY },
-      toPosition: { ...toPosition, x: targetX, y: targetY }
+      data: {
+        fromPosition: { ...fromPosition, x: sourceX, y: sourceY },
+        toPosition: { ...toPosition, x: targetX, y: targetY }
+      },
+      diagramType: 'C4'
     })
 
     setIsLinkingItem(false)
@@ -208,8 +220,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
       return diagramItem
     })
 
-    onDiagramItemChange(newDiagramItems)
-    setSelectedDiagramItems(newDiagramItems.filter(i => i.isSelected))
+    // onDiagramItemChange(newDiagramItems)
+    const newSelectedDiagramItems = newDiagramItems.filter(i => i.isSelected)
+    onDiagramItemSelected(newSelectedDiagramItems)
+    setSelectedDiagramItems(newSelectedDiagramItems)
   }
 
   const onAddItemClick = (): void => {
@@ -231,10 +245,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }
 
   const onAddItemDialogOkClick = (diagramItem: DiagramItem): void => {
-    const isCreation = diagramItem.workspaceItem.key === ''
+    const isCreation = diagramItem.id == null
 
     if (isCreation) {
-      diagramItem.workspaceItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
+      // diagramItem.workspaceItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
       onDiagramItemAdded(diagramItem)
     } else {
       onDiagramItemChange([diagramItem])

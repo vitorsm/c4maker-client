@@ -31,13 +31,13 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
         key: '',
         description: '',
         details: '',
-        itemType: WorkspaceItemType.PERSONA,
+        workspaceItemType: WorkspaceItemType.COMPONENT,
         workspace: null
       },
       diagram: null,
       parent: null,
       relationships: [],
-      canvasData: {
+      data: {
         position: null,
         color: null
       },
@@ -61,6 +61,7 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
   const onNameChange = (newName: string): void => {
     if (updatedDiagramItem === null) return
     updatedDiagramItem.workspaceItem.name = newName
+    updatedDiagramItem.workspaceItem.key = newName
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 

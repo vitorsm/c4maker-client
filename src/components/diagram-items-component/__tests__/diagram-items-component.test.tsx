@@ -51,9 +51,9 @@ test('test updating item position', async () => {
   }
 
   canvasContainerParamters.onItemPositionChange(drawableItem, newPosition)
-  expect(diagramItems[1].canvasData.position).toStrictEqual(newPosition)
-  expect(diagramItems[0].canvasData.position).toBeNull()
-  expect(diagramItems[2].canvasData.position).toBeNull()
+  expect(diagramItems[1].data.position).toStrictEqual(newPosition)
+  expect(diagramItems[0].data.position).toBeNull()
+  expect(diagramItems[2].data.position).toBeNull()
   expect(diagramItems[1].isSelected).toBeTruthy()
   expect(diagramItems[0].isSelected).toBeFalsy()
   expect(diagramItems[2].isSelected).toBeFalsy()

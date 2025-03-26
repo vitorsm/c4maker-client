@@ -198,7 +198,7 @@ const WorkspaceComponent: FC = () => {
     newDiagramItems.forEach(newDiagramItem => {
       const diagramItem = persistedDiagramMap.get(newDiagramItem.workspaceItem.key)
 
-      diagramItem.canvasData = newDiagramItem.canvasData
+      diagramItem.data = newDiagramItem.data
       diagramItem.isSelected = newDiagramItem.isSelected
       diagramItem.workspaceItem = newDiagramItem.workspaceItem
     })
@@ -241,7 +241,8 @@ const WorkspaceComponent: FC = () => {
               diagramItems={diagramItems}
               onDiagramItemChange={onDiagramItemChange}
               onDiagramItemAdded={onDiagramItemAdded}
-              onDiagramItemDeleted={onDiagramItemDeleted} />
+              onDiagramItemDeleted={onDiagramItemDeleted}
+              onDiagramItemSelected={() => {}} />
           )}
 
       </>

@@ -81,7 +81,7 @@ test('test login flow without error', async () => {
 
   await waitFor(() => {
     expect(store.getState().errorReducer.error).toBeUndefined()
-    expect(store.getState().userReducer.tokenData.data.access_token).toEqual('TOKEN')
+    expect(store.getState().userReducer.tokenData.data.accessToken).toEqual('TOKEN')
   })
 })
 

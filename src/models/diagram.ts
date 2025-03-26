@@ -10,17 +10,22 @@ export enum DiagramType {
 export default interface Diagram extends GenericEntity {
   id?: string
   name: string
-  diagram_type: DiagramType | string
+  diagramType: DiagramType | string
   workspace: Workspace
   description: string | null
+}
+
+export interface DiagramItemRelationshipData {
+  fromPosition: DiagramItemPosition
+  toPosition: DiagramItemPosition
 }
 
 export interface DiagramItemRelationship {
   diagramItem: DiagramItem
   description: string
   details: string
-  fromPosition: DiagramItemPosition
-  toPosition: DiagramItemPosition
+  data: DiagramItemRelationshipData
+  diagramType: string
 }
 
 export interface DiagramItemPosition {
@@ -41,6 +46,7 @@ export interface DiagramItem extends GenericEntity {
   diagram: Diagram | null
   parent: DiagramItem | null
   relationships: DiagramItemRelationship[]
-  canvasData: DiagramItemCanvasData
+  data: DiagramItemCanvasData
   isSelected?: boolean | undefined
+  diagramItemType?: string
 }

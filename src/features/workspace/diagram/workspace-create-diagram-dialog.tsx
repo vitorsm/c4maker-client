@@ -49,7 +49,7 @@ const WorkpsaceCreateDiagramDialog: FC<WorkpsaceCreateDiagramDialogProps> = ({ w
     const diagram: Diagram = {
       name: diagramName,
       description: diagramDescription,
-      diagram_type: diagramType,
+      diagramType,
       workspace
     }
 

@@ -37,8 +37,11 @@ export const generateContainerComponent = (context: CanvasRenderingContext2D, po
 
 export const generateRelationshipComponent = (context: CanvasRenderingContext2D, texts: string[],
   relationship: DiagramItemRelationship, sourceItemPosition: Position, targetItemPosition: Position): void => {
-  const fromPosition = generatePositionFromItemPositionAndPosition(sourceItemPosition, relationship.fromPosition, targetItemPosition, relationship.toPosition)
-  const toPosition = generatePositionFromItemPositionAndPosition(targetItemPosition, relationship.toPosition, sourceItemPosition, relationship.fromPosition)
+  const relationshipFromPosition = relationship.data.fromPosition
+  const relationshipToPosition = relationship.data.toPosition
+
+  const fromPosition = generatePositionFromItemPositionAndPosition(sourceItemPosition, relationshipFromPosition, targetItemPosition, relationshipToPosition)
+  const toPosition = generatePositionFromItemPositionAndPosition(targetItemPosition, relationshipToPosition, sourceItemPosition, relationshipFromPosition)
 
   drawLineFromPositionToPosition(context, fromPosition, toPosition)
 }
