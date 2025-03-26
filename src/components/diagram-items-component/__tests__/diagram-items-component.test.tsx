@@ -68,7 +68,8 @@ test('test updating item selection', async () => {
       diagramItems={diagramItems}
       onDiagramItemChange={jest.fn()}
       onDiagramItemAdded={jest.fn()}
-      onDiagramItemDeleted={jest.fn()}/>
+      onDiagramItemDeleted={jest.fn()}
+      onDiagramItemSelected={jest.fn()}/>
   )
 
   const canvasComponent = screen.getByTestId('canvas-component-for-test')
