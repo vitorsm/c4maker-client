@@ -4,6 +4,8 @@ import { WorkspaceItemType } from '../../models/workspace'
 import Dialog from '../dialog/dialog'
 import TextInput from '../text-input'
 import { DiagramItemFormContainer } from './style'
+import SelectComponent from '../select-component'
+import { SelectItem } from '../select-component/select-component'
 
 interface AddDiagramItemDialogProps {
   diagramItem: DiagramItem | null
@@ -12,6 +14,8 @@ interface AddDiagramItemDialogProps {
   onCancelClick: Function
   dataTestId?: string
 }
+
+const DEFAULT_SELECTED_ITEM_TYPE = WorkspaceItemType.PERSONA
 
 const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show, onOkClick, onCancelClick, dataTestId }: AddDiagramItemDialogProps) => {
   const [updatedDiagramItem, setUpdatedDiagramItem] = useState<DiagramItem | null>(null)
@@ -31,7 +35,7 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
         key: '',
         description: '',
         details: '',
-        workspaceItemType: WorkspaceItemType.COMPONENT,
+        workspaceItemType: DEFAULT_SELECTED_ITEM_TYPE,
         workspace: null
       },
       diagram: null,
@@ -77,6 +81,39 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
+  const onWorkspaceItemChange = (newItemType: string): void => {
+    if (updatedDiagramItem === null) return
+    updatedDiagramItem.workspaceItem.workspaceItemType = WorkspaceItemType[newItemType as keyof typeof WorkspaceItemType]
+    setUpdatedDiagramItem(updatedDiagramItem)
+  }
+
+  const getTypeItems = (): SelectItem[] => {
+    return [
+      {
+        key: WorkspaceItemType.PERSONA,
+        content: 'Persona'
+      }, {
+        key: WorkspaceItemType.CONTAINER,
+        content: 'Container'
+      }, {
+        key: WorkspaceItemType.MOBILE_CONTAINER,
+        content: 'Container - Mobile'
+      }, {
+        key: WorkspaceItemType.WEB_CONTAINER,
+        content: 'Container - Web'
+      }, {
+        key: WorkspaceItemType.COMPONENT,
+        content: 'Component'
+      }, {
+        key: WorkspaceItemType.DATABASE,
+        content: 'Database'
+      }, {
+        key: WorkspaceItemType.ENTITY,
+        content: 'Entity'
+      }
+    ]
+  }
+
   const renderFormBody = (): ReactElement | null => {
     if (updatedDiagramItem === null) return null
 
@@ -85,6 +122,7 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
         <TextInput title={'Name'} value={updatedDiagramItem.workspaceItem.name} onChange={onNameChange}></TextInput>
         <TextInput title={'Description'} value={updatedDiagramItem.workspaceItem.description ?? ''} onChange={onDescriptionChange}></TextInput>
         <TextInput title={'Details'} value={updatedDiagramItem.workspaceItem.details ?? ''} type="text-area" onChange={onDetailsChange}></TextInput>
+        <SelectComponent title='Item Type' items={getTypeItems()} onChangeSelection={onWorkspaceItemChange} selectedKey={updatedDiagramItem.workspaceItem.workspaceItemType}/>
       </DiagramItemFormContainer>
     )
   }

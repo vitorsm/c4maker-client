@@ -50,13 +50,18 @@ export const getInterceptionPoint = (line1: [Position, Position], line2: [Positi
   const [line2A, line2B] = getABFromLine(...line2)
 
   let x1, y1
-
+  // find the values for x and y where both expressions have same value Y = a1X + b1; Y = a2X + b2
   if (isVerticalLine(line1)) {
     x1 = line1[0].x
     y1 = line2A * x1 + line2B
   } else {
     y1 = (line1A * line2B - line2A * line1B) / (line1A - line2A)
-    x1 = (y1 - line1B) / line1A
+    // if line1A is 0, we use the other line expression to find x value
+    if (line1A !== 0) {
+      x1 = (y1 - line1B) / line1A
+    } else {
+      x1 = (y1 - line2B) / line2A
+    }
   }
 
   const point = {

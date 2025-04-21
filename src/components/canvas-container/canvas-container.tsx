@@ -16,7 +16,7 @@ export interface CanvasContainerProps {
 const ITEMS_COLOR = '#0000FF'
 const BACKGROUND_ITEM_COLOR = '#bdb7b7'
 export const SELECTED_ITEM_COLOR = '#b83d3d'
-export const SELECTED_LINE_SIZE = 4
+export const SELECTED_LINE_SIZE = 2
 const BACKGROUND_DISTANCE_BETWEEN_CIRCLE = 30
 const BACKGROUND_SIZE_OF_CIRCLE = 3
 

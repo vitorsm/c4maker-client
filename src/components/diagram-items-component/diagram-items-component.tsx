@@ -9,7 +9,7 @@ import Card from '../card'
 import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
-import { generateContainerComponent, generateRelationshipComponent, generateUserComponent } from './component_utils'
+import { generateComponentComponent, generateContainer, generateDatabaseContainer, generateMobileContainer, generateRelationshipComponent, generateUserComponent, generateWebContainer } from './component_utils'
 import { WorkspaceItemType } from '../../models/workspace'
 
 interface DiagramItemsComponentProps {
@@ -27,6 +27,8 @@ const SIZE_BY_ITEM_TYPE = new Map()
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], { width: 300, height: 300 })
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.ENTITY], { width: 200, height: 100 })
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], { width: 300, height: 180 })
+SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.WEB_CONTAINER], { width: 300, height: 180 })
+SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.MOBILE_CONTAINER], { width: 300, height: 180 })
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], { width: 150, height: 150 })
 SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], { width: 150, height: 150 })
 
@@ -34,8 +36,19 @@ const COLOR_BY_ITEM_TYPE = new Map()
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], '#116611')
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.ENTITY], '#55aa55')
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], '#55aa55')
+COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.WEB_CONTAINER], '#55aa55')
+COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.MOBILE_CONTAINER], '#55aa55')
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], '#55aa55')
 COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], '#55aa55')
+
+const SECONDARY_COLOR_BY_ITEM_TYPE = new Map()
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], '#116611')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.ENTITY], '#55aa55')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], '#7bdb7b')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.WEB_CONTAINER], '#7bdb7b')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.MOBILE_CONTAINER], '#7bdb7b')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], '#55aa55')
+SECONDARY_COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], '#55aa55')
 
 // const createdItemCount = 0
 
@@ -72,6 +85,11 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     return diagramItem.data.color !== null ? diagramItem.data.color : COLOR_BY_ITEM_TYPE.get(strType)
   }
 
+  const getSecondaryColorByDiagramItem = (diagramItem: DiagramItem): string => {
+    const strType = WorkspaceItemType[diagramItem.workspaceItem.workspaceItemType]
+    return diagramItem.data.color !== null ? diagramItem.data.color : SECONDARY_COLOR_BY_ITEM_TYPE.get(strType)
+  }
+
   const convertDiagramItemToDrawableItem = (diagramItem: DiagramItem): DrawableItem => {
     const position = getPositionByDiagramItem(diagramItem)
     const itemType = WorkspaceItemType[diagramItem.workspaceItem.workspaceItemType]
@@ -91,12 +109,21 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         const texts = [diagramItem.workspaceItem.name]
         texts.push(diagramItem.workspaceItem.description ?? '')
         texts.push(diagramItem.workspaceItem.details ?? '')
+        const secondaryColor = getSecondaryColorByDiagramItem(diagramItem)
 
         switch (itemType) {
           case WorkspaceItemType[WorkspaceItemType.PERSONA]:
             return generateUserComponent(context, position, texts)
           case WorkspaceItemType[WorkspaceItemType.CONTAINER]:
-            return generateContainerComponent(context, position, texts)
+            return generateContainer(context, position, texts)
+          case WorkspaceItemType[WorkspaceItemType.COMPONENT]:
+            return generateComponentComponent(context, position, texts)
+          case WorkspaceItemType[WorkspaceItemType.DATABASE]:
+            return generateDatabaseContainer(context, position, texts)
+          case WorkspaceItemType[WorkspaceItemType.WEB_CONTAINER]:
+            return generateWebContainer(context, position, texts, secondaryColor)
+          case WorkspaceItemType[WorkspaceItemType.MOBILE_CONTAINER]:
+            return generateMobileContainer(context, position, texts, secondaryColor)
           default:
             return generateUserComponent(context, position, texts)
         }
