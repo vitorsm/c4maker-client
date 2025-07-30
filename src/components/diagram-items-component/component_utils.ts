@@ -193,7 +193,7 @@ export const generateRelationshipComponent = (context: CanvasRenderingContext2D,
 }
 
 const generatePositionFromItemPositionAndPosition = (itemPosition: Position, relationshipPosition: Position,
-  anotherItemPosition: Position, anotherRelationhipPotision: Position): Position => {
+  anotherItemPosition: Position, anotherRelationhipPotision: Position): Position | null => {
   const fromPosition = {
     x: Math.min(relationshipPosition.x + itemPosition.x, itemPosition.x + itemPosition.width),
     y: Math.min(relationshipPosition.y + itemPosition.y, itemPosition.y + itemPosition.width),
@@ -241,10 +241,7 @@ const generatePositionFromItemPositionAndPosition = (itemPosition: Position, rel
     return point
   }
   point = getInterceptionPoint([bottomRight, topRight], [fromPosition, toPosition])
-  // todo: how to ignore error here?
-  // if (point !== null) {
   return point
-  // }
 
   // // todo evaluate if it makes sense: As we ensure all points will be inside of the component, it always possible to find the intercept points
 

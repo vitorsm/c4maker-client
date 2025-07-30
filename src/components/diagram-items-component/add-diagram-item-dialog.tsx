@@ -7,6 +7,26 @@ import { DiagramItemFormContainer } from './style'
 import SelectComponent from '../select-component'
 import { SelectItem } from '../select-component/select-component'
 
+const DEFAULT_SELECTED_ITEM_TYPE = WorkspaceItemType.PERSONA
+
+const DEFAULT_DIAGRAM_ITEM = {
+  workspaceItem: {
+    name: '',
+    key: '',
+    description: '',
+    details: '',
+    workspaceItemType: DEFAULT_SELECTED_ITEM_TYPE,
+    workspace: null
+  },
+  diagram: null,
+  parent: null,
+  relationships: [],
+  data: {
+    position: null,
+    color: null
+  },
+  isSelected: true
+}
 interface AddDiagramItemDialogProps {
   diagramItem: DiagramItem | null
   show: boolean
@@ -15,10 +35,8 @@ interface AddDiagramItemDialogProps {
   dataTestId?: string
 }
 
-const DEFAULT_SELECTED_ITEM_TYPE = WorkspaceItemType.PERSONA
-
-const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show, onOkClick, onCancelClick, dataTestId }: AddDiagramItemDialogProps) => {
-  const [updatedDiagramItem, setUpdatedDiagramItem] = useState<DiagramItem | null>(null)
+const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show, onOkClick, onCancelClick, dataTestId = 'add-new-diagram-item' }: AddDiagramItemDialogProps) => {
+  const [updatedDiagramItem, setUpdatedDiagramItem] = useState<DiagramItem>(DEFAULT_DIAGRAM_ITEM)
 
   useEffect(() => {
     setUpdatedDiagramItem(insantiateDiagramItem(diagramItem))
@@ -29,60 +47,37 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
       return { ...diagramItem }
     }
 
-    return {
-      workspaceItem: {
-        name: '',
-        key: '',
-        description: '',
-        details: '',
-        workspaceItemType: DEFAULT_SELECTED_ITEM_TYPE,
-        workspace: null
-      },
-      diagram: null,
-      parent: null,
-      relationships: [],
-      data: {
-        position: null,
-        color: null
-      },
-      isSelected: true
-    }
+    return DEFAULT_DIAGRAM_ITEM
   }
 
   const onCancelClickInternal = (): void => {
     onCancelClick()
-    setUpdatedDiagramItem(null)
+    setUpdatedDiagramItem(DEFAULT_DIAGRAM_ITEM)
   }
 
   const onOkClickInternal = (): void => {
-    if (updatedDiagramItem !== null) {
-      onOkClick(updatedDiagramItem)
-    }
+    onOkClick(updatedDiagramItem)
 
-    setUpdatedDiagramItem(null)
+    setUpdatedDiagramItem(DEFAULT_DIAGRAM_ITEM)
   }
 
   const onNameChange = (newName: string): void => {
-    if (updatedDiagramItem === null) return
     updatedDiagramItem.workspaceItem.name = newName
     updatedDiagramItem.workspaceItem.key = newName
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const onDescriptionChange = (newDescription: string): void => {
-    if (updatedDiagramItem === null) return
     updatedDiagramItem.workspaceItem.description = newDescription
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const onDetailsChange = (newDetails: string): void => {
-    if (updatedDiagramItem === null) return
     updatedDiagramItem.workspaceItem.details = newDetails
     setUpdatedDiagramItem(updatedDiagramItem)
   }
 
   const onWorkspaceItemChange = (newItemType: string): void => {
-    if (updatedDiagramItem === null) return
     updatedDiagramItem.workspaceItem.workspaceItemType = WorkspaceItemType[newItemType as keyof typeof WorkspaceItemType]
     setUpdatedDiagramItem(updatedDiagramItem)
   }
@@ -115,14 +110,12 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
   }
 
   const renderFormBody = (): ReactElement | null => {
-    if (updatedDiagramItem === null) return null
-
     return (
       <DiagramItemFormContainer>
-        <TextInput title={'Name'} value={updatedDiagramItem.workspaceItem.name} onChange={onNameChange}></TextInput>
-        <TextInput title={'Description'} value={updatedDiagramItem.workspaceItem.description ?? ''} onChange={onDescriptionChange}></TextInput>
-        <TextInput title={'Details'} value={updatedDiagramItem.workspaceItem.details ?? ''} type="text-area" onChange={onDetailsChange}></TextInput>
-        <SelectComponent title='Item Type' items={getTypeItems()} onChangeSelection={onWorkspaceItemChange} selectedKey={updatedDiagramItem.workspaceItem.workspaceItemType}/>
+        <TextInput title={'Name'} value={updatedDiagramItem.workspaceItem.name} onChange={onNameChange} dataTestId='new-diagram-item-name-input'></TextInput>
+        <TextInput title={'Description'} value={updatedDiagramItem.workspaceItem.description ?? ''} onChange={onDescriptionChange} dataTestId='new-diagram-item-description-input'></TextInput>
+        <TextInput title={'Details'} value={updatedDiagramItem.workspaceItem.details ?? ''} type="text-area" onChange={onDetailsChange} dataTestId='new-diagram-item-details-input'></TextInput>
+        <SelectComponent title='Item Type' items={getTypeItems()} onChangeSelection={onWorkspaceItemChange} selectedKey={updatedDiagramItem.workspaceItem.workspaceItemType} dataTestId='new-diagram-item-type-input'/>
       </DiagramItemFormContainer>
     )
   }
