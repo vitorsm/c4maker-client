@@ -20,12 +20,10 @@ const TextInput: FC<TextInputProps> = ({ title = null, placeholder = '', value =
   const [isPlaceholder, setIsPlaceholder] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log('textInput value', value)
     setTextValue(value)
   }, [value])
 
   useEffect(() => {
-    console.log('textValue, isPlaceholder', textValue, isPlaceholder)
     const textToSet = isPlaceholder ? placeholder : textValue
     setInputTextValue(textToSet)
   }, [textValue, isPlaceholder])
@@ -47,7 +45,6 @@ const TextInput: FC<TextInputProps> = ({ title = null, placeholder = '', value =
   }
 
   const renderTextArea = (): ReactElement => {
-    console.log('input text value', inputTextValue)
     return <TextArea
               disabled={!edit}
               data-testid={dataTestId}
