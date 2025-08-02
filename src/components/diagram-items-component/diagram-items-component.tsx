@@ -103,6 +103,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     })
 
     const newDiagramItems = diagramItems.map(diagramItem => {
+      console.log('it will find for drawable items', diagramItem)
       const drawableItem = itemsMap.get(diagramItem.workspaceItem.key)
       diagramItem.isSelected = drawableItem.isSelected
       return diagramItem

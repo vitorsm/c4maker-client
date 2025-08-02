@@ -10,10 +10,10 @@ interface SearchInputProps {
   onChange: Function
   onClickInfo?: () => void
   text?: string
-  dataTestId?: string
+  dataTestId: string
 }
 
-const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, dataTestId, placeholder }: SearchInputProps) => {
+const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, dataTestId = 'search-input', placeholder }: SearchInputProps) => {
   const renderInfoButton = (): ReactElement | null => {
     if (onClickInfo === undefined) {
       return null
@@ -21,7 +21,7 @@ const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, dataTe
 
     return (
       <IconContainer>
-        <FontAwesomeIconButton icon={faCircleInfo} onClick={onClickInfo} dataTestId={`${dataTestId ?? ''}-info-button`}/>
+        <FontAwesomeIconButton icon={faCircleInfo} onClick={onClickInfo} dataTestId={`${dataTestId}-info-button`}/>
       </IconContainer>
     )
   }
@@ -36,7 +36,7 @@ const SearchInput: FC<SearchInputProps> = ({ onChange, onClickInfo, text, dataTe
         placeholder={placeholder}
         value={text}
         onChange={onChange}
-        dataTestId={`${dataTestId ?? ''}-text-input`}
+        dataTestId={`${dataTestId}-text-input`}
         edit
         icon={renderIcon()} />
 
