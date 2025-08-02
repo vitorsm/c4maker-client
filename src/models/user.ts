@@ -11,7 +11,7 @@ export interface UserAccess {
 }
 
 export interface LoginToken {
-  access_token: string
+  accessToken: string
 }
 
 export default interface User {
@@ -19,5 +19,5 @@ export default interface User {
   name: string
   login: string
   password?: string
-  shared_diagrams?: UserAccess[]
+  sharedDiagrams?: UserAccess[]
 }

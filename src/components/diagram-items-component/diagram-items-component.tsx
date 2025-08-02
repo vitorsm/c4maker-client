@@ -3,42 +3,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
 import { DiagramItem } from '../../models/diagram'
 import CanvasContainer from '../canvas-container/canvas-container'
-import { DrawableItem, DrawType, Position } from '../canvas-container/models'
+import { DrawableItem, Position } from '../canvas-container/models'
 
 import Card from '../card'
 import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
-import { generateContainerComponent, generateRelationshipComponent, generateUserComponent } from './component_utils'
-import { WorkspaceItemType } from '../../models/workspace'
+// import { generateComponentComponent, generateContainer, generateDatabaseContainer, generateMobileContainer, generateRelationshipComponent, generateUserComponent, generateWebContainer } from './component_utils'
+// import { WorkspaceItemType } from '../../models/workspace'
+import { convertDiagramItemsToDrawableItems } from './drawable-items-utils'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
   onDiagramItemChange: (updatedDiagramItems: DiagramItem[]) => void
   onDiagramItemAdded: (diagramItem: DiagramItem) => void
   onDiagramItemDeleted: (diagramItems: DiagramItem[]) => void
+  onDiagramItemSelected: (diagramItems: DiagramItem[]) => void
 }
 
 const CANVAS_WIDTH = 2246
 const CANVAS_HEIGHT = 1324
 
-const SIZE_BY_ITEM_TYPE = new Map()
-SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], { width: 300, height: 300 })
-SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.ENTITY], { width: 200, height: 100 })
-SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], { width: 300, height: 180 })
-SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], { width: 150, height: 150 })
-SIZE_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], { width: 150, height: 150 })
-
-const COLOR_BY_ITEM_TYPE = new Map()
-COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.PERSONA], '#116611')
-COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.ENTITY], '#55aa55')
-COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.CONTAINER], '#55aa55')
-COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.COMPONENT], '#55aa55')
-COLOR_BY_ITEM_TYPE.set(WorkspaceItemType[WorkspaceItemType.DATABASE], '#55aa55')
-
-let createdItemCount = 0
-
-const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted }: DiagramItemsComponentProps) => {
+const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted, onDiagramItemSelected }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
   const [drawableItems, setDrawableItems] = useState<DrawableItem[]>([])
   const [selectedDiagramItems, setSelectedDiagramItems] = useState<DiagramItem[]>([])
@@ -51,109 +37,20 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     instantiateDrawItems()
   }, [diagramItems])
 
-  const getPositionByDiagramItem = (diagramItem: DiagramItem): Position => {
-    const strType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
-    const dimension = SIZE_BY_ITEM_TYPE.get(strType)
-
-    // todo - define the square center as default x, y
-    const position = { x: 10, y: 200, width: dimension.width, height: dimension.height }
-
-    if (diagramItem.canvasData.position !== null) {
-      position.x = diagramItem.canvasData.position.x
-      position.y = diagramItem.canvasData.position.y
-    }
-
-    return position
-  }
-
-  const getColorByDiagramItem = (diagramItem: DiagramItem): string => {
-    const strType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
-    return diagramItem.canvasData.color !== null ? diagramItem.canvasData.color : COLOR_BY_ITEM_TYPE.get(strType)
-  }
-
-  const convertDiagramItemToDrawableItem = (diagramItem: DiagramItem): DrawableItem => {
-    const position = getPositionByDiagramItem(diagramItem)
-    const itemType = WorkspaceItemType[diagramItem.workspaceItem.itemType]
-    const color = getColorByDiagramItem(diagramItem)
-
-    return {
-      id: diagramItem.workspaceItem.key,
-      type: DrawType.IMG,
-      img: null,
-      position,
-      isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
-      name: diagramItem.workspaceItem.name,
-      description: diagramItem.workspaceItem.description ?? '',
-      details: diagramItem.workspaceItem.details ?? '',
-      color,
-      drawItem: (context: CanvasRenderingContext2D) => {
-        const texts = [diagramItem.workspaceItem.name]
-        texts.push(diagramItem.workspaceItem.description ?? '')
-        texts.push(diagramItem.workspaceItem.details ?? '')
-
-        switch (itemType) {
-          case WorkspaceItemType[WorkspaceItemType.PERSONA]:
-            return generateUserComponent(context, position, texts)
-          case WorkspaceItemType[WorkspaceItemType.CONTAINER]:
-            return generateContainerComponent(context, position, texts)
-          default:
-            return generateUserComponent(context, position, texts)
-        }
-      }
-    }
-  }
-
   const instantiateDrawItems = (): void => {
-    const newItems = diagramItems.filter(diagramItem => diagramItem.workspaceItem.key !== undefined).map(diagramItem => {
-      return convertDiagramItemToDrawableItem(diagramItem)
-    })
-
-    diagramItems.filter(diagramItem => diagramItem.workspaceItem.key !== undefined).forEach(diagramItem => {
-      const sourceItemPosition = diagramItem.canvasData.position
-
-      if (sourceItemPosition === null) {
-        return null
-      }
-
-      diagramItem.relationships.forEach(relationship => {
-        const targetItem = relationship.diagramItem
-        const targetKey = targetItem.workspaceItem.key
-        const targetItemPosition = targetItem.canvasData.position
-
-        if (targetItemPosition === null) {
-          return null
-        }
-
-        newItems.push({
-          id: `RELATIONSHIP_FROM_${diagramItem.workspaceItem.key}_TO_${targetKey}`,
-          type: DrawType.LINE,
-          img: null,
-          position: relationship.fromPosition,
-          isSelected: diagramItem.isSelected !== undefined ? diagramItem.isSelected : false,
-          name: `Relationship from ${diagramItem.workspaceItem.name} to ${targetItem.workspaceItem.name}`,
-          description: relationship.description,
-          details: relationship.details,
-          color: '#000000',
-          drawItem: (context: CanvasRenderingContext2D) => {
-            const texts = [relationship.description, relationship.details]
-            generateRelationshipComponent(context, texts, relationship, sourceItemPosition, targetItemPosition)
-          }
-        })
-      })
-    })
-
-    setDrawableItems(newItems)
+    const drawableItems = convertDiagramItemsToDrawableItems(diagramItems)
+    setDrawableItems(drawableItems)
   }
 
   const onItemPositionChange = (item: DrawableItem, newPosition: Position): void => {
     const diagramItem = diagramItems.find(d => d.workspaceItem.key === item.id)
 
     if (diagramItem === undefined) {
-      console.error('diagram item modified but not found')
+      console.log('diagram item modified but not found')
       return
     }
 
-    diagramItem.canvasData.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
+    diagramItem.data.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
     diagramItem.isSelected = item.isSelected
 
     onDiagramItemChange([diagramItem])
@@ -161,7 +58,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
 
   const onLink = (targetItem: DrawableItem, fromPosition: Position, toPosition: Position): void => {
     if (selectedDiagramItems.length !== 1) {
-      console.error('to link components the source should be only 1 item')
+      console.log('to link components the source should be only 1 item')
       return
     }
 
@@ -175,21 +72,24 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     let targetX = 0
     let targetY = 0
 
-    if (previouslySelectedItem.canvasData.position !== null) {
-      sourceX = fromPosition.x - previouslySelectedItem.canvasData.position.x
-      sourceY = fromPosition.y - previouslySelectedItem.canvasData.position.y
+    if (previouslySelectedItem.data.position !== null) {
+      sourceX = fromPosition.x - previouslySelectedItem.data.position.x
+      sourceY = fromPosition.y - previouslySelectedItem.data.position.y
     }
-    if (selectedDiagramItem.canvasData.position !== null) {
-      targetX = toPosition.x - selectedDiagramItem.canvasData.position.x
-      targetY = toPosition.y - selectedDiagramItem.canvasData.position.y
+    if (selectedDiagramItem.data.position !== null) {
+      targetX = toPosition.x - selectedDiagramItem.data.position.x
+      targetY = toPosition.y - selectedDiagramItem.data.position.y
     }
 
     previouslySelectedItem.relationships.push({
       diagramItem: selectedDiagramItem,
       description: '',
       details: '',
-      fromPosition: { ...fromPosition, x: sourceX, y: sourceY },
-      toPosition: { ...toPosition, x: targetX, y: targetY }
+      data: {
+        fromPosition: { ...fromPosition, x: sourceX, y: sourceY },
+        toPosition: { ...toPosition, x: targetX, y: targetY }
+      },
+      diagramType: 'C4'
     })
 
     setIsLinkingItem(false)
@@ -203,13 +103,16 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     })
 
     const newDiagramItems = diagramItems.map(diagramItem => {
+      console.log('it will find for drawable items', diagramItem)
       const drawableItem = itemsMap.get(diagramItem.workspaceItem.key)
       diagramItem.isSelected = drawableItem.isSelected
       return diagramItem
     })
 
-    onDiagramItemChange(newDiagramItems)
-    setSelectedDiagramItems(newDiagramItems.filter(i => i.isSelected))
+    // onDiagramItemChange(newDiagramItems)
+    const newSelectedDiagramItems = newDiagramItems.filter(i => i.isSelected)
+    onDiagramItemSelected(newSelectedDiagramItems)
+    setSelectedDiagramItems(newSelectedDiagramItems)
   }
 
   const onAddItemClick = (): void => {
@@ -231,10 +134,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }
 
   const onAddItemDialogOkClick = (diagramItem: DiagramItem): void => {
-    const isCreation = diagramItem.workspaceItem.key === ''
+    const isCreation = diagramItem.id == null
 
     if (isCreation) {
-      diagramItem.workspaceItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
+      // diagramItem.workspaceItem.key = `CREATED_NOT_PERSISTED_${createdItemCount++}`
       onDiagramItemAdded(diagramItem)
     } else {
       onDiagramItemChange([diagramItem])
@@ -261,7 +164,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     if (!showDeleteConfirmation) return null
 
     return (
-      <Dialog show={showDeleteConfirmation} onOkClick={onDeleteItemDialogOkClick} onCancelClick={onDeleteItemDialogCancelClick}>
+      <Dialog show={showDeleteConfirmation} onOkClick={onDeleteItemDialogOkClick} onCancelClick={onDeleteItemDialogCancelClick} dataTestId='diagram-item-delete-confirmation-dialog'>
         <DiagramItemConfirmDeleteBody>
           Do you want to delete the following items ? <br />
           {selectedDiagramItems.map((item, index) => {
@@ -292,10 +195,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
 
     return (
       <>
-        <Card key='diagram-button-edit-item' description={'edit'} onClick={onEditItemClick}>
+        <Card key='diagram-button-edit-item' description={'edit'} onClick={onEditItemClick} dataTestId='diagram-item-edit-button'>
           <FontAwesomeIcon icon={faPenToSquare} size="1x" />
         </Card>
-        <Card key='diagram-button-delete-item' description={'delete'} onClick={onDeleteItemClick}>
+        <Card key='diagram-button-delete-item' description={'delete'} onClick={onDeleteItemClick} dataTestId='diagram-item-delete-button'>
           <FontAwesomeIcon icon={faDeleteLeft} size="1x" />
         </Card>
         <Card key='diagram-button-link-item' description={'link'} onClick={onLinkItemClick}>

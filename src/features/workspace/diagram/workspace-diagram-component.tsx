@@ -35,6 +35,10 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
   }, [workspace])
 
   useEffect(() => {
+    if (diagrams.data === null) {
+      return
+    }
+
     setIsLoading(false)
     setFilteredDiagrams(diagrams.data ?? [])
   }, [diagrams])
@@ -98,8 +102,8 @@ const WorkspaceDiagramComponent: FC<WorkspaceDiagramComponentProps> = ({ workspa
   return (
     <Container>
       <DiagramHeader>
-        <SearchInput onChange={onSearchChange} placeholder={'Buscar diagrama...'} onClickInfo={() => null} />
-        <PlainButton text={'Criar diagrama'} onClick={onClickCreateNewDiagram} />
+        <SearchInput onChange={onSearchChange} placeholder={'Buscar diagrama...'} onClickInfo={() => null} dataTestId='search-diagrams'/>
+        <PlainButton text={'Criar diagrama'} onClick={onClickCreateNewDiagram} dataTestId='create-workspace-diagram-button'/>
       </DiagramHeader>
 
       {renderDiagramsComponent()}

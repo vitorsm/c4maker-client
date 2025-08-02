@@ -6,7 +6,9 @@ export enum DiagramsTypes {
   GET_USER_DIAGRAMS = '@diagrams/GET_USER_DIAGRAMS',
   GET_DIAGRAM = '@diagrams/GET_DIAGRAM',
   PERSIST_DIAGRAM = '@diagrams/PERSIST_DIAGRAM',
-  DIAGRAM_ITEMS = '@diagrams/GET_DIAGRAM_ITEMS'
+  DIAGRAM_ITEMS = '@diagrams/GET_DIAGRAM_ITEMS',
+  GET_DIAGRAM_ITEM = '@diagrams/GET_DIAGRAM_ITEM',
+  DELETE_DIAGRAM_ITEM = '@diagrams/DELETE_DIAGRAM_ITEM'
 }
 
 export interface DiagramsState {
@@ -14,13 +16,17 @@ export interface DiagramsState {
   readonly diagram: ObjectWrapper<Diagram>
   readonly persistedDiagram: ObjectWrapper<Diagram>
   readonly diagramItems: ObjectWrapper<DiagramItem[]>
+  readonly diagramItem: ObjectWrapper<DiagramItem>
+  readonly deletedDiagramItem: ObjectWrapper<string>
 }
 
 const INITIAL_STATE: DiagramsState = {
   diagrams: generateEmptyObject(),
   diagram: generateEmptyObject(),
   persistedDiagram: generateEmptyObject(),
-  diagramItems: generateEmptyObject()
+  diagramItems: generateEmptyObject(),
+  diagramItem: generateEmptyObject(),
+  deletedDiagramItem: generateEmptyObject()
 }
 
 const reducer: Reducer<DiagramsState> = (state = INITIAL_STATE, action) => {
@@ -44,6 +50,16 @@ const reducer: Reducer<DiagramsState> = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         diagramItems: action.payload
+      }
+    case DiagramsTypes.GET_DIAGRAM_ITEM:
+      return {
+        ...state,
+        diagramItem: action.payload
+      }
+    case DiagramsTypes.DELETE_DIAGRAM_ITEM:
+      return {
+        ...state,
+        deletedDiagramItem: action.payload
       }
     default:
       return state

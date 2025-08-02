@@ -117,6 +117,12 @@ export const mockServerForManagingWorkspace = (server: SetupServerApi, mockParam
     server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/diagrams`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json(diagrams), ctx.delay(150))
     }))
+    server.use(rest.get(`http://localhost:5000/diagram/${diagrams[0].id}`, (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json(diagrams[0]), ctx.delay(150))
+    }))
+    server.use(rest.get(`http://localhost:5000/diagram/${diagrams[0].id}/diagram-items`, (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json([]), ctx.delay(150))
+    }))
     server.use(rest.get(`http://localhost:5000/workspace/${workspaceIdToMock}/workspace-items`, (req, res, ctx) => {
       return res(ctx.status(200), ctx.json([]), ctx.delay(150))
     }))

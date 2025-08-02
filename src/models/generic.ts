@@ -1,8 +1,8 @@
 import User from './user'
 
 export default interface GenericEntity {
-  created_by?: User | null
-  modified_by?: User | null
-  created_at?: Date | null
-  modified_at?: Date | null
+  createdBy?: User | null
+  modifiedBy?: User | null
+  createdAt?: Date | null
+  modifiedAt?: Date | null
 }

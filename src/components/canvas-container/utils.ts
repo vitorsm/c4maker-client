@@ -60,19 +60,19 @@ export const handleSelectItem = (position: Position, items: DrawableItem[]): Dra
   return shouldReRender ? items : null
 }
 
-export const roundRect = (context: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number = 10): void => {
-  const endX = x + width
-  const endY = y + height
+export const roundRect = (context: CanvasRenderingContext2D, position: Position, radius: number = 10): void => {
+  const endX = position.x + position.width
+  const endY = position.y + position.height
 
-  context.moveTo(x + radius, y)
-  context.lineTo(endX - radius, y)
-  context.quadraticCurveTo(endX, y, endX, y + radius)
+  context.moveTo(position.x + radius, position.y)
+  context.lineTo(endX - radius, position.y)
+  context.quadraticCurveTo(endX, position.y, endX, position.y + radius)
   context.lineTo(endX, endY - radius)
   context.quadraticCurveTo(endX, endY, endX - radius, endY)
-  context.lineTo(x + radius, endY)
-  context.quadraticCurveTo(x, endY, x, endY - radius)
-  context.lineTo(x, y + radius)
-  context.quadraticCurveTo(x, y, x + radius, y)
+  context.lineTo(position.x + radius, endY)
+  context.quadraticCurveTo(position.x, endY, position.x, endY - radius)
+  context.lineTo(position.x, position.y + radius)
+  context.quadraticCurveTo(position.x, position.y, position.x + radius, position.y)
 
   context.fill()
 }
@@ -84,8 +84,9 @@ export const drawLineFromPositionToPosition = (context: CanvasRenderingContext2D
 
   context.lineWidth = SELECTED_LINE_SIZE + 1
   context.strokeStyle = SELECTED_ITEM_COLOR
+  context.setLineDash([6, 6])
 
-  context.moveTo(fromPosition?.x, fromPosition.y)
+  context.moveTo(fromPosition.x, fromPosition.y)
   context.lineTo(toPosition.x, toPosition.y)
   context.stroke()
 }

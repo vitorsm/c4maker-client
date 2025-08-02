@@ -2,6 +2,7 @@ import { Dispatch } from 'react'
 import ObjectWrapper from '../models/object_wrapper'
 import { setError } from '../store/reducers/errors/actions'
 import { getToken, setToken } from '../store/token_utils'
+import { camelToSnake, snakeToCamel } from '../utils/naming-case-utils'
 
 const serverURL = 'http://localhost:5000/'
 const MESSAGE_ATTRIBUTE_NAME = ['message', 'description']
@@ -45,7 +46,7 @@ export default class APIClient<Type> {
     const requestOptions = {
       method,
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(camelToSnake(data))
     }
 
     fetch(address, requestOptions).then(
@@ -78,6 +79,7 @@ export default class APIClient<Type> {
 
     try {
       responseData = await response?.json()
+      responseData = snakeToCamel(responseData)
     } catch (Error) {
       responseData = itemToDispatch
     }

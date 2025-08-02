@@ -1,11 +1,13 @@
 import GenericEntity from './generic'
 
 export enum WorkspaceItemType {
-  ENTITY,
-  PERSONA,
-  DATABASE,
-  CONTAINER,
-  COMPONENT
+  ENTITY = 'ENTITY',
+  PERSONA = 'PERSONA',
+  DATABASE = 'DATABASE',
+  CONTAINER = 'CONTAINER',
+  WEB_CONTAINER = 'WEB_CONTAINER',
+  MOBILE_CONTAINER = 'MOBILE_CONTAINER',
+  COMPONENT = 'COMPONENT'
 }
 
 export default interface Workspace extends GenericEntity {
@@ -21,5 +23,5 @@ export interface WorkspaceItem extends GenericEntity {
   description: string | null
   details: string | null
   workspace: Workspace | null
-  itemType: WorkspaceItemType
+  workspaceItemType: WorkspaceItemType
 }

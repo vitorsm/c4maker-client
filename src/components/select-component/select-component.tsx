@@ -40,7 +40,7 @@ const SelectComponent: FC<SelectComponentProps> = ({ title, items, selectedKey, 
 
       <Select
         data-testid={`${dataTestId ?? ''}-select`}
-        defaultValue={selectedKey}
+        value={selectedKey}
         onChange={internalOnChange}>
         {renderOptions()}
       </Select>

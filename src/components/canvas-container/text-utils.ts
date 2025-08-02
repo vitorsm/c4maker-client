@@ -5,8 +5,8 @@ const BODY_FONT_SIZE = 14
 const FONT_COLOR = '#FFFFFF'
 
 const writeText = (context: CanvasRenderingContext2D, text: string, position: Position, fontSize: number,
-  dryExecution: boolean = false): number => {
-  context.fillStyle = FONT_COLOR
+  dryExecution: boolean = false, fontColor?: string): number => {
+  context.fillStyle = fontColor ?? FONT_COLOR
   context.font = `${fontSize}px serif`
   const distanceBetweenLines = 2
 
@@ -50,8 +50,8 @@ const writeText = (context: CanvasRenderingContext2D, text: string, position: Po
   return yPosition - distanceBetweenLines - fontSize
 }
 
-const writeTextsInBox = (context: CanvasRenderingContext2D, texts: string[], fontSizes: number[],
-  textPosition: Position, topPadding: number, boxPosition: Position, dryExecution: boolean, remainingY: number): number => {
+export const writeTextsInBox = (context: CanvasRenderingContext2D, texts: string[], fontSizes: number[],
+  textPosition: Position, topPadding: number, boxPosition: Position, dryExecution: boolean, remainingY: number, fontColor?: string): number => {
   if (texts.length === 0) {
     return boxPosition.y
   }
@@ -67,14 +67,14 @@ const writeTextsInBox = (context: CanvasRenderingContext2D, texts: string[], fon
       textPosition.height = boxPosition.height - (textPosition.y - boxPosition.y)
     }
 
-    yPosition = writeText(context, text, textPosition, fontSizes[index], dryExecution)
+    yPosition = writeText(context, text, textPosition, fontSizes[index], dryExecution, fontColor)
     textPosition.y = yPosition + topPadding + distanceBetweenText
   })
 
   return yPosition - startPositionY
 }
 
-export const writeTextsAndAdjustPosition = (context: CanvasRenderingContext2D, texts: string[], boxPosition: Position, topPadding: number, leftPadding: number, borderRadius: number): void => {
+export const writeTextsAndAdjustPosition = (context: CanvasRenderingContext2D, texts: string[], boxPosition: Position, topPadding: number, leftPadding: number, borderRadius: number, fontColor?: string): void => {
   if (texts.length === 0) {
     return
   }
@@ -93,7 +93,7 @@ export const writeTextsAndAdjustPosition = (context: CanvasRenderingContext2D, t
     return index > 0 ? BODY_FONT_SIZE : TITLE_FONT_SIZE
   })
 
-  const textHeight = writeTextsInBox(context, texts, fontSizes, { ...textPosition }, topPadding, boxPosition, true, 0) + topPadding * 2
+  const textHeight = writeTextsInBox(context, texts, fontSizes, { ...textPosition }, topPadding, boxPosition, true, 0, fontColor) + topPadding * 2
   const diffY = boxPosition.height - textHeight
-  writeTextsInBox(context, texts, fontSizes, { ...textPosition }, topPadding, boxPosition, false, diffY)
+  writeTextsInBox(context, texts, fontSizes, { ...textPosition }, topPadding, boxPosition, false, diffY, fontColor)
 }

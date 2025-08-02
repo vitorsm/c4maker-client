@@ -1,5 +1,5 @@
 import { Dispatch } from 'react'
-import Diagram from '../../../models/diagram'
+import Diagram, { DiagramItem } from '../../../models/diagram'
 import DiagramService from '../../../services/diagram_service'
 import WorkspaceService from '../../../services/workspace_service'
 import { DiagramsTypes } from './reducer'
@@ -22,4 +22,16 @@ export const updateDiagram = async (diagram: Diagram, dispatch: Dispatch<any>): 
 
 export const fetchItemsByDiagram = async (diagramId: string, dispatch: Dispatch<any>): Promise<void> => {
   new DiagramService().getItemsByDiagram(diagramId, dispatch, DiagramsTypes.DIAGRAM_ITEMS)
+}
+
+export const createDiagramItem = async (diagramItem: DiagramItem, dispatch: Dispatch<any>): Promise<void> => {
+  new DiagramService().createDiagramItem(diagramItem, dispatch, DiagramsTypes.GET_DIAGRAM_ITEM)
+}
+
+export const updateDiagramItem = async (diagramItem: DiagramItem, dispatch: Dispatch<any>): Promise<void> => {
+  new DiagramService().updateDiagramItem(diagramItem, dispatch, DiagramsTypes.GET_DIAGRAM_ITEM)
+}
+
+export const deleteDiagramItem = async (diagramItem: DiagramItem, dispatch: Dispatch<any>): Promise<void> => {
+  new DiagramService().deleteDiagramItem(diagramItem, dispatch, DiagramsTypes.DELETE_DIAGRAM_ITEM)
 }

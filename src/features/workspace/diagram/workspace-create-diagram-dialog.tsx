@@ -49,7 +49,7 @@ const WorkpsaceCreateDiagramDialog: FC<WorkpsaceCreateDiagramDialogProps> = ({ w
     const diagram: Diagram = {
       name: diagramName,
       description: diagramDescription,
-      diagram_type: diagramType,
+      diagramType,
       workspace
     }
 
@@ -58,10 +58,6 @@ const WorkpsaceCreateDiagramDialog: FC<WorkpsaceCreateDiagramDialogProps> = ({ w
   }
 
   const onCancelClick = (): void => {
-    if (isLoading) {
-      return
-    }
-
     closeDialog(undefined)
   }
 
@@ -71,16 +67,16 @@ const WorkpsaceCreateDiagramDialog: FC<WorkpsaceCreateDiagramDialogProps> = ({ w
     }
 
     return (
-      <CircularProgress />
+      <CircularProgress dataTestId='new-diagram-loading'/>
     )
   }
 
   return (
-    <Dialog show={show} title={'Create new diagram'} onOkClick={onOkClick} onCancelClick={onCancelClick}>
+    <Dialog show={show} title={'Create new diagram'} onOkClick={onOkClick} onCancelClick={onCancelClick} dataTestId='new-diagram-dialog'>
       <CreateDiagramContainer>
-        <TextInput title={'Nome'} value={diagramName} onChange={setDiagramName} />
-        <TextInput title={'Descrição'} value={diagramDescription} onChange={setDiagramDescription} type={'text-area'} />
-        <SelectComponent title={'Tipo'} items={DIAGRAM_TYPES_OPTIONS} onChangeSelection={setDiagramType} selectedKey={diagramType} />
+        <TextInput title={'Nome'} value={diagramName} onChange={setDiagramName} dataTestId='new-diagram-name'/>
+        <TextInput title={'Descrição'} value={diagramDescription} onChange={setDiagramDescription} type={'text-area'} dataTestId='new-diagram-description'/>
+        <SelectComponent title={'Tipo'} items={DIAGRAM_TYPES_OPTIONS} onChangeSelection={setDiagramType} selectedKey={diagramType} dataTestId='new-diagram-type'/>
         {renderLoading()}
       </CreateDiagramContainer>
     </Dialog>
