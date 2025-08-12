@@ -1,4 +1,4 @@
-import { faPlus, faPenToSquare, faDeleteLeft, faLink } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faPenToSquare, faDeleteLeft, faLink, faSave } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { FC, ReactElement, useEffect, useRef, useState } from 'react'
 import { DiagramItem } from '../../models/diagram'
@@ -9,22 +9,24 @@ import Card from '../card'
 import { CanvasParentContainer, ButtonContainer, ItemTitleNameContainer, DiagramItemConfirmDeleteBody } from './style'
 import AddDiagramItemDialog from './add-diagram-item-dialog'
 import Dialog from '../dialog'
-// import { generateComponentComponent, generateContainer, generateDatabaseContainer, generateMobileContainer, generateRelationshipComponent, generateUserComponent, generateWebContainer } from './component_utils'
-// import { WorkspaceItemType } from '../../models/workspace'
 import { convertDiagramItemsToDrawableItems } from './drawable-items-utils'
+import { getBoolean } from '../../utils/typing-utils'
+import { getDiagramItemByKey, updateDiagramItemPosition, updateListDiagramItemSelection } from '../../models/diagram-utils'
 
 interface DiagramItemsComponentProps {
   diagramItems: DiagramItem[]
+  onSave: () => void
   onDiagramItemChange: (updatedDiagramItems: DiagramItem[]) => void
   onDiagramItemAdded: (diagramItem: DiagramItem) => void
   onDiagramItemDeleted: (diagramItems: DiagramItem[]) => void
   onDiagramItemSelected: (diagramItems: DiagramItem[]) => void
+  onDiagramItemOpened: (diagramItem: DiagramItem) => void
 }
 
 const CANVAS_WIDTH = 2246
 const CANVAS_HEIGHT = 1324
 
-const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted, onDiagramItemSelected }: DiagramItemsComponentProps) => {
+const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, onSave, onDiagramItemChange, onDiagramItemAdded, onDiagramItemDeleted, onDiagramItemSelected, onDiagramItemOpened }: DiagramItemsComponentProps) => {
   const componentRef = useRef<HTMLElement>(null)
   const [drawableItems, setDrawableItems] = useState<DrawableItem[]>([])
   const [selectedDiagramItems, setSelectedDiagramItems] = useState<DiagramItem[]>([])
@@ -32,6 +34,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   const [diagramItemToDialog, setDiagramItemToDialog] = useState<DiagramItem | null>(null)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
   const [isLinkingItem, setIsLinkingItem] = useState<boolean>(false)
+  const [doubleClickPosition, setDoubleClickPosition] = useState<Position>({ x: 0, y: 0, width: 0, height: 0 })
 
   useEffect(() => {
     instantiateDrawItems()
@@ -43,14 +46,14 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   }
 
   const onItemPositionChange = (item: DrawableItem, newPosition: Position): void => {
-    const diagramItem = diagramItems.find(d => d.workspaceItem.key === item.id)
+    const diagramItem = getDiagramItemByKey(diagramItems, item.id)
 
-    if (diagramItem === undefined) {
+    if (diagramItem === null) {
       console.log('diagram item modified but not found')
       return
     }
 
-    diagramItem.data.position = { x: newPosition.x, y: newPosition.y, width: item.position.width, height: item.position.height }
+    updateDiagramItemPosition(diagramItem, newPosition)
     diagramItem.isSelected = item.isSelected
 
     onDiagramItemChange([diagramItem])
@@ -96,20 +99,31 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
     onDiagramItemChange([previouslySelectedItem])
   }
 
+  const onItemDoubleClick = (item: DrawableItem): void => {
+    const diagramItem = getDiagramItemByKey(diagramItems, item.id)
+
+    if (diagramItem === null) {
+      return
+    }
+
+    diagramItem.isOpened = !getBoolean(diagramItem.isOpened)
+    onDiagramItemOpened(diagramItem)
+  }
+
+  const onBoardDoubleClick = (position: Position): void => {
+    setDoubleClickPosition(position)
+    setDiagramItemToDialog(null)
+    setShowItemDialog(true)
+  }
+
   const onItemSelectionChange = (items: DrawableItem[]): void => {
     const itemsMap = new Map()
     items.filter(item => item.id).forEach(item => {
       itemsMap.set(item.id, item)
     })
 
-    const newDiagramItems = diagramItems.map(diagramItem => {
-      const drawableItem = itemsMap.get(diagramItem.workspaceItem.key)
-      diagramItem.isSelected = drawableItem.isSelected
-      return diagramItem
-    })
+    const newSelectedDiagramItems = updateListDiagramItemSelection(diagramItems, itemsMap)
 
-    // onDiagramItemChange(newDiagramItems)
-    const newSelectedDiagramItems = newDiagramItems.filter(i => i.isSelected)
     onDiagramItemSelected(newSelectedDiagramItems)
     setSelectedDiagramItems(newSelectedDiagramItems)
   }
@@ -185,7 +199,8 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         diagramItem={diagramItemToDialog}
         show={showItemDialog}
         onOkClick={onAddItemDialogOkClick}
-        onCancelClick={onAddItemDialogCancelClick} />
+        onCancelClick={onAddItemDialogCancelClick}
+        selectedPosition={doubleClickPosition} />
     )
   }
 
@@ -203,9 +218,7 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         <Card key='diagram-button-link-item' description={'link'} onClick={onLinkItemClick}>
           <FontAwesomeIcon icon={faLink} size="1x" />
         </Card>
-        <ItemTitleNameContainer>
-          {selectedDiagramItems.map(i => i.workspaceItem.name).join(', ')}
-        </ItemTitleNameContainer>
+
       </>
     )
   }
@@ -213,6 +226,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
   return (
     <>
       <ButtonContainer>
+        <Card key='diagram-button-save' description={'save'} onClick={onSave} dataTestId='diagram-button-save'>
+          <FontAwesomeIcon icon={faSave} size="1x" />
+        </Card>
+
         <Card key='diagram-button-create-new-item' description={'add'} onClick={onAddItemClick} dataTestId='diagram-button-create-new-item'>
           <FontAwesomeIcon icon={faPlus} size="1x" />
         </Card>
@@ -220,6 +237,10 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
         {renderButtonsForSelection()}
 
       </ButtonContainer>
+
+      <ItemTitleNameContainer>
+        {selectedDiagramItems.map(i => i.workspaceItem.name).join(', ')}
+      </ItemTitleNameContainer>
 
       <CanvasParentContainer ref={componentRef}>
         <CanvasContainer
@@ -230,6 +251,8 @@ const DiagramItemsComponent: FC<DiagramItemsComponentProps> = ({ diagramItems, o
           onItemPositionChange={onItemPositionChange}
           onItemSelectionChange={onItemSelectionChange}
           onLink={onLink}
+          onItemDoubleClick={onItemDoubleClick}
+          onBoardDoubleClick={onBoardDoubleClick}
           drawLineToMouse={isLinkingItem} />
       </CanvasParentContainer>
 

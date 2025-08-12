@@ -38,6 +38,8 @@ export interface DiagramItemPosition {
 export interface DiagramItemCanvasData {
   position: DiagramItemPosition | null
   color: string | null
+  displayPosition?: DiagramItemPosition
+  transientLastDisplayPosition?: DiagramItemPosition
 }
 
 export interface DiagramItem extends GenericEntity {
@@ -48,5 +50,7 @@ export interface DiagramItem extends GenericEntity {
   relationships: DiagramItemRelationship[]
   data: DiagramItemCanvasData
   isSelected?: boolean | undefined
+  isOpened?: boolean | undefined
   diagramItemType?: string
+  children: DiagramItem[]
 }

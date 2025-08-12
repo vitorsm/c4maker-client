@@ -13,11 +13,13 @@ export const generateDrawableItem = (position: Position, drawFunction: Function,
     img: null,
     position,
     isSelected: false,
+    isOpened: false,
     drawItem: drawFunction,
     name: `name_${itemCount}`,
     details: `details_${itemCount}`,
     description: `description_${itemCount}`,
-    color: '#000000'
+    color: '#000000',
+    children: []
   }
 }
 
@@ -51,7 +53,7 @@ export const generateDiagramItem = (withPosition?: boolean, itemType?: Workspace
     workspaceItemType = itemType
   }
 
-  return {
+  const diagramItemDTO = {
     id: `id_${itemCount}`,
     workspaceItem: {
       key: `id_${itemCount}`,
@@ -67,8 +69,11 @@ export const generateDiagramItem = (withPosition?: boolean, itemType?: Workspace
     data: {
       position,
       color: null
-    }
+    },
+    children: []
   }
+
+  return diagramItemDTO
 }
 
 export const generateRelationship = (item1: DiagramItem, item2: DiagramItem): void => {

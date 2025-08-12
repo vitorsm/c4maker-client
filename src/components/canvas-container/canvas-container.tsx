@@ -9,7 +9,9 @@ export interface CanvasContainerProps {
   parentComponentRef: RefObject<HTMLElement>
   onItemPositionChange: (item: DrawableItem, newPosition: Position) => void
   onItemSelectionChange: (items: DrawableItem[]) => void
+  onItemDoubleClick: (item: DrawableItem) => void
   onLink: (targetItem: DrawableItem, fromPosition: Position, toPosition: Position) => void
+  onBoardDoubleClick: (position: Position) => void
   drawLineToMouse: boolean
 }
 
@@ -21,7 +23,7 @@ const BACKGROUND_DISTANCE_BETWEEN_CIRCLE = 30
 const BACKGROUND_SIZE_OF_CIRCLE = 3
 
 const CanvasContainer: FC<CanvasContainerProps> = ({
-  drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange, onLink, drawLineToMouse
+  drawableItems, canvasWidth, canvasHeight, parentComponentRef, onItemPositionChange, onItemSelectionChange, onLink, drawLineToMouse, onItemDoubleClick, onBoardDoubleClick
 }: CanvasContainerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -76,7 +78,7 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
       switch (item.type) {
         case DrawType.IMG:
           if (item.drawItem !== null) {
-            item.drawItem(context)
+            item.drawItem(context, item.isOpened, item.children)
           } else if (item.img !== null) {
             const position = item.position
             context.drawImage(item.img, position.x, position.y, position.width, position.height)
@@ -107,6 +109,17 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
 
   const getSelectedItems = (): DrawableItem[] => {
     return itemsToDraw.filter(item => item.isSelected)
+  }
+
+  const handleOnDoubleClick = (event: any): void => {
+    const clickPosition = extractEventPosition(event, parentComponentRef)
+    const selectedItem = getClickedItem(clickPosition, itemsToDraw)
+
+    if (selectedItem === null) {
+      onBoardDoubleClick(clickPosition)
+    } else {
+      onItemDoubleClick(selectedItem)
+    }
   }
 
   const handleOnMouseDown = (event: any): void => {
@@ -180,7 +193,8 @@ const CanvasContainer: FC<CanvasContainerProps> = ({
       height={canvasHeight}
       onMouseDown={handleOnMouseDown}
       onMouseUp={handleOnMouseUp}
-      onMouseMove={handleOnMouseMove}>
+      onMouseMove={handleOnMouseMove}
+      onDoubleClick={handleOnDoubleClick}>
     </canvas>
   )
 }

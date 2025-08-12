@@ -22,6 +22,8 @@ export interface DrawableItem {
   details: string
   description: string
   color: string
+  children: DrawableItem[]
+  isOpened: boolean
 }
 
 export interface Position {

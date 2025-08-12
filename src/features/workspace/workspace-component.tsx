@@ -239,10 +239,12 @@ const WorkspaceComponent: FC = () => {
           {false && (
             <DiagramItemsComponent
               diagramItems={diagramItems}
+              onSave={() => {}}
               onDiagramItemChange={onDiagramItemChange}
               onDiagramItemAdded={onDiagramItemAdded}
               onDiagramItemDeleted={onDiagramItemDeleted}
-              onDiagramItemSelected={() => {}} />
+              onDiagramItemSelected={() => {}}
+              onDiagramItemOpened={() => {}} />
           )}
 
       </>

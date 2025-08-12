@@ -43,7 +43,7 @@ export const generateComponentComponent = (context: CanvasRenderingContext2D, po
   writeTextsAndAdjustPosition(context, texts, position, topPadding, leftPadding, borderRadius, 'black')
 }
 
-export const generateContainer = (context: CanvasRenderingContext2D, position: Position, texts: string[]): void => {
+export const generateContainer = (context: CanvasRenderingContext2D, position: Position, texts: string[], isOpened: boolean): void => {
   const topPadding = 10
   const leftPadding = 2
   const borderRadius = 10

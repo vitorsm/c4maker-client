@@ -1,32 +1,37 @@
 import React, { FC, ReactElement, useEffect, useState } from 'react'
-import { DiagramItem } from '../../models/diagram'
+import { DiagramItem, DiagramItemPosition } from '../../models/diagram'
 import { WorkspaceItemType } from '../../models/workspace'
 import Dialog from '../dialog/dialog'
 import TextInput from '../text-input'
 import { DiagramItemFormContainer } from './style'
 import SelectComponent from '../select-component'
 import { SelectItem } from '../select-component/select-component'
+import { Position } from '../canvas-container/models'
+import { getDefaultPositionByType } from './drawable-items-utils'
 
 const DEFAULT_SELECTED_ITEM_TYPE = WorkspaceItemType.PERSONA
 
-const getDefaultDiagramItem = (): DiagramItem => {
+const getDefaultDiagramItem = (position: DiagramItemPosition | null, itemType: WorkspaceItemType): DiagramItem => {
+  const itemPosition = getDefaultPositionByType(itemType, position)
+
   return {
     workspaceItem: {
       name: '',
       key: '',
       description: '',
       details: '',
-      workspaceItemType: DEFAULT_SELECTED_ITEM_TYPE,
+      workspaceItemType: itemType,
       workspace: null
     },
     diagram: null,
     parent: null,
     relationships: [],
     data: {
-      position: null,
+      position: itemPosition,
       color: null
     },
-    isSelected: true
+    isSelected: true,
+    children: []
   }
 }
 
@@ -36,9 +41,10 @@ interface AddDiagramItemDialogProps {
   onOkClick: (diagramItem: DiagramItem) => void
   onCancelClick: Function
   dataTestId?: string
+  selectedPosition: Position
 }
 
-const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show, onOkClick, onCancelClick, dataTestId = 'add-new-diagram-item' }: AddDiagramItemDialogProps) => {
+const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show, onOkClick, onCancelClick, dataTestId = 'add-new-diagram-item', selectedPosition }: AddDiagramItemDialogProps) => {
   const [itemName, setItemName] = useState<string>('')
   const [itemDescription, setItemDescription] = useState<string>('')
   const [itemDetails, setItemDetails] = useState<string>('')
@@ -56,7 +62,7 @@ const AddDiagramItemDialog: FC<AddDiagramItemDialogProps> = ({ diagramItem, show
   }
 
   const getDigramItemWithNewValues = (): DiagramItem => {
-    const newDiagramItem = diagramItem != null ? diagramItem : getDefaultDiagramItem()
+    const newDiagramItem = diagramItem != null ? diagramItem : getDefaultDiagramItem(selectedPosition, itemType)
     newDiagramItem.workspaceItem.name = itemName
     newDiagramItem.workspaceItem.key = itemName
     newDiagramItem.workspaceItem.description = itemDescription !== '' ? itemDescription : null

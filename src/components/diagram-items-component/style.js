@@ -11,12 +11,19 @@ export const CanvasParentContainer = styled.div`
 
 export const ButtonContainer = styled.div`
   display: flex;
+  position: absolute;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: white;
 `
 
 export const ItemTitleNameContainer = styled.div`
   padding: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex: 1;
+  background-color: white;
 `
 
 export const DiagramItemFormContainer = styled.div`

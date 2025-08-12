@@ -12,7 +12,7 @@ import DiagramItemsComponent from '../../components/diagram-items-component'
 import AnimatedContainer from '../../components/animated-container'
 import useBreadcrumbs from '../../store/reducers/breadcrumbs/use-breadcrumbs'
 import { updateItemInList } from '../../utils/list-utils'
-import PlainButton from '../../components/plain-button'
+import { getDiagramItemsByKeys, setIsOpenedInList } from '../../models/diagram-utils'
 
 interface DiagramItemUpdate {
   diagramItem: DiagramItem
@@ -111,9 +111,15 @@ const DiagramComponent: FC = () => {
   }
 
   const onDiagramItemAdded = (diagramItem: DiagramItem): void => {
-    diagramItem.diagram = diagram.data
-    diagramItem.workspaceItem.workspace = diagram.data?.workspace ?? null
-    diagramItem.diagramItemType = diagram.data?.diagramType
+    const selectedDiagram = diagram.data
+
+    if (selectedDiagram == null) {
+      return
+    }
+
+    diagramItem.diagram = selectedDiagram
+    diagramItem.workspaceItem.workspace = selectedDiagram.workspace
+    diagramItem.diagramItemType = selectedDiagram.diagramType
     // void diagramOperations.createDiagramItem(diagramItem, dispatch)
 
     // updateDiagramItemOnList(diagramItem)
@@ -126,9 +132,10 @@ const DiagramComponent: FC = () => {
 
   const onDiagramItemChange = (newDiagramItems: DiagramItem[]): void => {
     const diagramItemKeys = newDiagramItems.map(diagramItem => diagramItem.workspaceItem.key)
+    const filteredDiagramItems = getDiagramItemsByKeys(diagramItems, diagramItemKeys)
 
     const persistedDiagramMap = new Map()
-    diagramItems.filter(diagramItem => diagramItemKeys.includes(diagramItem.workspaceItem.key)).forEach(diagramItem => {
+    filteredDiagramItems.forEach(diagramItem => {
       persistedDiagramMap.set(diagramItem.workspaceItem.key, diagramItem)
     })
 
@@ -138,17 +145,12 @@ const DiagramComponent: FC = () => {
       diagramItem.data = newDiagramItem.data
       diagramItem.isSelected = newDiagramItem.isSelected
       diagramItem.workspaceItem = newDiagramItem.workspaceItem
-
-      // if (newDiagramItem.isSelected ?? false) {
-      //   setSelectedDiagramItem(diagramItem)
-      // }
     })
 
     setDiagramItems([...diagramItems])
 
     const newItemsToSync = new Map(itemsToSync)
     newDiagramItems.forEach(diagramItem => {
-      // void diagramOperations.updateDiagramItem(diagramItem, dispatch)
       const operation = diagramItem.id == null ? 'ADD' : 'UPDATE'
       newItemsToSync.set(diagramItem.workspaceItem.key, { diagramItem, operation })
     })
@@ -159,7 +161,6 @@ const DiagramComponent: FC = () => {
     const newItemsToSync = new Map(itemsToSync)
 
     diagramItemsToDelete.forEach(item => {
-      // void diagramOperations.deleteDiagramItem(item, dispatch)
       const isAlreadyCraeted = item.id != null
       if (isAlreadyCraeted) {
         newItemsToSync.set(item.workspaceItem.key, { diagramItem: item, operation: 'DELETE' })
@@ -178,6 +179,11 @@ const DiagramComponent: FC = () => {
     const selectedKeys = newSelectedDiagramItems.map(item => item.workspaceItem.key)
     const newDiagramItem = diagramItems.map(item => ({ ...item, isSelected: selectedKeys.includes(item.workspaceItem.key) }))
     setDiagramItems(newDiagramItem)
+  }
+
+  const onDiagramItemOpened = (diagramItemOpened: DiagramItem): void => {
+    const newDiagramItems = setIsOpenedInList(diagramItems, diagramItemOpened)
+    setDiagramItems(newDiagramItems)
   }
 
   const syncItems = (): void => {
@@ -225,14 +231,16 @@ const DiagramComponent: FC = () => {
     }
     return (
       <DiagramContainer>
-        <PlainButton text='Salvar' onClick={syncItems}/>
 
         <DiagramItemsComponent
           diagramItems={diagramItems}
+          onSave={syncItems}
           onDiagramItemChange={onDiagramItemChange}
           onDiagramItemAdded={onDiagramItemAdded}
           onDiagramItemDeleted={onDiagramItemDeleted}
-          onDiagramItemSelected={onDiagramItemSelected} />
+          onDiagramItemSelected={onDiagramItemSelected}
+          onDiagramItemOpened={onDiagramItemOpened} />
+
       </DiagramContainer>
 
     )
